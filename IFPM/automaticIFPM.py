@@ -54,7 +54,7 @@ Re_num = args.Re_num
 name   = args.name
 reset  = str2bool(args.reset)
 
-Nstart = 10 # number of different geometries to simulate
+Nstart = 0 # number of different geometries to simulate
 Nend = 20 # number of different geometries to simulate
 for k in range(Nstart, Nend):
     Re_arr = [10**Re for Re in np.linspace(Re_min, Re_max, Re_num)]
@@ -66,13 +66,13 @@ for k in range(Nstart, Nend):
         outFile = open(f"{args.outname}-{k}", "a")
     print("\n+----------------------------------+")
     print(f"\n[{k+1}/{Nend}] Creating the lattice")
-    lattice, grains_names = prcf.create_lattice_stl(prcf.create_random_lattice(0.9,n), save_name=name, n=n, m = m)
+    lattice, grains_names = prcf.create_lattice_stl(prcf.create_random_lattice2(0.9,n), save_name=name, n=n, m = m)
     run_cmd([r'./prep_model.sh'])
 
 
     run_cmd([r'./run_meshing.sh'])
     for Re, i in zip(Re_arr, range(Re_num)):
-        print(f"\n[{k+1}/{Nlat}]\n [{i+1}/{Re_num}] Curret Re ~= {Re:0.4f}")
+        print(f"\n[{k+1}/{Nend}]\n [{i+1}/{Re_num}] Current Re ~= {Re:0.4f}")
         print("    Preparing the initial Condition")
         p_file = open('../OF_Model/0/p','w')
         U_file = open('../OF_Model/0/U','w')

@@ -1,6 +1,7 @@
-import stl
-import numpy as np
 import os
+import stl
+import random
+import numpy as np
 
 from stl import mesh
 
@@ -17,9 +18,16 @@ def create_random_lattice(epsilon, n):
                 mat[x][y] = 1
     return mat
 
-# lattice = create_random_lattice(0.9, 64)
-# print(np.sum(lattice))
-# print(np.sum(lattice)/ 64**2)
+def create_random_lattice2(epsilon, n):
+    '''
+    returns a random matrix with 0 as free space and 1 as obstacle. 
+    '''
+    mat = np.random.random((n,n))
+    for i in range(int((1-epsilon)*n**2)):
+        rand_x = random.randint(0, n-1)
+        rand_y = random.randint(0, n-1)
+        mat[rand_x][rand_y] = 1
+    return mat
 
 def create_grain_ribbon_stl(i:float, j:float, k: float = 0.0,
                             d_i:float=1.0, d_j:float=1.0, d_k:float = 1.0):
