@@ -1,4 +1,6 @@
-def make_0_U(grains, file):
+def make_0_U(grains, file, Re: float):
+    v = Re*1e-6
+
     file.write("""FoamFile
 {
     version     2.0;
@@ -17,7 +19,9 @@ boundaryField
     inlet.stl
     {
         type            fixedValue;
-        value uniform (1 0 0);
+        value uniform (""")
+    file.write(f"{v}")
+    file.write(""" 0 0);
     }
 
     outlet.stl
@@ -55,6 +59,7 @@ boundaryField
     """)
 
     file.write("}")
+    file.close()
 
 def make_0_p(grains, file):
     file.write("""FoamFile
@@ -74,8 +79,7 @@ boundaryField
 {
     inlet.stl
     {
-        type            fixedValue;
-        value uniform   0;
+        type            zeroGradient;
     }
 
     outlet.stl
@@ -113,3 +117,4 @@ boundaryField
     }
     """)
     file.write("}")
+    file.close()

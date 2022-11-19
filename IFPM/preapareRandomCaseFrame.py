@@ -1,36 +1,8 @@
-# Prototype of a grain: a square that has 1 x 1  [m] dimensions 
-# In fact, for OpenFoam it also needs to have third dimension, but it will be 
-# set to one cell with cfMesh -> cartesian2DMesh
-#
-# Firstly, let's try the method in which we start without any obstacles, 
-# and then lets throw them randomly onto the mesh.
-#       Let's start with a 64 x 64 grid and chose some of its cells and put 
-#       grains there.
-#       
-#       There are two ways of making a random lattice
-#           1.0 ---- define a random square matrix with n = 64.
-#           1.1 ---- set a threshold to epsilon (porosity) and 
-#                    set matrix element do 1 or 0 accordingly                     
-#           2.0 ---- randomly pick 64*64*epsilon pair of (x.y) coordinates.
-#
-#           2.1 ----            0 <= x <= 64,    0 <= y <= 64
-#           2.2 ---- in randomly picked coordinates put and obstacle (grain) 
-#
-#
-# Seconldy, let's try the method in which we start with a full slab, and then 
-# let's cherry-pick some of the grains until a certain porosity is achieved.
-#       Again, there we can do it in two ways, but the Matrix method seems to be
-#       almost exactly the same as in the first approach. The only difference 
-#       would be changing the criterion wheather in our matrix we put 0 or 1
-#       (simply speaking we would change > operator into < and the other way 
-#       around). 
-#   
-
-from tkinter import N
-import numpy as np
-from stl import mesh
 import stl
-import prepare_initial_conditions as pic
+import numpy as np
+import os
+
+from stl import mesh
 
 def create_random_lattice(epsilon, n):
     '''
@@ -197,29 +169,3 @@ def create_lattice_stl(lattice : np.array, save_name : str = None, n : int = 64,
         os.system(f'cat {grain} >> col_model.stl')
 
     return lattice_stl, grains_names
-
-n = 64
-m = 4
-import os
-name = r"model"
-lattice, grains_names = create_lattice_stl(create_random_lattice(0.9,n), save_name=name, n=n, m = m)
-os.system(r'rm -r OF_Model/constant/triSurface/*')
-os.system(r'mv grain* OF_Model/constant/triSurface')
-os.system(r'mv *.stl OF_Model/constant/triSurface')
-
-
-os.system(r'rm OF_Model/0/p')
-os.system(r'touch OF_Model/0/p')
-os.system(r'rm OF_Model/0/U')
-os.system(r'touch OF_Model/0/U')
-p_file = open('OF_Model/0/p','w')
-U_file = open('OF_Model/0/U','w')
-pic.make_0_U(grains_names, U_file)
-pic.make_0_p(grains_names, p_file)
-
-#convert stl to fms:
-os.system(r'. /usr/lib/openfoam/openfoam2206/etc/bashrc')
-os.system(r'surfaceFeatureEdges OF_Model/constant/triSurface/col_model.stl OF_Model/constant/triSurface/col_model.fms')
-
-
-
