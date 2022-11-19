@@ -12,6 +12,14 @@ fi
 Re=$1
 
 cd ../OF_Model 
+echo "    Decomposing"
+decomposePar -force &> decomposePar.log
+check_return_code $?
+
 echo "    Running simpleFoam"
-simpleFoam &> simpleFoam${Re}.log
+mpirun -np 4 simpleFoam -parallel &> logs/simpleFoam${Re}.log
+check_return_code $?
+
+echo "    Reconstructing"
+reconstructPar &> reconstructPar.log
 check_return_code $?
