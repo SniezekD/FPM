@@ -1,33 +1,57 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-file = open("REvsPI.dat", 'r')
-outFile = open("REvsPI_ALL.dat", "w")
-x_vals = []
-y_vals = []
-
 Nof = 10 #number of files
+nameTemplate = "results.dat"
+
+outFilePi = open("resultsPI_ALL.dat", "w")
+x_valsPi = []
+y_valsPi = []
+
+x_vals_f = []
+y_vals_f = []
 
 for i in range(Nof):
-    file = open(f"REvsPI.dat-{i}", 'r')
-    tmp = []
+    file = open(f"{nameTemplate}-{i}", 'r')
+    tmpPi = []
+    tmp_f = []
     for line in file:
-        vals = line.split()
-        if i == 0:
-            x_vals.append(float(vals[0]))
-        tmp.append(float(vals[1]))
-    y_vals.append(np.array(tmp))
+        try:
+            vals = line.split()
+            if i == 0:
+                x_valsPi.append(float(vals[0]))
+                x_vals_f.append(float(vals[3]))
+            tmpPi.append(float(vals[1]))
+            tmp_f.append(float(vals[2]))
+        except:
+            pass
 
-y_vals_final = sum(np.array(y_vals))/Nof
+    y_valsPi.append(np.array(tmpPi))
+    y_vals_f.append(np.array(tmp_f))
 
-x_vals = [np.log10(x) for x in x_vals]
+y_valsPi_final = sum(np.array(y_valsPi))/Nof
+y_vals_f_final = sum(-1*np.array(y_vals_f))/Nof
 
-outFile.write("log10(Re)\tPI\n")
-for x, y in zip(x_vals, y_vals_final):
-    outFile.write(f"{x}\t{y}\n")
+x_valsPi = [np.log10(x) for x in x_valsPi]
+# x_vals_f = [np.log10(x) for x in x_vals_f]
+# y_vals_f = [np.log10(y) for y in y_vals_f_final]
 
-plt.plot(x_vals, y_vals_final, 'o')
+outFilePi.write("log10(Re)\tPI\n")
+for x, y in zip(x_valsPi, y_valsPi_final):
+    outFilePi.write(f"{x}\t{y}\n")
+
+plt.plot(x_valsPi, y_valsPi_final, 'o')
 plt.grid()
 plt.ylabel("$\pi$")
 plt.xlabel("$\log_{10}{Re}$")
+plt.ylim(0.35,0.55)
+plt.yticks(np.arange(0.35,0.56,0.05))
+plt.show()
+
+plt.plot(x_vals_f, y_vals_f_final, 'o')
+plt.grid()
+plt.ylabel("f")
+plt.yscale('log')
+plt.xscale('log')
+plt.xlabel("Re'")
 plt.show()
