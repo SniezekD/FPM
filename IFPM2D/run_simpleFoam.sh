@@ -17,7 +17,7 @@ decomposePar -force &> decomposePar.log
 check_return_code $?
 
 echo "    Running simpleFoam"
-mpirun -np 4 simpleFoam -parallel &> logs/simpleFoam${Re}.log
+mpirun -np 6 simpleFoam -parallel &> logs/simpleFoam${Re}.log
 check_return_code $?
 
 echo "    Reconstructing"

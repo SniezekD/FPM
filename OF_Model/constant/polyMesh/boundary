@@ -1,0 +1,2825 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2206                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    arch        "LSB;label=32;scalar=64";
+    class       polyBoundaryMesh;
+    location    "constant/polyMesh";
+    object      boundary;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+
+400
+(
+grain_10_1.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 132658;
+}
+
+grain_10_11.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 132682;
+}
+
+grain_10_15.stl
+{
+    type wall;
+    nFaces 22;
+    startFace 132706;
+}
+
+grain_10_37.stl
+{
+    type wall;
+    nFaces 16;
+    startFace 132728;
+}
+
+grain_10_5.stl
+{
+    type wall;
+    nFaces 22;
+    startFace 132744;
+}
+
+grain_10_51.stl
+{
+    type wall;
+    nFaces 16;
+    startFace 132766;
+}
+
+grain_10_60.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 132782;
+}
+
+grain_10_63.stl
+{
+    type wall;
+    nFaces 16;
+    startFace 132806;
+}
+
+grain_11_14.stl
+{
+    type wall;
+    nFaces 22;
+    startFace 132822;
+}
+
+grain_11_37.stl
+{
+    type wall;
+    nFaces 16;
+    startFace 132844;
+}
+
+grain_11_39.stl
+{
+    type wall;
+    nFaces 16;
+    startFace 132860;
+}
+
+grain_11_44.stl
+{
+    type wall;
+    nFaces 22;
+    startFace 132876;
+}
+
+grain_11_47.stl
+{
+    type wall;
+    nFaces 15;
+    startFace 132898;
+}
+
+grain_11_51.stl
+{
+    type wall;
+    nFaces 16;
+    startFace 132913;
+}
+
+grain_12_16.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 132929;
+}
+
+grain_12_19.stl
+{
+    type wall;
+    nFaces 16;
+    startFace 132953;
+}
+
+grain_12_20.stl
+{
+    type wall;
+    nFaces 16;
+    startFace 132969;
+}
+
+grain_12_22.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 132985;
+}
+
+grain_12_26.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 133009;
+}
+
+grain_12_39.stl
+{
+    type wall;
+    nFaces 14;
+    startFace 133033;
+}
+
+grain_12_43.stl
+{
+    type wall;
+    nFaces 20;
+    startFace 133047;
+}
+
+grain_12_47.stl
+{
+    type wall;
+    nFaces 10;
+    startFace 133067;
+}
+
+grain_12_48.stl
+{
+    type wall;
+    nFaces 15;
+    startFace 133077;
+}
+
+grain_12_6.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 133092;
+}
+
+grain_12_63.stl
+{
+    type wall;
+    nFaces 16;
+    startFace 133116;
+}
+
+grain_13_24.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 133132;
+}
+
+grain_13_40.stl
+{
+    type wall;
+    nFaces 20;
+    startFace 133156;
+}
+
+grain_13_44.stl
+{
+    type wall;
+    nFaces 14;
+    startFace 133176;
+}
+
+grain_13_45.stl
+{
+    type wall;
+    nFaces 16;
+    startFace 133190;
+}
+
+grain_14_16.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 133206;
+}
+
+grain_14_35.stl
+{
+    type wall;
+    nFaces 16;
+    startFace 133230;
+}
+
+grain_14_37.stl
+{
+    type wall;
+    nFaces 22;
+    startFace 133246;
+}
+
+grain_14_41.stl
+{
+    type wall;
+    nFaces 22;
+    startFace 133268;
+}
+
+grain_14_53.stl
+{
+    type wall;
+    nFaces 22;
+    startFace 133290;
+}
+
+grain_15_22.stl
+{
+    type wall;
+    nFaces 16;
+    startFace 133312;
+}
+
+grain_15_23.stl
+{
+    type wall;
+    nFaces 16;
+    startFace 133328;
+}
+
+grain_15_29.stl
+{
+    type wall;
+    nFaces 16;
+    startFace 133344;
+}
+
+grain_15_30.stl
+{
+    type wall;
+    nFaces 16;
+    startFace 133360;
+}
+
+grain_15_35.stl
+{
+    type wall;
+    nFaces 16;
+    startFace 133376;
+}
+
+grain_15_38.stl
+{
+    type wall;
+    nFaces 22;
+    startFace 133392;
+}
+
+grain_15_43.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 133414;
+}
+
+grain_15_47.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 133438;
+}
+
+grain_15_54.stl
+{
+    type wall;
+    nFaces 22;
+    startFace 133462;
+}
+
+grain_15_60.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 133484;
+}
+
+grain_16_1.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 133508;
+}
+
+grain_16_12.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 133532;
+}
+
+grain_16_32.stl
+{
+    type wall;
+    nFaces 16;
+    startFace 133556;
+}
+
+grain_16_33.stl
+{
+    type wall;
+    nFaces 16;
+    startFace 133572;
+}
+
+grain_16_40.stl
+{
+    type wall;
+    nFaces 16;
+    startFace 133588;
+}
+
+grain_16_41.stl
+{
+    type wall;
+    nFaces 16;
+    startFace 133604;
+}
+
+grain_17_16.stl
+{
+    type wall;
+    nFaces 22;
+    startFace 133620;
+}
+
+grain_17_26.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 133642;
+}
+
+grain_17_29.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 133666;
+}
+
+grain_17_52.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 133690;
+}
+
+grain_17_60.stl
+{
+    type wall;
+    nFaces 16;
+    startFace 133714;
+}
+
+grain_17_61.stl
+{
+    type wall;
+    nFaces 16;
+    startFace 133730;
+}
+
+grain_18_12.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 133746;
+}
+
+grain_18_15.stl
+{
+    type wall;
+    nFaces 22;
+    startFace 133770;
+}
+
+grain_18_46.stl
+{
+    type wall;
+    nFaces 22;
+    startFace 133792;
+}
+
+grain_18_8.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 133814;
+}
+
+grain_19_29.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 133838;
+}
+
+grain_19_36.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 133862;
+}
+
+grain_19_47.stl
+{
+    type wall;
+    nFaces 12;
+    startFace 133886;
+}
+
+grain_19_48.stl
+{
+    type wall;
+    nFaces 16;
+    startFace 133898;
+}
+
+grain_19_58.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 133914;
+}
+
+grain_19_60.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 133938;
+}
+
+grain_19_63.stl
+{
+    type wall;
+    nFaces 16;
+    startFace 133962;
+}
+
+grain_20_17.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 133978;
+}
+
+grain_20_2.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 134002;
+}
+
+grain_20_24.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 134026;
+}
+
+grain_20_42.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 134050;
+}
+
+grain_20_45.stl
+{
+    type wall;
+    nFaces 16;
+    startFace 134074;
+}
+
+grain_20_46.stl
+{
+    type wall;
+    nFaces 14;
+    startFace 134090;
+}
+
+grain_20_6.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 134104;
+}
+
+grain_21_11.stl
+{
+    type wall;
+    nFaces 22;
+    startFace 134128;
+}
+
+grain_21_20.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 134150;
+}
+
+grain_21_27.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 134174;
+}
+
+grain_21_58.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 134198;
+}
+
+grain_22_12.stl
+{
+    type wall;
+    nFaces 22;
+    startFace 134222;
+}
+
+grain_22_18.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 134244;
+}
+
+grain_22_22.stl
+{
+    type wall;
+    nFaces 22;
+    startFace 134268;
+}
+
+grain_22_24.stl
+{
+    type wall;
+    nFaces 16;
+    startFace 134290;
+}
+
+grain_22_39.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 134306;
+}
+
+grain_22_53.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 134330;
+}
+
+grain_22_56.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 134354;
+}
+
+grain_23_14.stl
+{
+    type wall;
+    nFaces 22;
+    startFace 134378;
+}
+
+grain_23_21.stl
+{
+    type wall;
+    nFaces 20;
+    startFace 134400;
+}
+
+grain_23_24.stl
+{
+    type wall;
+    nFaces 16;
+    startFace 134420;
+}
+
+grain_23_5.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 134436;
+}
+
+grain_23_9.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 134460;
+}
+
+grain_24_13.stl
+{
+    type wall;
+    nFaces 20;
+    startFace 134484;
+}
+
+grain_24_20.stl
+{
+    type wall;
+    nFaces 22;
+    startFace 134504;
+}
+
+grain_24_48.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 134526;
+}
+
+grain_24_51.stl
+{
+    type wall;
+    nFaces 22;
+    startFace 134550;
+}
+
+grain_24_58.stl
+{
+    type wall;
+    nFaces 15;
+    startFace 134572;
+}
+
+grain_24_61.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 134587;
+}
+
+grain_25_0.stl
+{
+    type wall;
+    nFaces 16;
+    startFace 134611;
+}
+
+grain_25_14.stl
+{
+    type wall;
+    nFaces 14;
+    startFace 134627;
+}
+
+grain_25_15.stl
+{
+    type wall;
+    nFaces 16;
+    startFace 134641;
+}
+
+grain_25_2.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 134657;
+}
+
+grain_25_42.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 134681;
+}
+
+grain_25_45.stl
+{
+    type wall;
+    nFaces 16;
+    startFace 134705;
+}
+
+grain_25_50.stl
+{
+    type wall;
+    nFaces 22;
+    startFace 134721;
+}
+
+grain_25_57.stl
+{
+    type wall;
+    nFaces 15;
+    startFace 134743;
+}
+
+grain_25_58.stl
+{
+    type wall;
+    nFaces 10;
+    startFace 134758;
+}
+
+grain_26_12.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 134768;
+}
+
+grain_26_18.stl
+{
+    type wall;
+    nFaces 22;
+    startFace 134792;
+}
+
+grain_26_20.stl
+{
+    type wall;
+    nFaces 22;
+    startFace 134814;
+}
+
+grain_26_34.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 134836;
+}
+
+grain_26_45.stl
+{
+    type wall;
+    nFaces 14;
+    startFace 134860;
+}
+
+grain_26_55.stl
+{
+    type wall;
+    nFaces 22;
+    startFace 134874;
+}
+
+grain_26_62.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 134896;
+}
+
+grain_27_15.stl
+{
+    type wall;
+    nFaces 14;
+    startFace 134920;
+}
+
+grain_27_16.stl
+{
+    type wall;
+    nFaces 16;
+    startFace 134934;
+}
+
+grain_27_19.stl
+{
+    type wall;
+    nFaces 20;
+    startFace 134950;
+}
+
+grain_27_26.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 134970;
+}
+
+grain_27_36.stl
+{
+    type wall;
+    nFaces 22;
+    startFace 134994;
+}
+
+grain_27_4.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 135016;
+}
+
+grain_27_42.stl
+{
+    type wall;
+    nFaces 22;
+    startFace 135040;
+}
+
+grain_27_44.stl
+{
+    type wall;
+    nFaces 20;
+    startFace 135062;
+}
+
+grain_27_54.stl
+{
+    type wall;
+    nFaces 22;
+    startFace 135082;
+}
+
+grain_27_57.stl
+{
+    type wall;
+    nFaces 16;
+    startFace 135104;
+}
+
+grain_28_14.stl
+{
+    type wall;
+    nFaces 14;
+    startFace 135120;
+}
+
+grain_28_37.stl
+{
+    type wall;
+    nFaces 14;
+    startFace 135134;
+}
+
+grain_28_38.stl
+{
+    type wall;
+    nFaces 16;
+    startFace 135148;
+}
+
+grain_28_43.stl
+{
+    type wall;
+    nFaces 18;
+    startFace 135164;
+}
+
+grain_28_57.stl
+{
+    type wall;
+    nFaces 16;
+    startFace 135182;
+}
+
+grain_28_60.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 135198;
+}
+
+grain_28_63.stl
+{
+    type wall;
+    nFaces 16;
+    startFace 135222;
+}
+
+grain_29_14.stl
+{
+    type wall;
+    nFaces 16;
+    startFace 135238;
+}
+
+grain_29_30.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 135254;
+}
+
+grain_29_34.stl
+{
+    type wall;
+    nFaces 22;
+    startFace 135278;
+}
+
+grain_29_4.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 135300;
+}
+
+grain_29_44.stl
+{
+    type wall;
+    nFaces 22;
+    startFace 135324;
+}
+
+grain_29_48.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 135346;
+}
+
+grain_30_21.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 135370;
+}
+
+grain_30_33.stl
+{
+    type wall;
+    nFaces 18;
+    startFace 135394;
+}
+
+grain_30_41.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 135412;
+}
+
+grain_30_53.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 135436;
+}
+
+grain_30_63.stl
+{
+    type wall;
+    nFaces 16;
+    startFace 135460;
+}
+
+grain_31_25.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 135476;
+}
+
+grain_31_32.stl
+{
+    type wall;
+    nFaces 22;
+    startFace 135500;
+}
+
+grain_31_34.stl
+{
+    type wall;
+    nFaces 22;
+    startFace 135522;
+}
+
+grain_31_45.stl
+{
+    type wall;
+    nFaces 16;
+    startFace 135544;
+}
+
+grain_31_48.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 135560;
+}
+
+grain_31_5.stl
+{
+    type wall;
+    nFaces 16;
+    startFace 135584;
+}
+
+grain_31_7.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 135600;
+}
+
+grain_32_11.stl
+{
+    type wall;
+    nFaces 14;
+    startFace 135624;
+}
+
+grain_32_12.stl
+{
+    type wall;
+    nFaces 16;
+    startFace 135638;
+}
+
+grain_32_42.stl
+{
+    type wall;
+    nFaces 22;
+    startFace 135654;
+}
+
+grain_32_45.stl
+{
+    type wall;
+    nFaces 16;
+    startFace 135676;
+}
+
+grain_32_5.stl
+{
+    type wall;
+    nFaces 16;
+    startFace 135692;
+}
+
+grain_32_50.stl
+{
+    type wall;
+    nFaces 16;
+    startFace 135708;
+}
+
+grain_32_51.stl
+{
+    type wall;
+    nFaces 14;
+    startFace 135724;
+}
+
+grain_32_9.stl
+{
+    type wall;
+    nFaces 16;
+    startFace 135738;
+}
+
+grain_33_10.stl
+{
+    type wall;
+    nFaces 14;
+    startFace 135754;
+}
+
+grain_33_29.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 135768;
+}
+
+grain_33_36.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 135792;
+}
+
+grain_33_41.stl
+{
+    type wall;
+    nFaces 22;
+    startFace 135816;
+}
+
+grain_33_52.stl
+{
+    type wall;
+    nFaces 22;
+    startFace 135838;
+}
+
+grain_33_9.stl
+{
+    type wall;
+    nFaces 10;
+    startFace 135860;
+}
+
+grain_34_18.stl
+{
+    type wall;
+    nFaces 16;
+    startFace 135870;
+}
+
+grain_34_19.stl
+{
+    type wall;
+    nFaces 16;
+    startFace 135886;
+}
+
+grain_34_45.stl
+{
+    type wall;
+    nFaces 22;
+    startFace 135902;
+}
+
+grain_34_55.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 135924;
+}
+
+grain_34_63.stl
+{
+    type wall;
+    nFaces 16;
+    startFace 135948;
+}
+
+grain_34_7.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 135964;
+}
+
+grain_35_27.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 135988;
+}
+
+grain_35_43.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 136012;
+}
+
+grain_35_46.stl
+{
+    type wall;
+    nFaces 22;
+    startFace 136036;
+}
+
+grain_35_48.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 136058;
+}
+
+grain_36_12.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 136082;
+}
+
+grain_36_19.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 136106;
+}
+
+grain_36_21.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 136130;
+}
+
+grain_36_30.stl
+{
+    type wall;
+    nFaces 16;
+    startFace 136154;
+}
+
+grain_36_33.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 136170;
+}
+
+grain_36_53.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 136194;
+}
+
+grain_37_3.stl
+{
+    type wall;
+    nFaces 16;
+    startFace 136218;
+}
+
+grain_37_30.stl
+{
+    type wall;
+    nFaces 16;
+    startFace 136234;
+}
+
+grain_37_46.stl
+{
+    type wall;
+    nFaces 22;
+    startFace 136250;
+}
+
+grain_38_23.stl
+{
+    type wall;
+    nFaces 16;
+    startFace 136272;
+}
+
+grain_38_24.stl
+{
+    type wall;
+    nFaces 16;
+    startFace 136288;
+}
+
+grain_38_3.stl
+{
+    type wall;
+    nFaces 16;
+    startFace 136304;
+}
+
+grain_38_34.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 136320;
+}
+
+grain_38_47.stl
+{
+    type wall;
+    nFaces 22;
+    startFace 136344;
+}
+
+grain_38_50.stl
+{
+    type wall;
+    nFaces 16;
+    startFace 136366;
+}
+
+grain_38_51.stl
+{
+    type wall;
+    nFaces 16;
+    startFace 136382;
+}
+
+grain_38_7.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 136398;
+}
+
+grain_39_11.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 136422;
+}
+
+grain_39_32.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 136446;
+}
+
+grain_39_39.stl
+{
+    type wall;
+    nFaces 16;
+    startFace 136470;
+}
+
+grain_39_40.stl
+{
+    type wall;
+    nFaces 16;
+    startFace 136486;
+}
+
+grain_39_44.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 136502;
+}
+
+grain_40_47.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 136526;
+}
+
+grain_40_63.stl
+{
+    type wall;
+    nFaces 16;
+    startFace 136550;
+}
+
+grain_41_14.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 136566;
+}
+
+grain_41_18.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 136590;
+}
+
+grain_41_39.stl
+{
+    type wall;
+    nFaces 16;
+    startFace 136614;
+}
+
+grain_41_45.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 136630;
+}
+
+grain_41_53.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 136654;
+}
+
+grain_41_55.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 136678;
+}
+
+grain_42_10.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 136702;
+}
+
+grain_42_2.stl
+{
+    type wall;
+    nFaces 16;
+    startFace 136726;
+}
+
+grain_42_21.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 136742;
+}
+
+grain_42_25.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 136766;
+}
+
+grain_42_39.stl
+{
+    type wall;
+    nFaces 16;
+    startFace 136790;
+}
+
+grain_42_50.stl
+{
+    type wall;
+    nFaces 16;
+    startFace 136806;
+}
+
+grain_42_51.stl
+{
+    type wall;
+    nFaces 16;
+    startFace 136822;
+}
+
+grain_43_18.stl
+{
+    type wall;
+    nFaces 16;
+    startFace 136838;
+}
+
+grain_43_19.stl
+{
+    type wall;
+    nFaces 16;
+    startFace 136854;
+}
+
+grain_43_2.stl
+{
+    type wall;
+    nFaces 16;
+    startFace 136870;
+}
+
+grain_43_4.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 136886;
+}
+
+grain_43_41.stl
+{
+    type wall;
+    nFaces 16;
+    startFace 136910;
+}
+
+grain_43_47.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 136926;
+}
+
+grain_43_54.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 136950;
+}
+
+grain_43_56.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 136974;
+}
+
+grain_43_59.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 136998;
+}
+
+grain_44_23.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 137022;
+}
+
+grain_44_25.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 137046;
+}
+
+grain_44_29.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 137070;
+}
+
+grain_44_34.stl
+{
+    type wall;
+    nFaces 22;
+    startFace 137094;
+}
+
+grain_44_36.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 137116;
+}
+
+grain_44_41.stl
+{
+    type wall;
+    nFaces 16;
+    startFace 137140;
+}
+
+grain_45_15.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 137156;
+}
+
+grain_45_32.stl
+{
+    type wall;
+    nFaces 16;
+    startFace 137180;
+}
+
+grain_45_33.stl
+{
+    type wall;
+    nFaces 14;
+    startFace 137196;
+}
+
+grain_45_45.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 137210;
+}
+
+grain_45_49.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 137234;
+}
+
+grain_45_58.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 137258;
+}
+
+grain_47_11.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 137282;
+}
+
+grain_47_14.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 137306;
+}
+
+grain_47_20.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 137330;
+}
+
+grain_47_22.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 137354;
+}
+
+grain_47_3.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 137378;
+}
+
+grain_47_57.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 137402;
+}
+
+grain_48_0.stl
+{
+    type wall;
+    nFaces 14;
+    startFace 137426;
+}
+
+grain_48_29.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 137440;
+}
+
+grain_48_37.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 137464;
+}
+
+grain_48_43.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 137488;
+}
+
+grain_48_45.stl
+{
+    type wall;
+    nFaces 16;
+    startFace 137512;
+}
+
+grain_48_46.stl
+{
+    type wall;
+    nFaces 16;
+    startFace 137528;
+}
+
+grain_48_54.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 137544;
+}
+
+grain_49_1.stl
+{
+    type wall;
+    nFaces 22;
+    startFace 137568;
+}
+
+grain_49_25.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 137590;
+}
+
+grain_49_62.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 137614;
+}
+
+grain_4_11.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 137638;
+}
+
+grain_4_30.stl
+{
+    type wall;
+    nFaces 22;
+    startFace 137662;
+}
+
+grain_4_61.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 137684;
+}
+
+grain_50_40.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 137708;
+}
+
+grain_50_51.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 137732;
+}
+
+grain_50_59.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 137756;
+}
+
+grain_51_0.stl
+{
+    type wall;
+    nFaces 16;
+    startFace 137780;
+}
+
+grain_51_19.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 137796;
+}
+
+grain_51_35.stl
+{
+    type wall;
+    nFaces 16;
+    startFace 137820;
+}
+
+grain_51_4.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 137836;
+}
+
+grain_51_56.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 137860;
+}
+
+grain_51_61.stl
+{
+    type wall;
+    nFaces 16;
+    startFace 137884;
+}
+
+grain_52_15.stl
+{
+    type wall;
+    nFaces 22;
+    startFace 137900;
+}
+
+grain_52_25.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 137922;
+}
+
+grain_52_35.stl
+{
+    type wall;
+    nFaces 16;
+    startFace 137946;
+}
+
+grain_52_43.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 137962;
+}
+
+grain_52_53.stl
+{
+    type wall;
+    nFaces 16;
+    startFace 137986;
+}
+
+grain_52_54.stl
+{
+    type wall;
+    nFaces 16;
+    startFace 138002;
+}
+
+grain_52_61.stl
+{
+    type wall;
+    nFaces 16;
+    startFace 138018;
+}
+
+grain_53_14.stl
+{
+    type wall;
+    nFaces 20;
+    startFace 138034;
+}
+
+grain_53_22.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 138054;
+}
+
+grain_53_27.stl
+{
+    type wall;
+    nFaces 15;
+    startFace 138078;
+}
+
+grain_53_30.stl
+{
+    type wall;
+    nFaces 22;
+    startFace 138093;
+}
+
+grain_53_4.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 138115;
+}
+
+grain_54_15.stl
+{
+    type wall;
+    nFaces 22;
+    startFace 138139;
+}
+
+grain_54_19.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 138161;
+}
+
+grain_54_26.stl
+{
+    type wall;
+    nFaces 15;
+    startFace 138185;
+}
+
+grain_54_27.stl
+{
+    type wall;
+    nFaces 10;
+    startFace 138200;
+}
+
+grain_54_29.stl
+{
+    type wall;
+    nFaces 22;
+    startFace 138210;
+}
+
+grain_54_43.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 138232;
+}
+
+grain_54_48.stl
+{
+    type wall;
+    nFaces 22;
+    startFace 138256;
+}
+
+grain_54_55.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 138278;
+}
+
+grain_54_8.stl
+{
+    type wall;
+    nFaces 22;
+    startFace 138302;
+}
+
+grain_55_34.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 138324;
+}
+
+grain_55_38.stl
+{
+    type wall;
+    nFaces 15;
+    startFace 138348;
+}
+
+grain_55_4.stl
+{
+    type wall;
+    nFaces 16;
+    startFace 138363;
+}
+
+grain_55_47.stl
+{
+    type wall;
+    nFaces 22;
+    startFace 138379;
+}
+
+grain_55_5.stl
+{
+    type wall;
+    nFaces 16;
+    startFace 138401;
+}
+
+grain_55_52.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 138417;
+}
+
+grain_55_59.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 138441;
+}
+
+grain_55_7.stl
+{
+    type wall;
+    nFaces 22;
+    startFace 138465;
+}
+
+grain_56_1.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 138487;
+}
+
+grain_56_10.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 138511;
+}
+
+grain_56_19.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 138535;
+}
+
+grain_56_25.stl
+{
+    type wall;
+    nFaces 16;
+    startFace 138559;
+}
+
+grain_56_26.stl
+{
+    type wall;
+    nFaces 16;
+    startFace 138575;
+}
+
+grain_56_37.stl
+{
+    type wall;
+    nFaces 15;
+    startFace 138591;
+}
+
+grain_56_38.stl
+{
+    type wall;
+    nFaces 10;
+    startFace 138606;
+}
+
+grain_56_41.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 138616;
+}
+
+grain_57_12.stl
+{
+    type wall;
+    nFaces 16;
+    startFace 138640;
+}
+
+grain_57_13.stl
+{
+    type wall;
+    nFaces 16;
+    startFace 138656;
+}
+
+grain_57_16.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 138672;
+}
+
+grain_57_30.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 138696;
+}
+
+grain_57_32.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 138720;
+}
+
+grain_57_5.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 138744;
+}
+
+grain_57_51.stl
+{
+    type wall;
+    nFaces 16;
+    startFace 138768;
+}
+
+grain_57_52.stl
+{
+    type wall;
+    nFaces 8;
+    startFace 138784;
+}
+
+grain_57_53.stl
+{
+    type wall;
+    nFaces 16;
+    startFace 138792;
+}
+
+grain_57_63.stl
+{
+    type wall;
+    nFaces 16;
+    startFace 138808;
+}
+
+grain_57_7.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 138824;
+}
+
+grain_58_19.stl
+{
+    type wall;
+    nFaces 22;
+    startFace 138848;
+}
+
+grain_58_59.stl
+{
+    type wall;
+    nFaces 16;
+    startFace 138870;
+}
+
+grain_58_60.stl
+{
+    type wall;
+    nFaces 16;
+    startFace 138886;
+}
+
+grain_59_20.stl
+{
+    type wall;
+    nFaces 22;
+    startFace 138902;
+}
+
+grain_59_22.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 138924;
+}
+
+grain_59_47.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 138948;
+}
+
+grain_59_6.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 138972;
+}
+
+grain_5_17.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 138996;
+}
+
+grain_5_24.stl
+{
+    type wall;
+    nFaces 22;
+    startFace 139020;
+}
+
+grain_5_29.stl
+{
+    type wall;
+    nFaces 14;
+    startFace 139042;
+}
+
+grain_60_10.stl
+{
+    type wall;
+    nFaces 16;
+    startFace 139056;
+}
+
+grain_60_12.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 139072;
+}
+
+grain_60_25.stl
+{
+    type wall;
+    nFaces 16;
+    startFace 139096;
+}
+
+grain_60_26.stl
+{
+    type wall;
+    nFaces 16;
+    startFace 139112;
+}
+
+grain_60_38.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 139128;
+}
+
+grain_60_40.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 139152;
+}
+
+grain_60_56.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 139176;
+}
+
+grain_60_9.stl
+{
+    type wall;
+    nFaces 16;
+    startFace 139200;
+}
+
+grain_61_0.stl
+{
+    type wall;
+    nFaces 16;
+    startFace 139216;
+}
+
+grain_61_18.stl
+{
+    type wall;
+    nFaces 15;
+    startFace 139232;
+}
+
+grain_61_23.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 139247;
+}
+
+grain_61_29.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 139271;
+}
+
+grain_61_32.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 139295;
+}
+
+grain_61_35.stl
+{
+    type wall;
+    nFaces 16;
+    startFace 139319;
+}
+
+grain_61_45.stl
+{
+    type wall;
+    nFaces 16;
+    startFace 139335;
+}
+
+grain_61_46.stl
+{
+    type wall;
+    nFaces 16;
+    startFace 139351;
+}
+
+grain_61_49.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 139367;
+}
+
+grain_62_17.stl
+{
+    type wall;
+    nFaces 15;
+    startFace 139391;
+}
+
+grain_62_18.stl
+{
+    type wall;
+    nFaces 10;
+    startFace 139406;
+}
+
+grain_62_35.stl
+{
+    type wall;
+    nFaces 8;
+    startFace 139416;
+}
+
+grain_62_43.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 139424;
+}
+
+grain_62_58.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 139448;
+}
+
+grain_62_8.stl
+{
+    type wall;
+    nFaces 16;
+    startFace 139472;
+}
+
+grain_63_1.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 139488;
+}
+
+grain_63_13.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 139512;
+}
+
+grain_63_33.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 139536;
+}
+
+grain_63_35.stl
+{
+    type wall;
+    nFaces 8;
+    startFace 139560;
+}
+
+grain_63_41.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 139568;
+}
+
+grain_63_45.stl
+{
+    type wall;
+    nFaces 22;
+    startFace 139592;
+}
+
+grain_63_48.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 139614;
+}
+
+grain_63_53.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 139638;
+}
+
+grain_63_61.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 139662;
+}
+
+grain_63_8.stl
+{
+    type wall;
+    nFaces 16;
+    startFace 139686;
+}
+
+grain_64_28.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 139702;
+}
+
+grain_64_35.stl
+{
+    type wall;
+    nFaces 8;
+    startFace 139726;
+}
+
+grain_64_43.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 139734;
+}
+
+grain_64_46.stl
+{
+    type wall;
+    nFaces 22;
+    startFace 139758;
+}
+
+grain_64_6.stl
+{
+    type wall;
+    nFaces 16;
+    startFace 139780;
+}
+
+grain_65_35.stl
+{
+    type wall;
+    nFaces 16;
+    startFace 139796;
+}
+
+grain_65_6.stl
+{
+    type wall;
+    nFaces 8;
+    startFace 139812;
+}
+
+grain_65_62.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 139820;
+}
+
+grain_66_12.stl
+{
+    type wall;
+    nFaces 16;
+    startFace 139844;
+}
+
+grain_66_26.stl
+{
+    type wall;
+    nFaces 22;
+    startFace 139860;
+}
+
+grain_66_37.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 139882;
+}
+
+grain_66_45.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 139906;
+}
+
+grain_66_47.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 139930;
+}
+
+grain_66_49.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 139954;
+}
+
+grain_66_53.stl
+{
+    type wall;
+    nFaces 22;
+    startFace 139978;
+}
+
+grain_66_6.stl
+{
+    type wall;
+    nFaces 16;
+    startFace 140000;
+}
+
+grain_67_1.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 140016;
+}
+
+grain_67_12.stl
+{
+    type wall;
+    nFaces 16;
+    startFace 140040;
+}
+
+grain_67_25.stl
+{
+    type wall;
+    nFaces 22;
+    startFace 140056;
+}
+
+grain_67_54.stl
+{
+    type wall;
+    nFaces 22;
+    startFace 140078;
+}
+
+grain_6_15.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 140100;
+}
+
+grain_6_21.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 140124;
+}
+
+grain_6_25.stl
+{
+    type wall;
+    nFaces 22;
+    startFace 140148;
+}
+
+grain_6_29.stl
+{
+    type wall;
+    nFaces 10;
+    startFace 140170;
+}
+
+grain_6_30.stl
+{
+    type wall;
+    nFaces 16;
+    startFace 140180;
+}
+
+grain_6_32.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 140196;
+}
+
+grain_6_7.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 140220;
+}
+
+grain_6_9.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 140244;
+}
+
+grain_7_18.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 140268;
+}
+
+grain_7_36.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 140292;
+}
+
+grain_7_38.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 140316;
+}
+
+grain_8_12.stl
+{
+    type wall;
+    nFaces 16;
+    startFace 140340;
+}
+
+grain_8_13.stl
+{
+    type wall;
+    nFaces 16;
+    startFace 140356;
+}
+
+grain_8_22.stl
+{
+    type wall;
+    nFaces 22;
+    startFace 140372;
+}
+
+grain_8_29.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 140394;
+}
+
+grain_8_55.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 140418;
+}
+
+grain_8_62.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 140442;
+}
+
+grain_8_7.stl
+{
+    type wall;
+    nFaces 16;
+    startFace 140466;
+}
+
+grain_8_9.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 140482;
+}
+
+grain_9_17.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 140506;
+}
+
+grain_9_23.stl
+{
+    type wall;
+    nFaces 22;
+    startFace 140530;
+}
+
+grain_9_39.stl
+{
+    type wall;
+    nFaces 16;
+    startFace 140552;
+}
+
+grain_9_4.stl
+{
+    type wall;
+    nFaces 22;
+    startFace 140568;
+}
+
+grain_9_40.stl
+{
+    type wall;
+    nFaces 16;
+    startFace 140590;
+}
+
+grain_9_42.stl
+{
+    type wall;
+    nFaces 24;
+    startFace 140606;
+}
+
+grain_9_7.stl
+{
+    type wall;
+    nFaces 16;
+    startFace 140630;
+}
+
+inlet.stl
+{
+    type patch;
+    nFaces 256;
+    startFace 140646;
+}
+
+outlet.stl
+{
+    type patch;
+    nFaces 256;
+    startFace 140902;
+}
+
+wall_down.stl
+{
+    type wall;
+    nFaces 272;
+    startFace 141158;
+}
+
+wall_up.stl
+{
+    type wall;
+    nFaces 256;
+    startFace 141430;
+}
+
+bottomEmptyFaces
+{
+    type empty;
+    nFaces 68586;
+    startFace 141686;
+}
+
+topEmptyFaces
+{
+    type empty;
+    nFaces 68586;
+    startFace 210272;
+}
+
+)
+
+
+// ************************************************************************* //

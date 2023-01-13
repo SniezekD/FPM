@@ -37,7 +37,7 @@ def get_args():
     parser.add_argument("-n","--name",    type=str,   help='Name of the model.', 
                                     default='model')
     parser.add_argument("-on","--outname", type=str,   help='Name of the output file with Re vs pi.', 
-                                   default='results.dat')  
+                                   default='results')  
     parser.add_argument("-r","--reset",   type=str,  help='Wheater or not to delete the output file', 
                                    default='false')      
     parser.add_argument("-nl","--n_lattice",       type=int,   help='Porosity lattice size in number of grains.', 
@@ -70,9 +70,9 @@ for k in range(Nstart, Nend):
     U_file_path = "/home/damian/MGR/OF_Model/500/U"
 
     if reset:
-        outFile = open(f"{args.outname}-{k}", "w")
+        outFile = open(f"{args.outname}-{k}.dat", "w")
     else:
-        outFile = open(f"{args.outname}-{k}", "a")
+        outFile = open(f"{args.outname}-{k}.dat", "a")
 
     outFile.write("Re\tPI\tf\tRe'\n")
 

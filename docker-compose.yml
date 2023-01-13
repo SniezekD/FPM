@@ -5,7 +5,7 @@ services:
     container_name: ofpython
     image: ofpython
     volumes:
-      - /home/damian/shared:/home/damian/sharedVol
+      - C:\shared:/home/damian/sharedVol
 
 volumes:
   shared:
