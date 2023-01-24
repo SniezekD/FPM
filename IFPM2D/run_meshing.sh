@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #convert stl to fms:
-source /usr/lib/openfoam/openfoam2206/etc/bashrc
+source /usr/lib/openfoam/openfoam2006/etc/bashrc
 echo "    Converting stl to fms"
 surfaceFeatureEdges ../OF_Model/constant/triSurface/col_model.stl ../OF_Model/constant/triSurface/col_model.fms &> convertToFMS.log
 echo "     Done"

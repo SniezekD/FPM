@@ -7,7 +7,7 @@ import fRE
 import preapareRandomCaseFrame as prcf
 import prepareInitialConditions as pic
 
-from calculatePi import get_Pi
+from calculatePi import calculate_PI_on_trimmed_mesh, trimm_mesh
 
 def str2bool(v):
     if isinstance(v, bool):
@@ -58,16 +58,17 @@ name    = args.name
 reset   = str2bool(args.reset)
 epsilon = args.epsilon
 
-postProcessPath = "/home/damian/MGR/OF_Model/postProcessing/"
-postProcessAvDat = "/0/surfaceFieldValue_0.dat"
+postProcessPath = "/home/damian/MGR/2D/OF_Model/postProcessing/"
+postProcessAvDat = "/0/surfaceFieldValue.dat"
 outletPostProcessPath = postProcessPath + "OutletPAverage" + postProcessAvDat
 inletPostProcessPath = postProcessPath + "InletPAverage" + postProcessAvDat
+pathToVTK = "/home/damian/MGR/2D/OF_Model/VTK/OF_Model_500.vtm"
 
 Nstart = 0 # number of different geometries to simulate
 Nend = 10 # number of different geometries to simulate
 for k in range(Nstart, Nend):
     Re_arr = [10**Re for Re in np.linspace(Re_min, Re_max, Re_num)]
-    U_file_path = "/home/damian/MGR/OF_Model/500/U"
+    U_file_path = "/home/damian/MGR/2D/OF_Model/500/U"
 
     if reset:
         outFile = open(f"{args.outname}-{k}.dat", "w")
@@ -103,7 +104,10 @@ for k in range(Nstart, Nend):
         RePrim = fRE.calcRePrim(u)
 
         print("    Calculating Participation number")
-        pi = get_Pi(U_file_path)
+        trimmed_mesh = trimm_mesh(pathToVTK, n, m)
+        pi = calculate_PI_on_trimmed_mesh(trimmed_mesh)
+        print(f"     pi = {pi}")
+        # pi = get_Pi(U_file_path)
         print("     Done")
 
         outFile.write(f"{Re}\t{pi}\t{f}\t{RePrim}\n")

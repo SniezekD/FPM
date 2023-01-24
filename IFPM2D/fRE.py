@@ -21,8 +21,8 @@ def readDPfromFile(inletPath : str, outletPath : str) -> float:
         return inletPressure - outletPressure
 
 
-postProcessPath = "/home/damian/MGR/OF_Model/postProcessing/"
-postProcessAvDat = "/0/surfaceFieldValue_0.dat"
+postProcessPath = "/home/damian/MGR/2D/OF_Model/postProcessing/"
+postProcessAvDat = "/0/surfaceFieldValue.dat"
 outletPostProcessPath = postProcessPath + "OutletPAverage" + postProcessAvDat
 inletPostProcessPath = postProcessPath + "InletPAverage" + postProcessAvDat
 

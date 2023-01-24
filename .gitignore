@@ -1,0 +1,12 @@
+test.py
+OF_Model/*
+IFPM2D/result*
+IFPM2D/*.png
+IFPM2D/__pycache__*
+IFPM3D/result*
+IFPM3D/*.png
+IFPM3D/__pycache__*
+OF_Model2D/*
+OF_Model3D/*
+swak4foam/*
+OF_Model copy/*

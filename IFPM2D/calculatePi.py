@@ -1,4 +1,5 @@
 import numpy as np
+import pyvista as pv
 import re 
 
 def del_brackets(string :str) -> str:
@@ -33,8 +34,27 @@ def calculate_PI(U_values: list) -> float:
     nsum = n*sum(q_values_sq)
     return nsum**(-1)
 
-
 def get_Pi(U_file_path: str) -> float:
     U_values = parse_U_file(U_file_path)
     pi = calculate_PI(U_values)
+    return pi
+
+def trimm_mesh(path_to_vtk: str, nl: int, ml: int):
+    mesh = pv.read(path_to_vtk)
+    mesh = mesh.clip('x', origin= (ml,0,0), invert=False)
+    mesh = mesh.clip('x', origin= (ml+nl,0,0), invert=True)
+    mesh = mesh[0]
+    return mesh
+
+def calculate_PI_on_trimmed_mesh(trimmed_mesh) -> float:
+    mesh = trimmed_mesh
+    U_field = mesh.cell_data['U']
+    # p_field = mesh.cell_data['p']
+
+    n = len(U_field)
+    all_e_values = [u[0]**2 + u[1]**2 for u in U_field]
+    e_tot = sum(all_e_values)
+    all_q_values = [e/e_tot for e in all_e_values]
+    q_sq_sum = sum([q**2 for q in all_q_values])
+    pi = 1/(n*q_sq_sum)
     return pi

@@ -10,6 +10,7 @@ fi
 }
 
 Re=$1
+source /usr/lib/openfoam/openfoam2006/etc/bashrc
 
 cd ../OF_Model 
 echo "    Decomposing"
@@ -22,4 +23,8 @@ check_return_code $?
 
 echo "    Reconstructing"
 reconstructPar &> reconstructPar.log
+check_return_code $?
+
+echo "    Converting foam to VTK"
+foamToVTK -latestTime -ascii  &> foamToVTK.log
 check_return_code $?

@@ -60,7 +60,7 @@ name    = args.name
 reset   = str2bool(args.reset)
 epsilon = args.epsilon
 
-postProcessPath = "/home/damian/MGR/OF_Model/postProcessing/"
+postProcessPath = "/home/damian/MGR/3D/OF_Model/postProcessing/"
 postProcessAvDat = "/0/surfaceFieldValue.dat"
 outletPostProcessPath = postProcessPath + "OutletPAverage" + postProcessAvDat
 inletPostProcessPath = postProcessPath + "InletPAverage" + postProcessAvDat
