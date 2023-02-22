@@ -1,8 +1,10 @@
 #!/bin/bash
+echo $PWD
 
+# chmod a+rwx ../OF_Model/constant/triSurface
 rm -r ../OF_Model/constant/triSurface/*
 rm -r ../OF_Model/0/*
-mkdir ../OF_Model/constant/triSurface/grains
+mkdir -p ../OF_Model/constant/triSurface/grains
 mv grains.stl ../OF_Model/constant/triSurface
 mv grain* ../OF_Model/constant/triSurface/grains
 mv *.stl ../OF_Model/constant/triSurface

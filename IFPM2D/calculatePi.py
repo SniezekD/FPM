@@ -58,3 +58,11 @@ def calculate_PI_on_trimmed_mesh(trimmed_mesh) -> float:
     q_sq_sum = sum([q**2 for q in all_q_values])
     pi = 1/(n*q_sq_sum)
     return pi
+
+def calculate_tortuosity(trimmed_mesh) -> float:
+    U_field = trimmed_mesh.cell_data['U']
+
+    n = len(U_field)
+    uMag_sum = sum([np.sqrt(u[0]**2+u[1]**2) for u in U_field])
+    uX_sum = sum([np.sqrt(u[0]**2) for u in U_field])
+    return uMag_sum/uX_sum

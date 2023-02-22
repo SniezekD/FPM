@@ -1,3 +1,4 @@
+print(int(suma)/20/12)   
 import os
 import sys
 import argparse
@@ -64,14 +65,14 @@ postProcessPath = "/home/damian/MGR/3D/OF_Model/postProcessing/"
 postProcessAvDat = "/0/surfaceFieldValue.dat"
 outletPostProcessPath = postProcessPath + "OutletPAverage" + postProcessAvDat
 inletPostProcessPath = postProcessPath + "InletPAverage" + postProcessAvDat
-blockMeshdictPath = "/home/damian/MGR/OF_Model/system/blockMeshDict"
-snappyHexMeshDictPath = "/home/damian/MGR/OF_Model/system/snappyHexMeshDict"
+blockMeshdictPath = "/home/damian/MGR/3D/OF_Model/system/blockMeshDict"
+snappyHexMeshDictPath = "/home/damian/MGR/3D/OF_Model/system/snappyHexMeshDict"
 
 Nstart = 0 # number of different geometries to simulate
 Nend = 10 # number of different geometries to simulate
 for k in range(Nstart, Nend):
     Re_arr = [10**Re for Re in np.linspace(Re_min, Re_max, Re_num)]
-    U_file_path = "/home/damian/MGR/OF_Model/500/U"
+    U_file_path = "/home/damian/MGR/3D/OF_Model/500/U"
 
     if reset:
         outFile = open(f"{args.outname}-{k}.dat", "w")

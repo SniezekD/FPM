@@ -7,7 +7,7 @@ import fRE
 import preapareRandomCaseFrame as prcf
 import prepareInitialConditions as pic
 
-from calculatePi import calculate_PI_on_trimmed_mesh, trimm_mesh
+from calculatePi import calculate_PI_on_trimmed_mesh, trimm_mesh, calculate_tortuosity
 
 def str2bool(v):
     if isinstance(v, bool):
@@ -75,7 +75,7 @@ for k in range(Nstart, Nend):
     else:
         outFile = open(f"{args.outname}-{k}.dat", "a")
 
-    outFile.write("Re\tPI\tf\tRe'\n")
+    outFile.write("Re\tPI\tf\tRe'\tT\n")
 
     print("\n+----------------------------------+")
     print(f"\n[{k+1}/{Nend}] Creating the lattice")
@@ -110,7 +110,13 @@ for k in range(Nstart, Nend):
         # pi = get_Pi(U_file_path)
         print("     Done")
 
-        outFile.write(f"{Re}\t{pi}\t{f}\t{RePrim}\n")
+        print("    Calculating Tortuosity")
+        Tortuosity = calculate_tortuosity(trimmed_mesh)
+        print(f"     T = {Tortuosity}")
+        # pi = get_Pi(U_file_path)
+        print("     Done")
+
+        outFile.write(f"{Re}\t{pi}\t{f}\t{RePrim}\t{Tortuosity}\n")
         if k == 0:
             if f'../OF_{Re:0.4f}' not in os.listdir('../'):
                 os.system(rf'mkdir ../OF_{Re:0.4f}')
