@@ -135,16 +135,16 @@ def create_lattice_stl(lattice : np.array, save_name : str = None, n : int = 64,
     # Firstly, lets concateate four columns at the beginning and four at the end
     # The columns will have only 0 elements
     zero_col = np.zeros((lattice.shape[0], m))
-    lattice = np.column_stack((zero_col, lattice, zero_col))
-    lattice = lattice.transpose()
+    lattice  = np.column_stack((zero_col, lattice, zero_col))
+    lattice  = lattice.transpose()
 
-    grains = []
+    grains       = []
     grains_names = []
     for x in range(lattice.shape[0]):
         for y in range(lattice.shape[1]):
             if lattice[x][y] == 1:
-                grain =create_grain_ribbon_stl(x, y)
-                name = f"grain_{x}_{y}.stl"
+                grain = create_grain_ribbon_stl(x, y)
+                name  = f"grain_{x}_{y}.stl"
                 grain.save(name, mode=stl.Mode.ASCII)
                 grains_names.append(name)
                 grains.append(create_grain_ribbon_stl(x, y))
