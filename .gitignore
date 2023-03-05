@@ -11,3 +11,7 @@ OF_Model3D/*
 swak4foam/*
 swak4foam*
 OF_Model copy/*
+IFPM/plots/*
+IFPM/*.dat
+IFPM/*.log
+IFPM/__pycache__
