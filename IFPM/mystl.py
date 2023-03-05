@@ -78,17 +78,17 @@ class plane(grain):
         ])
 
         # Define the 2 triangles composing the plane
-        if self.dx == 0:
+        if self.dz == 0:
             self.faces = {'2d': np.array([\
                 [0,1,2],
                 [3,1,2],
                 ])}
-        elif self.dy == 0:
+        elif self.dx == 0:
             self.faces = {'2d': np.array([\
                 [0,1,2],
                 [3,2,0],
                 ])}
-        elif self.dz == 0:
+        elif self.dy == 0:
             self.faces = {'2d': np.array([\
                 [0,1,2],
                 [3,1,0],

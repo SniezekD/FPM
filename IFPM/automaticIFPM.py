@@ -20,8 +20,8 @@ def get_args():
     parser.add_argument("-on","--outname", type=str, help='Name of the output file with Re vs pi.', default='results')  
     parser.add_argument("-r","--reset", type=str, help='Wheater or not to delete the output file', default='false')      
     parser.add_argument("-marg","--margins", type=int, help='Size of the margin', default=4)
-    parser.add_argument("-eps","--epsilon", type=float, help='Lattice porosity',default=0.9)
-    parser.add_argument("-wd","--work_dir", type=str, help='Working directory',default='/home/damian/MGR/wd')
+    parser.add_argument("-eps","--epsilon", type=float, help='Lattice porosity', default=0.9)
+    parser.add_argument("-wd","--work_dir", type=str, help='Working directory', default='/home/damian/MGR/wd')
     return parser.parse_args()
 
 
@@ -61,3 +61,5 @@ if __name__ == '__main__':
 
             ifpm_pp = IFMP_postProc(ifpm)
             outFile.write(f"{Re}\t{ifpm_pp.pi}\t{ifpm_pp.T}\t{ifpm_pp.entropy}\n")
+            
+    utils.make_plot(1)

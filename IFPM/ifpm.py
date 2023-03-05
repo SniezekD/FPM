@@ -1,9 +1,9 @@
 import os
 import stl
+import utils
 import shutil
 import numpy as np
 import pyvista as pv
-import utils
 from mystl import grain, plane
 from pathlib import Path
 from stl import mesh
@@ -15,7 +15,7 @@ class IFPM:
         self.margin                  = margin
         self.wd                      = working_dir
         self.dimension               = len(self.size)
-        self.lattice                  = self.porosity_lattice()
+        self.lattice                 = self.porosity_lattice()
         self.stls, self.grains_names = self.translate_into_stl()
 
 
@@ -25,7 +25,7 @@ class IFPM:
         """
         lattice             = np.zeros(list(self.size.values()), dtype=int)
         number_of_cells     = np.prod(list(self.size.values()))
-        number_of_obstacles = int(self.porosity*number_of_cells)
+        number_of_obstacles = int((1-self.porosity)*number_of_cells)
         for i in range(number_of_obstacles): 
             rnd_x = np.random.randint(self.size['x'])
             rnd_y = np.random.randint(self.size['y'])
@@ -59,32 +59,34 @@ class IFPM:
         
         grains       = []
         grains_names = []
-
-        for x in range(self.lattice.shape[0]):
+        for z in range(self.lattice.shape[0]):
             for y in range(self.lattice.shape[1]):
-                for z in range(self.lattice.shape[2]):
-                    if self.lattice[x,y,z] == 1:
+                for x in range(self.lattice.shape[2]):
+                    if self.lattice[z,y,x] == 1:
                         tmp_grain = grain(x,y,z)
                         grains_names.append(tmp_grain.name)
                         grains.append(tmp_grain.cube)
 
-        grains_stl =  mesh.Mesh(np.concatenate([g.data for g in grains]))
-        stls = {'inlet'     : inlet,
-                'outlet'    : outlet,
-                'wall_up'   : wall_up,
-                'wall_down' : wall_down,
-                'wall_front': wall_front,
-                'wall_back' : wall_back,
-                'grains'    : grains_stl}
-        return stls, grains_names
+
+            grains_stl =  mesh.Mesh(np.concatenate([g.data for g in grains]))
+            stls = {'inlet'     : inlet,
+                    'outlet'    : outlet,
+                    'wall_up'   : wall_up,
+                    'wall_down' : wall_down,
+                    'wall_front': wall_front,
+                    'wall_back' : wall_back,
+                    'grains'    : grains_stl}
+            return stls, grains_names
     
     def prepare_model(self) -> None:
         print("    Preparing model")
-        utils.run_cmd([r'./prep_model.sh'])
         for stl_name in self.stls.keys():
             # save_path = self.wd.joinpath('OF_Model', 'constant', 'triSurface', f"{stl_name}.stl")
             save_path = f"/home/damian/MGR/IFPM/{stl_name}.stl"
             self.stls[stl_name].save(save_path, mode=stl.Mode.ASCII)
+        utils.createBlockMeshDict(self.wd.joinpath('OF_Model', 'system', 'blockMeshDict'), self.size, self.margin)
+        utils.createSnappyHexMeshDict(self.wd.joinpath('OF_Model', 'system', 'snappyHexMeshDict'))
+        utils.run_cmd([r'./prep_model.sh'])
 
         # shutil.rmtree(self.wd.joinpath('OF_Model', '0'))
         # shutil.rmtree(self.wd.joinpath('OF_Model', 'constant', 'triSurface'))
@@ -97,10 +99,7 @@ class IFPM:
         """
         Runs OpenFOAM meshing commands (Mesh is done with snappyHexMesh tool)
         """
-        print("    Creating the mesh")
-
-        utils.createBlockMeshDict(self.wd.joinpath('OF_Model', 'system', 'blockMeshDict'), self.size)
-        utils.createSnappyHexMeshDict(self.wd.joinpath('OF_Model', 'system', 'snappyHexMeshDict'))
+        print("    Creating the mesh with snappyHexMesh")
         utils.run_cmd([r'./run_meshing.sh'])
         # os.system(f"cd {self.wd.joinpath('OF_Model')} && \
         #             echo '    Creating boundary mesh with blockMesh' &&\

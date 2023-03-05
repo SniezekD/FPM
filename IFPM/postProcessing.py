@@ -1,4 +1,5 @@
 import numpy as np
+import utils
 from ifpm import IFPM
 import pyvista as pv
 import re 
@@ -26,29 +27,34 @@ class IFMP_postProc:
     def calculate_pi(self) -> float:
         print("    Calculating Participation Number")
 
-        n = len(self.U_field)
-        all_e_values = [u[0]**2 + u[1]**2 for u in self.U_field]
-        e_tot = sum(all_e_values)
+        n            = len(self.U_field)
+        all_e_values = [u[0]**2 + u[1]**2 + u[2]**2 for u in self.U_field]
+        e_tot        = sum(all_e_values)
         all_q_values = [e/e_tot for e in all_e_values]
-        q_sq_sum = sum([q**2 for q in all_q_values])
-        pi = 1 / (n*q_sq_sum)
+        print(sum(all_q_values))
+        q_sq_sum     = sum([q**2 for q in all_q_values])
+        pi           = 1 / (n*q_sq_sum)
+        print(f"     {pi}")
 
         return pi
 
     def calculate_tortuosity(self) -> float:
         print("    Calculating Tortuosity")
 
-        uMag_sum = sum([np.sqrt(u[0]**2+u[1]**2) for u in self.U_field])
-        uX_sum = sum([np.sqrt(u[0]**2) for u in self.U_field])
-
+        uMag_sum = sum([np.sqrt(u[0]**2+u[1]**2+u[2]**2) for u in self.U_field])
+        uX_sum   = sum([np.sqrt(u[0]**2) for u in self.U_field])
+        print(f"     {uMag_sum / uX_sum}")
         return uMag_sum / uX_sum
     
     def calculate_entropy(self) -> float:
         print("    Calculating Gibbs Entorpy")
 
-        all_e_values = [u[0]**2 + u[1]**2 for u in self.U_field]
-        e_tot = sum(all_e_values)
+        all_e_values = [u[0]**2 + u[1]**2 + u[2]**2 for u in self.U_field]
+        e_tot        = sum(all_e_values)
         all_q_values = [e/e_tot for e in all_e_values]
-        entropy = sum([q*np.log(q) for q in all_q_values])
+        entropy      = sum([q*np.log(q) for q in all_q_values])
+        print(f"     {entropy}")
 
         return entropy
+    
+
