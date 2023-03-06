@@ -115,6 +115,10 @@ def make_plot(number_of_geoms):
 #                                                                              #
 ################################################################################
 def  createBlockMeshDict(filePath, size, margin):
+    if size['z'] == 1:
+        front_back_type = 'empty'
+    else:
+        front_back_type = 'wall'
     with open(filePath, "w") as file:
         text = Template("""/*--------------------------------*- C++ -*----------------------------------*\\
 | =========                 |                                                 |
@@ -183,7 +187,7 @@ boundary
     }
     frontAndBack
     {
-        type empty;
+        type $fab_type;
         faces
         (
             (0 1 5 4)
@@ -196,10 +200,58 @@ mergePatchPairs
 (
 );
 
-// ************************************************************************* //""")
-        file.write(text.substitute(x = size['x']+2*margin, y = size['y'], z = size['z']))
+// ************************************************************************* //
+""")
+        file.write(text.substitute(x = size['x']+2*margin, y = size['y'], z = size['z'], fab_type = front_back_type))
+
+################################################################################
+#                                                                              #
+#                          CREATE SNAPPY HEX MESH DICT                         #
+#                                                                              #
+################################################################################
+def createMeshDict(filePath):
+ with open(filePath, "w") as file:
+        text = """/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                |
+| \\      /  F ield         | cfMesh: A library for mesh generation          |
+|  \\    /   O peration     |                                                |
+|   \\  /    A nd           | Author: Franjo Juretic                         |
+|    \\/     M anipulation  | E-mail: franjo.juretic@c-fields.com            |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version   2.0;
+    format    ascii;
+    class     dictionary;
+    location  "system";
+    object    meshDict;
+}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+surfaceFile "constant/triSurface/col_model.fms";
+
+/* minCellSize 0.2; */
+
+maxCellSize 0.25;
+
+/* boundaryCellSize 0.1; */
+
+/* boundaryCellSizeRefinementThickness 1; */
+
+localRefinement
+{
+    "grains.stl"
+    {
+        additionalRefinementLevel 2;
+        refinementThickness 0.25;
+    }
+}
 
 
+// ************************************************************************* //
+"""
+        file.write(text)
 ################################################################################
 #                                                                              #
 #                          CREATE SNAPPY HEX MESH DICT                         #
@@ -361,16 +413,26 @@ mergeTolerance 1E-6;
 #                        INITIAL CONDITIONS FOR VELOCITY                       #
 #                                                                              #
 ################################################################################
-def make_0_U(grains, file, Re: float):
-    v = Re*1e-6
-    # valExp = f"vector(pos().x/{n}*(pos().x/{n} - 1)*pos().y/{n}*(pos().y/{n} - 1),0,0)"
-    valExp = f"vector({v},0,0)"
-    file.write("""FoamFile
+def make_0_U(filePath, size, Re: float):
+    if size['z'] == 1:
+        front_back_type = 'empty'
+    else:
+        front_back_type = 'noSlip'
+    velocity = Re*1e-6
+    with open(filePath, "w") as file:
+        text = Template("""/*--------------------------------*- C++ -*----------------------------------*\\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2006                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\\*---------------------------------------------------------------------------*/
+FoamFile
 {
     version     2.0;
     format      ascii;
-    class       volVectorField;
-    object      U;
+    class       dictionary;
+    object      blockMeshDict;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -380,76 +442,76 @@ internalField   uniform (0 0 0);
 
 boundaryField
 {
-    inlet
+    inlet.stl
     {
         type            groovyBC;
-        value           uniform (""")
-    file.write(f"{v}")
-    file.write(""" 0 0);
-        valueExpression \" """)
-    file.write(f"{valExp}\";")
-    file.write(
-    """}
+        value           uniform ($v 0 0);
+        valueExpression "vector($v,0,0)";    
+    }
 
-    outlet
+    outlet.stl
     {
         type            zeroGradient;
     }
 
-    walls
+    walls.stl
     {
         type            noSlip;
     }
 
-    wall_up
+    wall_up.stl
     {
         type            noSlip;
     }
 
-    wall_down
+    wall_down.stl
     {
         type            noSlip;
     }
 
-    wall_front
+    wall_front.stl
     {
-        type            noSlip;
+        type            $fab_type;
     }   
 
-    wall_back
+    wall_back.stl
     {
-        type            noSlip;
+        type            $fab_type;
     }   
 
-    grains
+    grains.stl
     {
         type            noSlip;
     }
-
-    """)
-    # for grain in grains:
-    #     file.write(f"grains_{grain}")
-    #     file.write("""
-    # {
-    #     type            noSlip;
-    # }
-    # """)
-
-    file.write("}")
-    file.close()
+}
+""")
+        file.write(text.substitute(v = velocity, fab_type = front_back_type))
 
 ################################################################################
 #                                                                              #
 #                        INITIAL CONDITIONS FOR PRESSURE                       #
 #                                                                              #
 ################################################################################
-def make_0_p(grains, file):
-    file.write("""FoamFile
+def make_0_p(filePath, size):
+    if size['z'] == 1:
+        front_back_type = 'empty'
+    else:
+        front_back_type = 'zeroGradient'
+
+    with open(filePath, "w") as file:
+        text = Template("""/*--------------------------------*- C++ -*----------------------------------*\\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2006                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\\*---------------------------------------------------------------------------*/
+FoamFile
 {
     version     2.0;
     format      ascii;
-    class       volScalarField;
-    object      p;
+    class       dictionary;
+    object      blockMeshDict;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -459,55 +521,47 @@ internalField   uniform 0;
 
 boundaryField
 {
-    inlet
+    inlet.stl
     {
         type            zeroGradient;
     }
 
-    outlet
+    outlet.stl
     {
         type            fixedValue;
         value uniform   0;
     }
 
-    walls
+    walls.stl
     {
         type            zeroGradient;
     }
 
-    wall_up
+    wall_up.stl
     {
         type            zeroGradient;
     }
 
-    wall_down
+    wall_down.stl
     {
         type            zeroGradient;
     }
 
-    wall_front
+    wall_front.stl
+    {
+        type            $fab_type;
+    }
+
+    wall_back.stl
+    {
+        type            $fab_type;
+    }
+
+    grains.stl
     {
         type            zeroGradient;
     }
-
-    wall_back
-    {
-        type            zeroGradient;
-    }
-
-    grains
-    {
-        type            zeroGradient;
-    }
-
+}
     """)
-    # for grain in grains:
-    #     file.write(f"grains_{grain}")
-    #     file.write("""
-    # {
-    #     type            zeroGradient;
-    # }
-    # """)
-    file.write("}")
-    file.close()
 
+        file.write(text.substitute(fab_type = front_back_type))

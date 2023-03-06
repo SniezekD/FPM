@@ -26,18 +26,15 @@ class IFMP_postProc:
 
     def calculate_pi(self) -> float:
         print("    Calculating Participation Number")
+        n = len(self.U_field)
 
-        n            = len(self.U_field)
-        all_e_values = [u[0]**2 + u[1]**2 + u[2]**2 for u in self.U_field]
-        e_tot        = sum(all_e_values)
-        all_q_values = [e/e_tot for e in all_e_values]
-        print(sum(all_q_values))
-        q_sq_sum     = sum([q**2 for q in all_q_values])
-        pi           = 1 / (n*q_sq_sum)
+        e_values = [u[0]**2 + u[1]**2 + u[2]**2 for u in self.U_field]
+        e_tot = sum(e_values)
+        q_values_squared = [(e/e_tot)**2 for e in e_values]
+        pi = (n*sum(q_values_squared))**(-1)
         print(f"     {pi}")
-
         return pi
-
+    
     def calculate_tortuosity(self) -> float:
         print("    Calculating Tortuosity")
 

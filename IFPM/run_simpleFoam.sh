@@ -14,16 +14,16 @@ source /usr/lib/openfoam/openfoam2006/etc/bashrc
 
 cd ../wd/OF_Model 
 echo "    Decomposing"
-decomposePar -force &> decomposePar.log
-check_return_code $?
+# decomposePar -force -fields -zeroTime &> decomposePar.log
+# check_return_code $?
 
 echo "    Running simpleFoam"
-mpirun -np 6 simpleFoam -parallel &> logs/simpleFoam${Re}.log
-check_return_code $?
-
+# mpirun -np 6 simpleFoam -parallel &> logs/simpleFoam${Re}.log
+simpleFoam &> logs/simpleFoam${Re}.log
+# check_return_code $?
 echo "    Reconstructing"
-reconstructPar &> reconstructPar.log
-check_return_code $?
+# reconstructPar &> reconstructPar.log
+# check_return_code $?
 
 echo "    Converting foam to VTK"
 foamToVTK -latestTime -ascii  &> foamToVTK.log

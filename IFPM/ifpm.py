@@ -40,6 +40,18 @@ class IFPM:
         # RETRUN LATTICE WITH MARGINS:
         return lattice
 
+    def translate_into_fms(self):
+        """
+        Translates 2D geometry into .fms format. If geometry is 3D returns None
+        """
+        if(self.lattice.shape[0] == 1):
+            for boundary in self.stls.keys():
+                if boundary not in ['wall_front','wall_back']:
+                    os.system(f'cat {boundary}.stl >> col_model.stl')
+            return True
+        else:
+            return False
+
     def translate_into_stl(self):
         """
         Translates a lattice of zeros and ones into .stl format
@@ -65,7 +77,11 @@ class IFPM:
                     if self.lattice[z,y,x] == 1:
                         tmp_grain = grain(x,y,z)
                         grains_names.append(tmp_grain.name)
-                        grains.append(tmp_grain.cube)
+                        # if the case is 2D 
+                        if self.lattice.shape[0] == 1:         
+                            grains.append(tmp_grain.ribbon)
+                        else:
+                            grains.append(tmp_grain.cube)
 
 
             grains_stl =  mesh.Mesh(np.concatenate([g.data for g in grains]))
@@ -84,8 +100,13 @@ class IFPM:
             # save_path = self.wd.joinpath('OF_Model', 'constant', 'triSurface', f"{stl_name}.stl")
             save_path = f"/home/damian/MGR/IFPM/{stl_name}.stl"
             self.stls[stl_name].save(save_path, mode=stl.Mode.ASCII)
-        utils.createBlockMeshDict(self.wd.joinpath('OF_Model', 'system', 'blockMeshDict'), self.size, self.margin)
-        utils.createSnappyHexMeshDict(self.wd.joinpath('OF_Model', 'system', 'snappyHexMeshDict'))
+        if(self.lattice.shape[0] == 1):
+            print("     Translating geometry into .fms format")
+            self.translate_into_fms()
+            utils.createMeshDict(self.wd.joinpath('OF_Model', 'system', 'meshDict'))
+        else:
+            utils.createBlockMeshDict(self.wd.joinpath('OF_Model', 'system', 'blockMeshDict'), self.size, self.margin)
+            utils.createSnappyHexMeshDict(self.wd.joinpath('OF_Model', 'system', 'snappyHexMeshDict'))
         utils.run_cmd([r'./prep_model.sh'])
 
         # shutil.rmtree(self.wd.joinpath('OF_Model', '0'))
@@ -99,8 +120,12 @@ class IFPM:
         """
         Runs OpenFOAM meshing commands (Mesh is done with snappyHexMesh tool)
         """
-        print("    Creating the mesh with snappyHexMesh")
-        utils.run_cmd([r'./run_meshing.sh'])
+        if(self.lattice.shape[0] == 1):
+            print("    Creating the mesh with cfMesh")
+            utils.run_cmd([r'./run_meshing2D.sh'])
+        else:
+            print("    Creating the mesh with snappyHexMesh")
+            utils.run_cmd([r'./run_meshing.sh'])
         # os.system(f"cd {self.wd.joinpath('OF_Model')} && \
         #             echo '    Creating boundary mesh with blockMesh' &&\
         #             blockMesh &> {self.wd.joinpath('OF_Model')}/blockMesh.log"                       
@@ -125,10 +150,10 @@ class IFPM:
     def prepare_initial_conditions(self, Re: float) -> None:
         print("    Preparing Initial Conditions")
 
-        U_file = open(self.wd.joinpath('OF_Model', '0', 'U'), "w")
-        p_file = open(self.wd.joinpath('OF_Model', '0', 'p'), "w")
-        utils.make_0_U(self.grains_names, U_file, Re)
-        utils.make_0_p(self.grains_names, p_file)
+        U_file = self.wd.joinpath('OF_Model', '0', 'U')
+        p_file = self.wd.joinpath('OF_Model', '0', 'p')
+        utils.make_0_U(U_file, self.size, Re)
+        utils.make_0_p(p_file, self.size)
 
     def run_single_simulation(self, Re: float, n_par: int = 6) -> None:
         """

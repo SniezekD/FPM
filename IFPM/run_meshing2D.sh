@@ -1,0 +1,18 @@
+#!/bin/bash
+
+#convert stl to fms:
+source /usr/lib/openfoam/openfoam2006/etc/bashrc
+
+echo "    Converting stl to fms"
+surfaceFeatureEdges ../wd/OF_Model/constant/triSurface/col_model.stl ../wd/OF_Model/constant/triSurface/col_model.fms &> convertToFMS.log
+echo "     Done"
+echo "    Defining boundaty types in fms"
+sed -i s/empty/wall/g ../wd/OF_Model/constant/triSurface/col_model.fms
+sed -i '/.*inlet.stl.*/c\inlet.stl patch' ../wd/OF_Model/constant/triSurface/col_model.fms
+sed -i '/.*outlet.stl.*/c\outlet.stl patch' ../wd/OF_Model/constant/triSurface/col_model.fms
+# sed -i s/.stl//g ../wd/OF_Model/constant/triSurface/col_model.fms
+echo "     Done"
+
+cd ../wd/OF_Model 
+echo "    Creating the mesh with cfMesh"
+cartesian2DMesh &> cartesian2DMesh.log
