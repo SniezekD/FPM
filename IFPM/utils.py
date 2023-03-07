@@ -160,7 +160,7 @@ edges
 
 boundary
 (
-   inlet
+   inlet.stl
     {
         type patch;
         faces
@@ -168,7 +168,7 @@ boundary
             (0 3 7 4)
         );
     }
-    outlet
+    outlet.stl
     {
         type patch;
         faces
@@ -176,7 +176,7 @@ boundary
             (1 5 6 2)
         );
     }
-    walls
+    walls.stl
     {
         type wall;
         faces
@@ -185,7 +185,7 @@ boundary
             (4 5 6 7)
         );
     }
-    frontAndBack
+    frontAndBack.stl
     {
         type $fab_type;
         faces
@@ -285,37 +285,37 @@ geometry
     grains.stl
     {
         type triSurfaceMesh;
-        name grains;
+        name grains.stl;
     }
     inlet.stl
     {
         type triSurfaceMesh;
-        name inlet;
+        name inlet.stl;
     }
     outlet.stl
     {
         type triSurfaceMesh;
-        name outlet;
+        name outlet.stl;
     }
     wall_up.stl
     {
         type triSurfaceMesh;
-        name wall_up;
+        name wall_up.stl;
     }
     wall_down.stl
     {
         type triSurfaceMesh;
-        name wall_down;
+        name wall_down.stl;
     }
     wall_front.stl
     {
         type triSurfaceMesh;
-        name wall_front;
+        name wall_front.stl;
     }
     wall_back.stl
     {
         type triSurfaceMesh;
-        name wall_back;
+        name wall_back.stl;
     }
 }
 
@@ -332,13 +332,13 @@ castellatedMeshControls
 
     refinementSurfaces
     {
-        grains{ level (2 2); }
-        wall_front{ level (2 2); }
-        wall_back{ level (2 2); }
-        wall_down{ level (2 2); }
-        wall_up{ level (2 2); }
-        inlet{ level (2 2); patchInfo { type patch; } }
-        outlet{ level (2 2); patchInfo { type patch; } }
+        grains.stl{ level (2 2); }
+        wall_front.stl{ level (2 2); }
+        wall_back.stl{ level (2 2); }
+        wall_down.stl{ level (2 2); }
+        wall_up.stl{ level (2 2); }
+        inlet.stl{ level (2 2); patchInfo { type patch; } }
+        outlet.stl{ level (2 2); patchInfo { type patch; } }
     }
 
     resolveFeatureAngle 30;

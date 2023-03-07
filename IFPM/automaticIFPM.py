@@ -62,4 +62,4 @@ if __name__ == '__main__':
             ifpm_pp = IFMP_postProc(ifpm)
             outFile.write(f"{Re}\t{ifpm_pp.pi}\t{ifpm_pp.T}\t{ifpm_pp.entropy}\n")
             
-    utils.make_plot(1)
+    utils.make_plot(geometry_number)
