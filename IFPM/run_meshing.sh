@@ -2,7 +2,7 @@
 
 source /usr/lib/openfoam/openfoam2006/etc/bashrc
 
-cd ../OF_Model 
+cd ../wd/OF_Model 
 echo "    Creating boundary mesh with blockMesh"
 blockMesh &> blockMesh.log
 echo "     Done"
