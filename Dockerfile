@@ -48,10 +48,10 @@ RUN apt-get install gnuplot -y
 
 WORKDIR /home/damian
 
-ADD IFPM2D /home/damian/MGR/2D/IFPM2D
-ADD IFPM3D /home/damian/MGR/3D/IFPM3D
-ADD OF_Model2D /home/damian/MGR/2D/OF_Model
-ADD OF_Model3D /home/damian/MGR/3D/OF_Model
+# ADD IFPM2D /home/damian/MGR/2D/IFPM2D
+# ADD IFPM3D /home/damian/MGR/3D/IFPM3D
+# ADD IFPM /home/damian/MGR/IFPM
+ADD OF_Model /home/damian/MGR/wd/OF_Model
 
 RUN useradd damian
 
