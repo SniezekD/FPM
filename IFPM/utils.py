@@ -31,10 +31,7 @@ def run_cmd2(arg: str, shell: bool = False) -> float:
         sys.exit(status)
 
 def standard_err(vector):
-<<<<<<< HEAD
     
-=======
->>>>>>> 0fe94be0d6c0222f04d09ee97e8f5fd9c58dbfb5
     return np.std(vector, ddof=1) / np.sqrt(np.size(vector))
  
 
