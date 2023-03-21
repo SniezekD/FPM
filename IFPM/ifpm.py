@@ -14,7 +14,6 @@ class IFPM:
         self.size                    = size
         self.margin                  = margin
         self.wd                      = working_dir
-        self.dimension               = len(self.size)
         self.lattice                 = self.porosity_lattice()
         self.stls, self.grains_names = self.translate_into_stl()
 
@@ -96,7 +95,6 @@ class IFPM:
     
     def prepare_model(self) -> None:
         print("    Preparing model")
-        print(os.system('pwd'))
         for stl_name in self.stls.keys():
             # save_path = self.wd.joinpath('OF_Model', 'constant', 'triSurface', f"{stl_name}.stl")
             save_path = f"/home/damian/MGR/IFPM/{stl_name}.stl"
