@@ -187,3 +187,7 @@ class IFPM:
         #             echo '    Converting foam to VTK' &&\
         #             foamToVTK -latestTime -ascii  &> {self.wd.joinpath('OF_Model')}/foamToVTK.log"
         #             )
+
+    def prep_convergence(self, Re: float) -> None:
+        print("    Running foamLog")
+        utils.run_cmd([r'./calc_convergence.sh', f'{Re:0.4f}'])

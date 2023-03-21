@@ -150,6 +150,7 @@ if __name__ == '__main__':
             ifpm.prepare_initial_conditions(Re)
             ifpm.run_single_simulation(Re)
             ifpm.save_as_VTK()
+            ifpm.prep_convergence(Re)
 
             ifpm_pp = IFMP_postProc(ifpm)
             outFile.write(
