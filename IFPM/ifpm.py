@@ -96,6 +96,7 @@ class IFPM:
     
     def prepare_model(self) -> None:
         print("    Preparing model")
+        print(os.system('pwd'))
         for stl_name in self.stls.keys():
             # save_path = self.wd.joinpath('OF_Model', 'constant', 'triSurface', f"{stl_name}.stl")
             save_path = f"/home/damian/MGR/IFPM/{stl_name}.stl"

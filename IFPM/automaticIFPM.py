@@ -38,6 +38,10 @@ if __name__ == '__main__':
     reset           = utils.str2bool(args.reset)
     epsilon         = args.epsilon
     wd              = args.work_dir
+    
+    # Change the dos endline convention to unix convention 
+    for f in ['prep_model.sh', 'run_meshing.sh', 'run_meshing2D.sh', 'run_simpleFoam.sh']:
+        os.system(f'dos2unix {f}')
 
     os.makedirs(wd, exist_ok=True)
     Re_arr = [10**Re for Re in np.linspace(Re_min, Re_max, Re_num)]

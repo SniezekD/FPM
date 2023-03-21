@@ -46,10 +46,17 @@ RUN . /usr/lib/openfoam/openfoam2006/etc/bashrc && ./Allwmake
 
 RUN apt-get install gnuplot -y
 
-WORKDIR /home/damian/MGR/IFPM
+RUN apt-get install dos2unix -y
 
-# ADD IFPM2D /home/damian/MGR/2D/IFPM2D
-# ADD IFPM3D /home/damian/MGR/3D/IFPM3D
+WORKDIR /home/damian/MGR/IFPM
+ADD IFPM /home/damian/MGR/IFPM
+# RUN ls -l
+# RUN sed -i 's/\r$//' run_simpleFoam.sh 
+RUN dos2unix run_simpleFoam.sh
+RUN dos2unix run_meshing2D.sh
+RUN dos2unix run_meshing.sh
+RUN dos2unix prep_model.sh
+
 # ADD IFPM /home/damian/MGR/IFPM
 ADD OF_Model /home/damian/MGR/wd/OF_Model
 
