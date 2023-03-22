@@ -33,7 +33,7 @@ foamToVTK -latestTime -ascii  &> foamToVTK.log
 check_return_code $?
 
 echo "    Removing all processors' directories"
-if [  -d  processor* ]; then
+if [ -d  processor* ]; then
     rm -r processor*
 fi
 check_return_code $?

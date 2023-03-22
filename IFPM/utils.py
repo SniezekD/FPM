@@ -3,6 +3,7 @@ import subprocess
 import numpy as np
 import matplotlib.pyplot as plt
 from string import Template
+from pathlib import Path
 
 def str2bool(v):
     if isinstance(v, bool):
@@ -105,6 +106,57 @@ def make_plot(number_of_geoms):
     plt.savefig('plots/ALL-vs-log(Re).png')
     plt.cla()
     plt.clf()
+
+def read_data_from_file(path:Path):
+    x_arr = []
+    data_arr = []
+    with open(path, "r") as file:
+        for line in file:
+            data = line.split()
+            try:
+                x_arr.append(float(data[0]))
+                data_arr.append(np.array(data[1:], dtype=float))
+            except:
+                pass
+    
+    return x_arr, data_arr
+
+def plot_residuals(re_list:list, path:Path, savename:str=None) -> None:
+    row_number = int(np.ceil(len(re_list)/5))
+    col_number = 5
+    fig, ax = plt.subplots(row_number, col_number, figsize=(20, 35))
+    fig.tight_layout(pad=3.0)
+
+    for i, Re in enumerate(re_list):
+        Ux_path = path.joinpath(f'OF_Model_{Re:0.4f}', 'logs', 'Ux_0')
+        Uy_path = path.joinpath(f'OF_Model_{Re:0.4f}', 'logs', 'Uy_0')
+        Uz_path = path.joinpath(f'OF_Model_{Re:0.4f}', 'logs', 'Uz_0')
+        p_path  = path.joinpath(f'OF_Model_{Re:0.4f}', 'logs', 'p_0')
+
+        iters, Ux_data = read_data_from_file(Ux_path)
+        _    , Uy_data = read_data_from_file(Uy_path)
+        _    , Uz_data = read_data_from_file(Uz_path)
+        _    , p_data  = read_data_from_file(p_path)
+
+        Ux = [u[0] for u in Ux_data]
+        Uy = [u[0] for u in Uy_data]
+        Uz = [u[0] for u in Uz_data]
+        p  = [p[0] for p in p_data]
+
+        ax[int(i/col_number), int(i%col_number)].plot(iters, Ux, label = "Ux_0")
+        ax[int(i/col_number), int(i%col_number)].plot(iters, Uy, label = "Uy_0")
+        ax[int(i/col_number), int(i%col_number)].plot(iters, Uz, label = "Uz_0")
+        ax[int(i/col_number), int(i%col_number)].plot(iters, p, label = "p_0")
+        ax[int(i/col_number), int(i%col_number)].set_title(
+            f"Residuals\nRe={Re:0.4f}"
+        )
+        ax[int(i/col_number), int(i%col_number)].set_yscale('log')
+        ax[int(i/col_number), int(i%col_number)].legend()
+
+    if savename is not None:
+        plt.savefig(f'{savename}.png')
+    else:
+        plt.show()
 
 
 
