@@ -135,7 +135,7 @@ if __name__ == '__main__':
         ifpm = IFPM(
             porosity=epsilon,
             size={'x': x, 'y': y, 'z': z},
-            margin= margin,
+            margin=margin,
             working_dir=Path(wd)
             )
         ifpm.prepare_model()

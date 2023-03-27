@@ -83,15 +83,15 @@ class IFPM:
                             grains.append(tmp_grain.cube)
 
 
-            grains_stl =  mesh.Mesh(np.concatenate([g.data for g in grains]))
-            stls = {'inlet'     : inlet,
-                    'outlet'    : outlet,
-                    'wall_up'   : wall_up,
-                    'wall_down' : wall_down,
-                    'wall_front': wall_front,
-                    'wall_back' : wall_back,
-                    'grains'    : grains_stl}
-            return stls, grains_names
+        grains_stl =  mesh.Mesh(np.concatenate([g.data for g in grains]))
+        stls = {'inlet'     : inlet,
+                'outlet'    : outlet,
+                'wall_up'   : wall_up,
+                'wall_down' : wall_down,
+                'wall_front': wall_front,
+                'wall_back' : wall_back,
+                'grains'    : grains_stl}
+        return stls, grains_names
     
     def prepare_model(self) -> None:
         print("    Preparing model")

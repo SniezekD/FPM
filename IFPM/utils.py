@@ -98,7 +98,7 @@ def make_plot(number_of_geoms):
 
     plt.errorbar(re_vals, Pi_vals/np.max(abs(Pi_vals)), yerr=std_err_Pi, label = "$\pi$")
     plt.errorbar(re_vals, T_vals/np.max(abs(T_vals)), yerr=std_err_T, label = "T")
-    plt.errorbar(re_vals, -1*GE_vals/np.max(abs(GE_vals)), yerr=std_err_GE, label = "GE")
+    plt.errorbar(re_vals, GE_vals/np.max(abs(GE_vals)), yerr=std_err_GE, label = "GE")
     plt.xlabel("$\log_{10}{Re}$")
     plt.legend()
     plt.grid()
