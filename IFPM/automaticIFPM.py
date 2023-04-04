@@ -1,4 +1,5 @@
 import os
+import sys
 import utils
 import argparse
 import numpy as np
@@ -99,23 +100,35 @@ def get_args():
         default='false',
         help='Save openFOAM directory for each Re?'
         )
+    
+    parser.add_argument(
+        "-gv",
+        "--geometry_variant",
+        type=str,
+        default='cube',
+        help="One of eometry variant: 'cube' or 'sphere'"
+        )
     return parser.parse_args()
 
 
 if __name__ == '__main__':
-    args            = get_args()
-    x               = args.x_size
-    y               = args.y_size
-    z               = args.z_size
-    margin          = args.margins
-    Re_min          = args.Re_min
-    Re_max          = args.Re_max
-    Re_num          = args.Re_num
-    geometry_number = args.geometry_number
-    reset           = utils.str2bool(args.reset)
-    epsilon         = args.epsilon
-    wd              = args.work_dir
-    save            = utils.str2bool(args.save)
+    args             = get_args()
+    x                = args.x_size
+    y                = args.y_size
+    z                = args.z_size
+    margin           = args.margins
+    Re_min           = args.Re_min
+    Re_max           = args.Re_max
+    Re_num           = args.Re_num
+    geometry_number  = args.geometry_number
+    geometry_variant = args.geometry_variant
+    reset            = utils.str2bool(args.reset)
+    epsilon          = args.epsilon
+    wd               = args.work_dir
+    save             = utils.str2bool(args.save)
+
+    if z == 1.0 and geometry_variant == 'sphere':
+        sys.exit("Spherical obstacles sre allowed only in 3D!")
     
     # Change the dos endline convention to unix convention 
     for f in ['prep_model.sh', 'run_meshing.sh',
@@ -136,7 +149,8 @@ if __name__ == '__main__':
             porosity=epsilon,
             size={'x': x, 'y': y, 'z': z},
             margin=margin,
-            working_dir=Path(wd)
+            working_dir=Path(wd),
+            geom_var=geometry_variant
             )
         ifpm.prepare_model()
         ifpm.run_meshing()

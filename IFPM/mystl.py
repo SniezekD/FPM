@@ -1,7 +1,7 @@
 import os
 import stl
 import numpy as np
-from stl import mesh
+import pyvista as pv
 
 class grain:
     def __init__(self,  i:float, j:float, k: float = 0.0,
@@ -12,52 +12,52 @@ class grain:
         self.dx = d_i
         self.dy = d_j
         self.dz = d_k
-        self.vertices =  np.array([\
-                        [self.x,         self.y,          self.z        ],
-                        [self.x+self.dx, self.y,          self.z        ],
-                        [self.x+self.dx, self.y+self.dy,  self.z        ],
-                        [self.x,         self.y+self.dy,  self.z        ],
-                        [self.x,         self.y,          self.z+self.dz],
-                        [self.x+self.dx, self.y,          self.z+self.dz],
-                        [self.x+self.dx, self.y+self.dy,  self.z+self.dz],
-                        [self.x,         self.y+self.dy,  self.z+self.dz]
-                        ])
-        self.faces = {'2d': np.array([\
-                        [0,4,7],
-                        [0,7,3],
-                        [5,1,2],
-                        [5,2,6],
-                        [2,3,6],
-                        [3,7,6],
-                        [0,1,5],
-                        [0,5,4]]),
-                    '3d': np.array([\
-                        [0,3,1],
-                        [1,3,2],
-                        [0,4,7],
-                        [0,7,3],
-                        [4,5,6],
-                        [4,6,7],
-                        [5,1,2],
-                        [5,2,6],
-                        [2,3,6],
-                        [3,7,6],
-                        [0,1,5],
-                        [0,5,4]])
-                    }
-        self.cube   = self.generate_stl('3d')
-        self.ribbon = self.generate_stl('2d')
+
+        self.bounding_box = (
+            self.x, self.x+self.dx,
+            self.y, self.y+self.dy,
+            self.z, self.z+self.dz
+        )
+
+        self.cube = pv.Cube(
+            bounds = self.bounding_box
+        )
+
+        self.ribbon = self.generate_ribbon()
         self.name   = f"grain_{self.x}_{self.y}_{self.z}.stl"
 
-    def generate_stl(self, dim: str):
-        cube = mesh.Mesh(np.zeros(self.faces[dim].shape[0], dtype=mesh.Mesh.dtype))
-        for i, f in enumerate(self.faces[dim]):
-            for j in range(3):
-                cube.vectors[i][j] = self.vertices[f[j],:]
-        return  cube
+    def generate_ribbon(self):
+        points = [
+            [self.x,         self.y,         self.z],           #  0
+            [self.x+self.dx, self.y,         self.z],           #  1
+            [self.x,         self.y+self.dy, self.z],           #  2
+            [self.x+self.dx, self.y+self.dy, self.z],           #  3
+            [self.x,         self.y,         self.z+self.dz],   #  4
+            [self.x+self.dx, self.y,         self.z+self.dz],   #  5
+            [self.x,         self.y+self.dy, self.z+self.dz],   #  6
+            [self.x+self.dx, self.y+self.dy, self.z+self.dz]    #  7
+
+        ]
+        
+        rectangles = [
+            pv.Rectangle([points[0],points[4],points[6],points[2]]),
+            pv.Rectangle([points[0],points[1],points[5],points[4]]),
+            pv.Rectangle([points[2],points[3],points[7],points[6]]),
+            pv.Rectangle([points[1],points[3],points[5],points[7]])
+        ]
+
+        ribbon = rectangles[0]
+        for rec in rectangles[1:]:
+            ribbon = ribbon.merge(rec)
+        return ribbon
     
-    def save(self, save_path, mode) -> None:
-        self.cube.save(save_path, mode=mode)
+    def save(self, save_path) -> None:
+        if self.dz == 1.0: 
+            # 2D case
+            self.ribbon.save(save_path)
+        else:
+            # 3D case
+            self.cube.save(save_path)
 
 
 class plane(grain):
@@ -70,35 +70,50 @@ class plane(grain):
         self.dy = d_j
         self.dz = d_k
 
-        self.vertices = np.array([\
-        [self.x,         self.y,         self.z        ],
-        [self.x+self.dx, self.y,         self.z+self.dz],
-        [self.x,         self.y+self.dy, self.z+self.dz],
-        [self.x+self.dx, self.y+self.dy, self.z        ],
-        ])
-
-        # Define the 2 triangles composing the plane
-        if self.dz == 0:
-            self.faces = {'2d': np.array([\
-                [0,1,2],
-                [3,1,2],
-                ])}
-        elif self.dx == 0:
-            self.faces = {'2d': np.array([\
-                [0,1,2],
-                [3,2,0],
-                ])}
+        if self.dx == 0:
+            self.normal = (1,0,0)
+            self.i_size = self.dy
+            self.j_size = self.dz
         elif self.dy == 0:
-            self.faces = {'2d': np.array([\
-                [0,1,2],
-                [3,1,0],
-                ])}
-        else:
-            self.faces = {'2d': np.array([\
-                [0,1,2],
-                [2,3,0],
-                ])}
-        self.plane = self.generate_stl('2d')
-    
-    def save(self, save_path, mode) -> None:
-        self.plane.save(save_path, mode=mode)
+            self.normal = (0,1,0)
+            self.i_size = self.dx
+            self.j_size = self.dz
+        elif self.dz == 0:
+            self.normal = (0,0,1)
+            self.i_size = self.dx
+            self.j_size = self.dy
+
+        self.center = [
+            self.x + 0.5*self.dx,
+            self.y + 0.5*self.dy,
+            self.z + 0.5*self.dz,
+        ]
+
+        self.plane = pv.Plane(
+            center = self.center,
+            direction = self.normal,
+            i_size = self.i_size,
+            j_size = self.j_size,
+            i_resolution = 1,
+            j_resolution = 1
+        )
+
+    def save(self, save_path) -> None:
+        self.plane.save(save_path)
+
+
+class sphere:
+    def __init__(self,  i:float, j:float, k: float = 0.0, 
+                 diameter:float=1.0) -> None:
+        self.radius = diameter/2
+        self.x = i
+        self.y = j
+        self.z = k
+        self.name   = f"sphere_{self.x}_{self.y}_{self.z}.stl"
+
+        self.sphere = pv.Sphere(
+            self.radius,
+            center=[self.x+0.5, self.y+0.5, self.z+0.5],
+            theta_resolution=30,
+            phi_resolution=30
+        )

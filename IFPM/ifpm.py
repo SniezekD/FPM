@@ -1,21 +1,29 @@
 import os
 import stl
+import sys
 import utils
 import shutil
 import numpy as np
 import pyvista as pv
-from mystl import grain, plane
+from mystl import grain, plane, sphere
 from pathlib import Path
 from stl import mesh
 
 class IFPM:
-    def __init__(self, porosity: float, size: dict, margin: int, working_dir: Path) -> None:
-        self.porosity                = porosity
-        self.size                    = size
-        self.margin                  = margin
-        self.wd                      = working_dir
-        self.lattice                 = self.porosity_lattice()
-        self.stls, self.grains_names = self.translate_into_stl()
+    def __init__(self, porosity: float, size: dict, margin: int, working_dir: Path, geom_var: str) -> None:
+        self.porosity         = porosity
+        self.size             = size
+        self.margin           = margin
+        self.wd               = working_dir
+        self.geometry_variant = geom_var
+
+        if self.geometry_variant.lower() not in ['cube', 'sphere']:
+            sys.exit("Illegal geometry type, possible options are: 'cube', 'shpere'")
+        else:
+            print(f"Creating simulation geometry with {self.geometry_variant.lower()}s as obstacles")
+
+        self.lattice                    = self.porosity_lattice()
+        self.stls, self.obstacles_names = self.translate_into_stl()
 
 
     def porosity_lattice(self) -> np.ndarray:
@@ -38,6 +46,7 @@ class IFPM:
 
         # RETRUN LATTICE WITH MARGINS:
         return lattice
+    
 
     def translate_into_fms(self):
         """
@@ -50,10 +59,12 @@ class IFPM:
             return True
         else:
             return False
+        
 
     def translate_into_stl(self):
         """
-        Translates a lattice of zeros and ones into .stl format
+        Translates a lattice of zeros and ones into .stl format with
+        obstacles of given shape.
         """
         inlet      = plane(0, 0, 0,
                             0, self.size['y'], self.size['z'])
@@ -68,37 +79,49 @@ class IFPM:
         wall_back  = plane(0, 0, self.size['z'],
                             self.size['x'] + 2*self.margin, self.size['y'], 0)
         
-        grains       = []
-        grains_names = []
+        obstacles       = []
+        obstacles_names = []
         for z in range(self.lattice.shape[0]):
             for y in range(self.lattice.shape[1]):
                 for x in range(self.lattice.shape[2]):
                     if self.lattice[z,y,x] == 1:
-                        tmp_grain = grain(x,y,z)
-                        grains_names.append(tmp_grain.name)
-                        # if the case is 2D 
-                        if self.lattice.shape[0] == 1:         
-                            grains.append(tmp_grain.ribbon)
-                        else:
-                            grains.append(tmp_grain.cube)
+                        
+                        if self.geometry_variant == 'cube':
+                            tmp_obstacle = grain(x,y,z)
+                            obstacles_names.append(tmp_obstacle.name)
+                            # if the case is 2D 
+                            if self.lattice.shape[0] == 1:         
+                                obstacles.append(tmp_obstacle.ribbon)
+                            else:
+                                obstacles.append(tmp_obstacle.cube)
+
+                        elif self.geometry_variant == 'sphere':
+                            tmp_obstacle = sphere(x,y,z)
+                            obstacles_names.append(tmp_obstacle.name)
+                            obstacles.append(tmp_obstacle.sphere)
 
 
-        grains_stl =  mesh.Mesh(np.concatenate([g.data for g in grains]))
+        # obstacles_stl = mesh.Mesh(np.concatenate([g.data for g in obstacles]))
+        obstacles_stl = obstacles[0]
+        for obs in obstacles[1:]:
+            obstacles_stl = obstacles_stl.merge(obs)
+        
         stls = {'inlet'     : inlet,
                 'outlet'    : outlet,
                 'wall_up'   : wall_up,
                 'wall_down' : wall_down,
                 'wall_front': wall_front,
                 'wall_back' : wall_back,
-                'grains'    : grains_stl}
-        return stls, grains_names
+                'grains'    : obstacles_stl}
+        return stls, obstacles_names
+    
     
     def prepare_model(self) -> None:
         print("    Preparing model")
         for stl_name in self.stls.keys():
             # save_path = self.wd.joinpath('OF_Model', 'constant', 'triSurface', f"{stl_name}.stl")
             save_path = f"/home/damian/MGR/IFPM/{stl_name}.stl"
-            self.stls[stl_name].save(save_path, mode=stl.Mode.ASCII)
+            self.stls[stl_name].save(save_path)
         if(self.lattice.shape[0] == 1):
             print("     Translating geometry into .fms format")
             self.translate_into_fms()
@@ -114,6 +137,7 @@ class IFPM:
         # os.makedirs(self.wd.joinpath('OF_Model', '0'), exist_ok=True)
         # self.wd.joinpath('OF_Model', '0', 'p').touch(exist_ok=True)
         # self.wd.joinpath('OF_Model', '0', 'U').touch(exist_ok=True)
+
 
     def run_meshing(self) -> None:
         """
@@ -146,6 +170,7 @@ class IFPM:
         #             checkMesh &> checkMesh.log"                 
         #             )
 
+
     def prepare_initial_conditions(self, Re: float) -> None:
         print("    Preparing Initial Conditions")
 
@@ -153,6 +178,7 @@ class IFPM:
         p_file = self.wd.joinpath('OF_Model', '0', 'p')
         utils.make_0_U(U_file, self.size, Re)
         utils.make_0_p(p_file, self.size)
+
 
     def run_single_simulation(self, Re: float, n_par: int = 6) -> None:
         """
@@ -181,12 +207,14 @@ class IFPM:
         #             echo '     - done in $SECONDS - $startc s'"
         #             )
         
+
     def save_as_VTK(self) -> None:
         print("    Saving results in VTK format")
         # os.system(f"cd {self.wd.joinpath('OF_Model')} &&\
         #             echo '    Converting foam to VTK' &&\
         #             foamToVTK -latestTime -ascii  &> {self.wd.joinpath('OF_Model')}/foamToVTK.log"
         #             )
+
 
     def prep_convergence(self, Re: float) -> None:
         print("    Running foamLog")
