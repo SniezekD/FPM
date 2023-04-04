@@ -71,7 +71,7 @@ def make_plot(number_of_geoms):
     Pi_vals = sum(np.array(Pi_vals))/number_of_geoms
     GE_vals = sum(np.array(GE_vals))/number_of_geoms
     T_vals  = sum(np.array(T_vals))/number_of_geoms
-
+    
     plt.errorbar(re_vals, GE_vals, yerr=std_err_GE)
     plt.grid()
     plt.ylabel("Entropy")

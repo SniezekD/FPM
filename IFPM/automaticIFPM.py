@@ -3,7 +3,7 @@ import utils
 import argparse
 import numpy as np
 import shutil
-from postProcessing import IFMP_postProc
+from postProcessing import IFPM_postProc
 from pathlib import Path
 from ifpm import IFPM
 
@@ -152,7 +152,8 @@ if __name__ == '__main__':
             ifpm.save_as_VTK()
             ifpm.prep_convergence(Re)
 
-            ifpm_pp = IFMP_postProc(ifpm)
+            vtk_path = ifpm.wd.joinpath('OF_Model', 'VTK', 'OF_Model_500.vtm')
+            ifpm_pp = IFPM_postProc(vtk_path, ifpm.margin, ifpm.size)
             outFile.write(
                     f"{Re}\t{ifpm_pp.pi}\t{ifpm_pp.T}\t{ifpm_pp.entropy}\n"
                     )

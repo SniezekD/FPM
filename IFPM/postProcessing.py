@@ -3,24 +3,32 @@ import utils
 from ifpm import IFPM
 import pyvista as pv
 import re 
+from pathlib import Path
 
 
-class IFMP_postProc:
-    def __init__(self, ifpm) -> None:
-        self.IFPM         = ifpm
-        self.vtk_path     = self.IFPM.wd.joinpath('OF_Model', 'VTK', 'OF_Model_500.vtm')
-        self.trimmed_mesh = self.trimm_mesh()
-        self.U_field      = self.trimmed_mesh.cell_data['U']
-        self.p_field      = self.trimmed_mesh.cell_data['p']
+class IFPM_postProc:
+    def __init__(self, vtk_path:Path, margin:float, size:dict) -> None:
+        self.margin       = margin
+        self.size         = size
+        self.vtk_path     = vtk_path
+        self.cell_volumes = self.trimm_mesh()
+        self.U_field      = self.cell_volumes.cell_data['U']
+        self.p_field      = self.cell_volumes.cell_data['p']
+        self.cell_volumes = self.cell_volumes['Volume']
         self.T            = self.calculate_tortuosity()
         self.pi           = self.calculate_pi()
         self.entropy      = self.calculate_entropy()
 
     def trimm_mesh(self):
         mesh = pv.read(self.vtk_path)
-        mesh = mesh.clip('x', origin= (self.IFPM.margin, 0,0), invert=False)
-        mesh = mesh.clip('x', origin= (self.IFPM.margin + self.IFPM.size['x'],0,0), invert=True)
+        mesh = mesh.clip('x', origin= (self.margin, 0,0), invert=False)
+        mesh = mesh.clip(
+            'x', 
+            origin=(self.margin + self.size['x'],0,0),
+            invert=True
+        )
         mesh = mesh[0]
+        mesh = mesh.compute_cell_sizes()
 
         return mesh
 
@@ -28,7 +36,13 @@ class IFMP_postProc:
         print("    Calculating Participation Number")
         n = len(self.U_field)
 
-        e_values = [u[0]**2 + u[1]**2 + u[2]**2 for u in self.U_field]
+        e_values = [
+            s*(u[0]**2 + u[1]**2 + u[2]**2) for u, s in zip(
+                self.U_field,
+                self.cell_volumes
+                )
+            ]
+        total_volume = np.sum(self.cell_volumes)
         e_tot = sum(e_values)
         q_values_squared = [(e/e_tot)**2 for e in e_values]
         pi = (n*sum(q_values_squared))**(-1)
