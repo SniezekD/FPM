@@ -10,7 +10,13 @@ from pathlib import Path
 from stl import mesh
 
 class IFPM:
-    def __init__(self, porosity: float, size: dict, margin: int, working_dir: Path, geom_var: str) -> None:
+    def __init__(self, porosity: float,
+                 size: dict,
+                 margin: int,
+                working_dir: Path,
+                geom_var: str
+        ) -> None:
+        """Inertial Flow in Porous Media class creator"""
         self.porosity         = porosity
         self.size             = size
         self.margin           = margin
@@ -18,9 +24,11 @@ class IFPM:
         self.geometry_variant = geom_var
 
         if self.geometry_variant.lower() not in ['cube', 'sphere']:
-            sys.exit("Illegal geometry type, possible options are: 'cube', 'shpere'")
+            sys.exit("Illegal geometry type, possible options are:\
+                      'cube', 'shpere'")
         else:
-            print(f"Creating simulation geometry with {self.geometry_variant.lower()}s as obstacles")
+            print(f"Creating simulation geometry with \
+                  {self.geometry_variant.lower()}s as obstacles")
 
         self.lattice                    = self.porosity_lattice()
         self.stls, self.obstacles_names = self.translate_into_stl()
@@ -40,8 +48,17 @@ class IFPM:
             lattice[rnd_x, rnd_y, rnd_z] = 1 
         
         # ADD MARGINS:
-        lattice  = np.insert(lattice, 0, np.zeros((self.margin,self.size['y'],self.size['z'])), axis=0)
-        lattice  = np.append(lattice,    np.zeros((self.margin,self.size['y'],self.size['z'])), axis=0)
+        lattice  = np.insert(
+            lattice, 
+            0, 
+            np.zeros((self.margin, self.size['y'], self.size['z'])),
+            axis=0
+        )
+        lattice  = np.append(
+            lattice,
+            np.zeros((self.margin, self.size['y'], self.size['z'])),
+            axis=0
+        )
         lattice  = lattice.transpose()
 
         # RETRUN LATTICE WITH MARGINS:
@@ -125,10 +142,32 @@ class IFPM:
         if(self.lattice.shape[0] == 1):
             print("     Translating geometry into .fms format")
             self.translate_into_fms()
-            utils.createMeshDict(self.wd.joinpath('OF_Model', 'system', 'meshDict'))
+
+            utils.createMeshDict(
+                self.wd.joinpath(
+                    'OF_Model',
+                    'system',
+                    'meshDict'
+                )
+            )
+            
         else:
-            utils.createBlockMeshDict(self.wd.joinpath('OF_Model', 'system', 'blockMeshDict'), self.size, self.margin)
-            utils.createSnappyHexMeshDict(self.wd.joinpath('OF_Model', 'system', 'snappyHexMeshDict'))
+            utils.createBlockMeshDict(
+                self.wd.joinpath(
+                    'OF_Model',
+                    'system',
+                    'blockMeshDict'
+                ),
+                self.size,
+                self.margin
+            )
+            utils.createSnappyHexMeshDict(
+                self.wd.joinpath(
+                    'OF_Model',
+                    'system',
+                    'snappyHexMeshDict'
+                )
+            )
         utils.run_cmd([r'./prep_model.sh'])
 
         # shutil.rmtree(self.wd.joinpath('OF_Model', '0'))
@@ -141,7 +180,8 @@ class IFPM:
 
     def run_meshing(self) -> None:
         """
-        Runs OpenFOAM meshing commands (Mesh is done with snappyHexMesh tool)
+        Runs OpenFOAM meshing commands. 
+        Mesh is done with snappyHexMesh tool.
         """
         if(self.lattice.shape[0] == 1):
             print("    Creating the mesh with cfMesh")
@@ -182,9 +222,10 @@ class IFPM:
 
     def run_single_simulation(self, Re: float, n_par: int = 6) -> None:
         """
-        Runs SimpeFoam (an OpenFOAM solver) with parellisation into n_par processors.
-        Setting the value of n_par into a value differnet than 6 (default) requires
-        changes inside 'decomposeParDict' inside OF case directory. 
+        Runs SimpeFoam (an OpenFOAM solver) with parellisation
+        into n_par processors. Setting the value of n_par into
+        a value differnet than 6 (default) requires changes inside
+        'decomposeParDict' inside OF case directory. 
         """
         print("    Running the Simulation")
         utils.run_cmd([r'./run_simpleFoam.sh', f'{Re:0.4f}'])
