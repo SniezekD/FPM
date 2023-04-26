@@ -5,7 +5,7 @@ import utils
 import shutil
 import numpy as np
 import pyvista as pv
-from mystl import grain, plane, sphere
+from mystl import ribbon, cube, plane, sphere, rounded_cube
 from pathlib import Path
 from stl import mesh
 
@@ -13,25 +13,30 @@ class IFPM:
     def __init__(self, porosity: float,
                  size: dict,
                  margin: int,
-                working_dir: Path,
-                geom_var: str
+                 working_dir: Path,
+                 r_r: float,
+                 s_o: bool = False
         ) -> None:
         """Inertial Flow in Porous Media class creator"""
-        self.porosity         = porosity
-        self.size             = size
-        self.margin           = margin
-        self.wd               = working_dir
-        self.geometry_variant = geom_var
-
-        if self.geometry_variant.lower() not in ['cube', 'sphere']:
-            sys.exit("Illegal geometry type, possible options are:\
-                      'cube', 'shpere'")
-        else:
-            print(f"Creating simulation geometry with \
-                  {self.geometry_variant.lower()}s as obstacles")
-
-        self.lattice                    = self.porosity_lattice()
+        self.porosity   = porosity
+        self.size       = size
+        self.margin     = margin
+        self.wd         = working_dir
+        self.rounding_r = r_r
+        self.save_obs   = s_o
+        self.lattice    = self.porosity_lattice()
         self.stls, self.obstacles_names = self.translate_into_stl()
+
+        if self.rounding_r <= 866 or self.rounding_r > 0.5:
+            print("Creating simulation geometry with "
+                  + "cubes rounded at the vertices with "
+                  + f"radius {self.rounding_r} as obstacles.")
+        elif self.rounding_r <= 0.5:
+            print(f"Creating simulation geometry with "
+                  + "spheres as obstacles.")
+        elif self.rounding_r > 0.866:
+            print(f"Creating simulation geometry with "
+                  + "sharp cubes as obstacles.")
 
 
     def porosity_lattice(self) -> np.ndarray:
@@ -67,7 +72,7 @@ class IFPM:
 
     def translate_into_fms(self):
         """
-        Translates 2D geometry into .fms format. If geometry is 3D returns None
+        Translates 2D geometry into .fms format. If geometry is 3D returns False
         """
         if(self.lattice.shape[0] == 1):
             for boundary in self.stls.keys():
@@ -83,6 +88,8 @@ class IFPM:
         Translates a lattice of zeros and ones into .stl format with
         obstacles of given shape.
         """
+        print("    Translating the lattice into stl.")
+
         inlet      = plane(0, 0, 0,
                             0, self.size['y'], self.size['z'])
         outlet     = plane(self.size['x'] + 2*self.margin, 0, 0,
@@ -98,28 +105,33 @@ class IFPM:
         
         obstacles       = []
         obstacles_names = []
-        for z in range(self.lattice.shape[0]):
-            for y in range(self.lattice.shape[1]):
-                for x in range(self.lattice.shape[2]):
-                    if self.lattice[z,y,x] == 1:
-                        
-                        if self.geometry_variant == 'cube':
-                            tmp_obstacle = grain(x,y,z)
-                            obstacles_names.append(tmp_obstacle.name)
-                            # if the case is 2D 
-                            if self.lattice.shape[0] == 1:         
-                                obstacles.append(tmp_obstacle.ribbon)
-                            else:
-                                obstacles.append(tmp_obstacle.cube)
 
-                        elif self.geometry_variant == 'sphere':
-                            tmp_obstacle = sphere(x,y,z)
-                            obstacles_names.append(tmp_obstacle.name)
-                            obstacles.append(tmp_obstacle.sphere)
+        grain_positions = np.argwhere(self.lattice == 1)
 
+        for z,y,x in grain_positions:
+            if self.lattice[z,y,x] == 1:
+                if self.rounding_r > 0.866:
+                    # if the case is 2D 
+                    if self.lattice.shape[0] == 1:         
+                        tmp_obstacle = ribbon(x,y,z)
+                    else:
+                        tmp_obstacle = cube(x,y,z)
 
-        # obstacles_stl = mesh.Mesh(np.concatenate([g.data for g in obstacles]))
+                elif self.rounding_r <= 0.5:
+                    tmp_obstacle = sphere(x,y,z)
+
+                else:
+                    tmp_obstacle = rounded_cube(x,y,z,self.rounding_r)
+
+                obstacles_names.append(tmp_obstacle.get_name())
+                obstacles.append(tmp_obstacle.stl)
+
         obstacles_stl = obstacles[0]
+        if self.save_obs:
+            print("      Saving separate obstacles")
+            for obs,obs_name in zip(obstacles, obstacles_names):
+                obs.save(f"{obs_name}")
+
         for obs in obstacles[1:]:
             obstacles_stl = obstacles_stl.merge(obs)
         
@@ -130,14 +142,16 @@ class IFPM:
                 'wall_front': wall_front,
                 'wall_back' : wall_back,
                 'grains'    : obstacles_stl}
+        
+        print("Lattice translated into stl")
+
         return stls, obstacles_names
     
     
-    def prepare_model(self) -> None:
+    def prepare_model(self, ) -> None:
         print("    Preparing model")
         for stl_name in self.stls.keys():
-            # save_path = self.wd.joinpath('OF_Model', 'constant', 'triSurface', f"{stl_name}.stl")
-            save_path = f"/home/damian/MGR/IFPM/{stl_name}.stl"
+            save_path = f"/home/user/MGR/IFPM/{stl_name}.stl"
             self.stls[stl_name].save(save_path)
         if(self.lattice.shape[0] == 1):
             print("     Translating geometry into .fms format")
@@ -150,7 +164,7 @@ class IFPM:
                     'meshDict'
                 )
             )
-            
+
         else:
             utils.createBlockMeshDict(
                 self.wd.joinpath(

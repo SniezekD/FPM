@@ -18,96 +18,105 @@ def get_args():
         "Re_min",
         type=float,
         help='Minimal common (base 10) logarithm of Reynold number.'
-        ) 
+    ) 
     parser.add_argument(
         "Re_max",
         type=float,
         help='Maximal common (base 10) logarithm of Reynold number.'
-        )
+    )
     parser.add_argument(
         "Re_num",
         type=int,
         help='Number of Reynold numbers between Re_min and Re_max \
               to run a simulation for.'
-        )            
+    )            
     parser.add_argument(
         "-gn",
         "--geometry_number",
         type=int,
         default=10,
         help='Number of different geometry realisations to simulate'
-        )
+    )
     parser.add_argument(
         "-x",
         "--x_size",
         type=int,
         default=64,
         help='Size of the model in X-direction.'
-        )
+    )
     parser.add_argument(
         "-y",
         "--y_size",
         type=int,
         default=64,
         help='Size of the model in Y-direction.'
-        )
+    )
     parser.add_argument(
         "-z",
         "--z_size",
         type=int,
         default=1,
         help='Size of the model in Z-direction.'
-        )
+    )
     parser.add_argument(
         "-on",
         "--outname",
         type=str,
         default='results',
         help='Name of the output file with Re vs pi.'
-        )  
+    )  
     parser.add_argument(
         "-r",
         "--reset",
         type=str,
         default='false',
-        help='Wheater or not to delete the output file'
-        )      
+        help='Whether or not to delete the output file'
+    )      
     parser.add_argument(
         "-marg",
         "--margins",
         type=int,
         default=4,
         help='Size of the margin'
-        )
+    )
     parser.add_argument(
         "-eps",
         "--epsilon",
         type=float,
         default=0.9,
         help='Lattice porosity'
-        )
+    )
     parser.add_argument(
         "-wd",
         "--work_dir",
         type=str,
-        default='/home/damian/MGR/wd',
+        default='/home/user/MGR/wd',
         help='Working directory'
-        )
+    )
     parser.add_argument(
         "-s",
         "--save",
         type=str,
         default='false',
         help='Save openFOAM directory for each Re?'
-        )
-    
+    )
     parser.add_argument(
-        "-gv",
-        "--geometry_variant",
+        "-rr",
+        "--rounding_radius",
+        type=float,
+        default=1.0,
+        help="(only in 3D) Rounding radius used to round the vertices of the cubes. "
+            + "It should be defined as the fraction of the cube's edge length. "
+            + "If defined as more than sqrt(3)/2 ~= 0.866 there will be sharp cubes, "
+            + "if defined as less then or equal to 0.5 there will be spheres."
+    ) 
+    parser.add_argument(
+        "-sso",
+        "--save_separate_obstacles",
         type=str,
-        default='cube',
-        help="One of eometry variant: 'cube' or 'sphere'"
-        )
+        default='false',
+        help="If save separate obstacles' stls set to true"
+    )
     return parser.parse_args()
 
 
@@ -121,13 +130,14 @@ if __name__ == '__main__':
     Re_max           = args.Re_max
     Re_num           = args.Re_num
     geometry_number  = args.geometry_number
-    geometry_variant = args.geometry_variant
     reset            = utils.str2bool(args.reset)
     epsilon          = args.epsilon
     wd               = args.work_dir
     save             = utils.str2bool(args.save)
+    r_radius         = args.rounding_radius
+    s_s_o            = utils.str2bool(args.save_separate_obstacles)
 
-    if z == 1.0 and geometry_variant == 'sphere':
+    if z == 1.0 and r_radius <= 0.5:
         sys.exit("Spherical obstacles sre allowed only in 3D!")
     
     # Change the dos endline convention to unix convention 
@@ -150,7 +160,8 @@ if __name__ == '__main__':
             size={'x': x, 'y': y, 'z': z},
             margin=margin,
             working_dir=Path(wd),
-            geom_var=geometry_variant
+            r_r=r_radius,
+            s_o=s_s_o
             )
         ifpm.prepare_model()
         ifpm.run_meshing()
