@@ -185,11 +185,11 @@ if __name__ == '__main__':
             if save and k==0:
                 if ifpm.size['z'] == 1:
                     save_path = Path(
-                        f'/home/damian/sharedVol/OF_2D_Model_save/OF_Model_{Re:0.4f}'
+                        f'/home/user/sharedVol/OF_2D_Model_save/OF_Model_{Re:0.4f}'
                         )
                 else:
                     save_path = Path(
-                        f'/home/damian/sharedVol/OF_3D_Model_save/OF_Model_{Re:0.4f}'
+                        f'/home/user/sharedVol/OF_3D_Model_save/OF_Model_{Re:0.4f}'
                         )
                 of_path = Path(wd)
                 of_path = of_path.joinpath('OF_Model')
