@@ -111,13 +111,11 @@ class IFPM:
         obstacles_names = []
 
         grain_positions = np.argwhere(self.lattice == 1)
-        print(self.rounding_r)
         for z,y,x in grain_positions:
             if self.lattice[z,y,x] == 1:
                 if self.rounding_r > 0.866:
                     # if the case is 2D 
                     if self.lattice.shape[0] == 1:         
-                        print("Im making a ribbon")      
                         tmp_obstacle = ribbon(x,y,z)
                     else:
                         tmp_obstacle = cube(x,y,z)
@@ -125,7 +123,6 @@ class IFPM:
                 elif self.rounding_r <= 0.5:
                     # if the case is 2D:
                     if self.lattice.shape[0] == 1:  
-                        print("Im making a cylinder")      
                         tmp_obstacle = cylinder(x,y,z)
                     else:
                         tmp_obstacle = sphere(x,y,z)

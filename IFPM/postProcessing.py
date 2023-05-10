@@ -8,17 +8,22 @@ from pathlib import Path
 
 class IFPM_postProc:
     def __init__(self, vtk_path:Path, margin:float, size:dict) -> None:
-        self.margin       = margin
-        self.size         = size
-        self.vtk_path     = vtk_path
-        self.cell_volumes, self.inlet_cells, self.outlet_cells = self.trimm_mesh()
-        self.U_field      = self.cell_volumes.cell_data['U']
-        self.p_field      = self.cell_volumes.cell_data['p']
-        self.cell_volumes = self.cell_volumes['Volume']
-        self.T            = self.calculate_tortuosity()
-        self.pi           = self.calculate_pi()
+        self.margin = margin
+        self.size = size
+        self.vtk_path = vtk_path
+
+        self.body_cells, self.inlet_cells, self.outlet_cells = self.trimm_mesh()
+        
+        self.U_field = self.body_cells.cell_data['U']
+        self.p_field = self.body_cells.cell_data['p']
+        
+        self.cell_volume_values = self.body_cells['Volume']
+        
+        self.T, self.uMag_avg, self.uX_avg = self.calculate_tortuosity()
+        
+        self.pi = self.calculate_pi()
+        self.delta_p = self.calculate_avg_pressure_drop()
         # self.entropy      = self.calculate_entropy()
-        self.delta_p      = self.calculate_avg_pressure_drop()
 
 
     def trimm_mesh(self):
@@ -52,10 +57,10 @@ class IFPM_postProc:
         e_values = [
             s*(u[0]**2 + u[1]**2 + u[2]**2) for u, s in zip(
                 self.U_field,
-                self.cell_volumes
+                self.cell_volume_values
                 )
             ]
-        total_volume = np.sum(self.cell_volumes)
+        total_volume = np.sum(self.cell_volume_values)
         e_tot = sum(e_values)
         q_values_squared = [(e/e_tot)**2 for e in e_values]
         pi = (n*sum(q_values_squared))**(-1)
@@ -67,11 +72,18 @@ class IFPM_postProc:
     def calculate_tortuosity(self) -> float:
         print("    Calculating Tortuosity")
 
-        uMag_sum = sum([np.sqrt(u[0]**2+u[1]**2+u[2]**2) for u in self.U_field])
-        uX_sum   = sum([np.sqrt(u[0]**2) for u in self.U_field])
-        print(f"     {uMag_sum / uX_sum}")
+        uMag = [np.sqrt(u[0]**2+u[1]**2+u[2]**2) for u in self.U_field]
+        uX = [np.sqrt(u[0]**2) for u in self.U_field]
+        uMag_sum = sum(uMag)
+        uX_sum   = sum(uX)
 
-        return uMag_sum / uX_sum
+        uMag_avg = np.mean(uMag)
+        uX_avg = np.mean(uX)
+
+        tortuosity = uMag_sum / uX_sum
+        print(f"     {tortuosity}")
+
+        return tortuosity, uMag_avg, uX_avg
     
 
     def calculate_entropy(self) -> float:
