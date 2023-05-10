@@ -12,13 +12,22 @@ class colective_grains():
         if self.stl is not None:
             self.stl.save(save_path, binary=False)
             stl_name = Path(save_path).stem
-            os.system(f"sed -i 's/Visualization Toolkit generated SLA File/{stl_name}.stl/g' {save_path}")
+            os.system(("sed -i 's/Visualization Toolkit generated "
+                       f"SLA File/{stl_name}.stl/g' {save_path}"))
         else:
             print("No stl to save!")
 
 class grain:
-    def __init__(self, i:float, j:float, k: float = 0.0,
-                       d_i:float=1.0, d_j:float=1.0, d_k:float = 1.0) -> None:
+    def __init__(
+            self,
+            i:float,
+            j:float,
+            k:float = 0.0,
+            d_i:float = 1.0,
+            d_j:float = 1.0,
+            d_k:float = 1.0
+        ) -> None:
+        """General grain class"""
         self.x  = i
         self.y  = j
         self.z  = k
@@ -34,13 +43,23 @@ class grain:
         if self.stl is not None:
             self.stl.save(save_path, binary=False)
             stl_name = Path(save_path).stem
-            os.system(f"sed -i 's/Visualization Toolkit generated SLA File/{stl_name}.stl/g' {save_path}")
+            os.system(("sed -i 's/Visualization Toolkit generated "
+                      f"SLA File/{stl_name}.stl/g' {save_path}"))
         else:
             print("No stl to save!")
 
 
 class cube(grain):
-    def __init__(self, i: float, j: float, k: float = 0, d_i: float = 1, d_j: float = 1, d_k: float = 1) -> None:
+    def __init__(
+            self,
+            i:float,
+            j:float,
+            k:float = 0,
+            d_i:float = 1,
+            d_j:float = 1,
+            d_k:float = 1
+        ) -> None:
+        """3D Cube class"""
         super().__init__(i, j, k, d_i, d_j, d_k)
         self.bounding_box = (
             self.x, self.x+self.dx,
@@ -54,8 +73,16 @@ class cube(grain):
 
 
 class ribbon(grain):
-    def __init__(self, i:float, j:float, k: float = 0.0,
-                        d_i:float=1.0, d_j:float=1.0, d_k:float = 1.0) -> None:
+    def __init__(
+            self,
+            i:float,
+            j:float,
+            k:float = 0.0,
+            d_i:float = 1.0,
+            d_j:float = 1.0,
+            d_k:float = 1.0
+        ) -> None:
+        """2D ribbon class"""
         super().__init__(i, j, k, d_i, d_j, d_k)
         self.stl = self.generate_ribbon()
 
@@ -87,8 +114,16 @@ class ribbon(grain):
 
 
 class plane(grain):
-    def __init__(self, i: float, j: float, k: float = 0,
-                       d_i: float = 1, d_j: float = 1, d_k: float = 1) -> None:
+    def __init__(
+        self,
+        i:float,
+        j:float,
+        k:float = 0,
+        d_i:float = 1,
+        d_j:float = 1,
+        d_k:float = 1
+    ) -> None:
+        """2D Plane class"""
         super().__init__(i, j, k, d_i, d_j, d_k)
 
         if self.dx == 0:
@@ -121,9 +156,15 @@ class plane(grain):
 
 
 class sphere(grain):
-    def __init__(self,  i:float, j:float, k: float, 
-                 diameter:float=1.0) -> None:
-        self.radius = diameter/2
+    def __init__(
+            self, 
+            i:float,
+            j:float,
+            k:float, 
+            diameter:float=1.0
+        ) -> None:
+        """3D sphere class"""
+        self.radius = diameter / 2
         self.x = i
         self.y = j
         self.z = k
@@ -138,7 +179,17 @@ class sphere(grain):
 
 
 class rounded_cube(grain):
-    def __init__(self, i: float, j: float, k: float, r_r:float, d_i: float = 1, d_j: float = 1, d_k: float = 1) -> None:
+    def __init__(
+            self,
+            i:float,
+            j:float,
+            k:float,
+            r_r:float,
+            d_i:float = 1,
+            d_j:float = 1,
+            d_k:float = 1
+        ) -> None:
+        """A rounded cube class"""
         super().__init__(i, j, k, d_i, d_j, d_k)
         self.rounding_r = r_r
 
@@ -169,4 +220,27 @@ class rounded_cube(grain):
 
         self.stl = self.sphere.boolean_intersection(self.cube)
 
+class cylinder(grain):
+    def __init__(
+            self,
+            i: float,
+            j: float,
+            k: float = 0,
+            d_i: float = 1,
+            d_j: float = 1,
+            d_k: float = 1,
+            diameter: float = 1,
+            height: float = 1
+        ) -> None:
+        super().__init__(i, j, k, d_i, d_j, d_k)
+        self.radius = diameter / 2
+        self.height = height
 
+        self.stl = pv.Cylinder(
+            center = (self.x, self.y, self.z),
+            direction=(0.0, 0.0, 1.0),
+            radius=self.radius,
+            height=self.height,
+        )
+
+        self.stl = self.stl.triangulate()

@@ -137,9 +137,6 @@ if __name__ == '__main__':
     r_radius         = args.rounding_radius
     s_s_o            = utils.str2bool(args.save_separate_obstacles)
 
-    if z == 1.0 and r_radius <= 0.5:
-        sys.exit("Spherical obstacles sre allowed only in 3D!")
-    
     # Change the dos endline convention to unix convention 
     for f in ['prep_model.sh', 'run_meshing.sh',
                 'run_meshing2D.sh', 'run_simpleFoam.sh']:
