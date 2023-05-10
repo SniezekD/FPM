@@ -5,7 +5,7 @@ import utils
 import shutil
 import numpy as np
 import pyvista as pv
-from mystl import ribbon, cube, plane, sphere, rounded_cube, colective_grains
+from mystl import ribbon, cube, plane, sphere, rounded_cube, colective_grains, cylinder
 from pathlib import Path
 from stl import mesh
 
@@ -28,15 +28,19 @@ class IFPM:
         self.stls, self.obstacles_names = self.translate_into_stl()
 
         if self.rounding_r <= 866 or self.rounding_r > 0.5:
-            print("Creating simulation geometry with "
-                  + "cubes rounded at the vertices with "
-                  + f"radius {self.rounding_r} as obstacles.")
+            print(("Creating 3D simulation geometry with "
+                   "cubes rounded at the vertices with "
+                   f"radius {self.rounding_r} as obstacles."))
         elif self.rounding_r <= 0.5:
-            print(f"Creating simulation geometry with "
-                  + "spheres as obstacles.")
+            if self.lattice.shape[0] == 1:    
+                print((f"Creating 2D simulation geometry with "
+                   "cylinders as obstacles."))
+            else:     
+                print((f"Creating 3D simulation geometry with "
+                   "spheres as obstacles."))
         elif self.rounding_r > 0.866:
-            print(f"Creating simulation geometry with "
-                  + "sharp cubes as obstacles.")
+            print((f"Creating 3D simulation geometry with "
+                   "sharp cubes as obstacles."))
 
 
     def porosity_lattice(self) -> np.ndarray:
@@ -107,19 +111,25 @@ class IFPM:
         obstacles_names = []
 
         grain_positions = np.argwhere(self.lattice == 1)
-
+        print(self.rounding_r)
         for z,y,x in grain_positions:
             if self.lattice[z,y,x] == 1:
                 if self.rounding_r > 0.866:
                     # if the case is 2D 
                     if self.lattice.shape[0] == 1:         
+                        print("Im making a ribbon")      
                         tmp_obstacle = ribbon(x,y,z)
                     else:
                         tmp_obstacle = cube(x,y,z)
 
                 elif self.rounding_r <= 0.5:
-                    tmp_obstacle = sphere(x,y,z)
-
+                    # if the case is 2D:
+                    if self.lattice.shape[0] == 1:  
+                        print("Im making a cylinder")      
+                        tmp_obstacle = cylinder(x,y,z)
+                    else:
+                        tmp_obstacle = sphere(x,y,z)
+                        
                 else:
                     tmp_obstacle = rounded_cube(x,y,z,self.rounding_r)
 
@@ -135,7 +145,6 @@ class IFPM:
         for obs in obstacles[1:]:
             obstacles_stl = obstacles_stl.merge(obs)
         obstacles_stl = colective_grains(obstacles_stl)
-        obstacles_stl.save("/home/user/sharedVol/test_grains.stl")
         
         stls = {'inlet'     : inlet,
                 'outlet'    : outlet,
