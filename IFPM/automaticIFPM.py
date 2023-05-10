@@ -153,7 +153,7 @@ if __name__ == '__main__':
             outFile = open(f"{args.outname}-{k}.dat", "w")
         else:
             outFile = open(f"{args.outname}-{k}.dat", "a")
-        outFile.write("Re\tPI\tT\tEntropy\n")
+        outFile.write("Re\tPI\tT\tAvg_Delta_P\n")
 
         ifpm = IFPM(
             porosity=epsilon,
@@ -180,8 +180,8 @@ if __name__ == '__main__':
             vtk_path = ifpm.wd.joinpath('OF_Model', 'VTK', 'OF_Model_500.vtm')
             ifpm_pp = IFPM_postProc(vtk_path, ifpm.margin, ifpm.size)
             outFile.write(
-                    f"{Re}\t{ifpm_pp.pi}\t{ifpm_pp.T}\t{ifpm_pp.entropy}\n"
-                    )
+                    f"{Re}\t{ifpm_pp.pi}\t{ifpm_pp.T}\t{ifpm_pp.delta_p}\n"
+            )
             if save and k==0:
                 if ifpm.size['z'] == 1:
                     save_path = Path(

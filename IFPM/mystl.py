@@ -2,6 +2,19 @@ import os
 import stl
 import numpy as np
 import pyvista as pv
+from pathlib import Path
+
+class colective_grains():
+    def __init__(self, grains) -> None:
+        self.stl = grains
+
+    def save(self, save_path) -> None:
+        if self.stl is not None:
+            self.stl.save(save_path, binary=False)
+            stl_name = Path(save_path).stem
+            os.system(f"sed -i 's/Visualization Toolkit generated SLA File/{stl_name}.stl/g' {save_path}")
+        else:
+            print("No stl to save!")
 
 class grain:
     def __init__(self, i:float, j:float, k: float = 0.0,
@@ -19,7 +32,9 @@ class grain:
 
     def save(self, save_path) -> None:
         if self.stl is not None:
-            self.stl.save(save_path)
+            self.stl.save(save_path, binary=False)
+            stl_name = Path(save_path).stem
+            os.system(f"sed -i 's/Visualization Toolkit generated SLA File/{stl_name}.stl/g' {save_path}")
         else:
             print("No stl to save!")
 
@@ -41,8 +56,8 @@ class cube(grain):
 class ribbon(grain):
     def __init__(self, i:float, j:float, k: float = 0.0,
                         d_i:float=1.0, d_j:float=1.0, d_k:float = 1.0) -> None:
-        self.stl = self.generate_ribbon()
         super().__init__(i, j, k, d_i, d_j, d_k)
+        self.stl = self.generate_ribbon()
 
     def generate_ribbon(self):
         points = [
@@ -61,7 +76,7 @@ class ribbon(grain):
             pv.Rectangle([points[0],points[4],points[6],points[2]]),
             pv.Rectangle([points[0],points[1],points[5],points[4]]),
             pv.Rectangle([points[2],points[3],points[7],points[6]]),
-            pv.Rectangle([points[1],points[3],points[5],points[7]])
+            pv.Rectangle([points[1],points[5],points[7],points[3]])
         ]
 
         ribbon = rectangles[0]
@@ -78,8 +93,8 @@ class plane(grain):
 
         if self.dx == 0:
             self.normal = (1,0,0)
-            self.i_size = self.dy
-            self.j_size = self.dz
+            self.i_size = self.dz
+            self.j_size = self.dy
         elif self.dy == 0:
             self.normal = (0,1,0)
             self.i_size = self.dx
@@ -103,9 +118,6 @@ class plane(grain):
             i_resolution = 1,
             j_resolution = 1
         )
-
-    def save(self, save_path) -> None:
-        self.stl.save(save_path)
 
 
 class sphere(grain):
@@ -156,3 +168,5 @@ class rounded_cube(grain):
         ) 
 
         self.stl = self.sphere.boolean_intersection(self.cube)
+
+

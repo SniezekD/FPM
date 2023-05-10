@@ -5,7 +5,7 @@ import utils
 import shutil
 import numpy as np
 import pyvista as pv
-from mystl import ribbon, cube, plane, sphere, rounded_cube
+from mystl import ribbon, cube, plane, sphere, rounded_cube, colective_grains
 from pathlib import Path
 from stl import mesh
 
@@ -134,6 +134,8 @@ class IFPM:
 
         for obs in obstacles[1:]:
             obstacles_stl = obstacles_stl.merge(obs)
+        obstacles_stl = colective_grains(obstacles_stl)
+        obstacles_stl.save("/home/user/sharedVol/test_grains.stl")
         
         stls = {'inlet'     : inlet,
                 'outlet'    : outlet,
