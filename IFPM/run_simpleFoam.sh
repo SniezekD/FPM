@@ -18,8 +18,11 @@ echo "    Decomposing"
 # check_return_code $?
 
 echo "    Running simpleFoam"
+if [ ! -d simpleLogs ]; then
+    mkdir simpleLogs
+fi
 # mpirun -np 6 simpleFoam -parallel &> logs/simpleFoam${Re}.log
-simpleFoam &> logs/simpleFoam${Re}.log
+simpleFoam &> simpleLogs/simpleFoam${Re}.log
 # check_return_code $?
 echo "    Reconstructing"
 # reconstructPar &> reconstructPar.log
@@ -27,4 +30,10 @@ echo "    Reconstructing"
 
 echo "    Converting foam to VTK"
 foamToVTK -latestTime -ascii  &> foamToVTK.log
+check_return_code $?
+
+echo "    Removing all processors' directories"
+if [ -d  "processor*" ]; then
+    rm -r processor*
+fi
 check_return_code $?
