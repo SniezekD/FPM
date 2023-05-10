@@ -39,13 +39,13 @@ def standard_err(vector):
 def make_plot(number_of_geoms):
     re_vals = []
     Pi_vals = []
-    GE_vals = []
+    DP_vals = []
     T_vals  = []
     for i in range(number_of_geoms):
         with open(f"results-{i}.dat") as file:
             tmp_Pi = []
             tmp_T  = []
-            tmp_GE = []
+            tmp_DP = []
             for line in file:
                 try:
                     vals = line.split()
@@ -54,29 +54,29 @@ def make_plot(number_of_geoms):
                         re_vals.append(float(vals[0]))
 
                     tmp_Pi.append(float(vals[1]))
-                    tmp_GE.append(float(vals[3]))
+                    tmp_DP.append(float(vals[3]))
                     tmp_T.append(float(vals[2]))
                 except:
                     pass
             
             Pi_vals.append(tmp_Pi)
-            GE_vals.append(tmp_GE)
+            DP_vals.append(tmp_DP)
             T_vals.append(tmp_T)
 
     re_vals = [np.log10(re) for re in re_vals]
     std_err_Pi = standard_err(Pi_vals)
-    std_err_GE = standard_err(GE_vals)
+    std_err_DP = standard_err(DP_vals)
     std_err_T  = standard_err(T_vals)
 
     Pi_vals = sum(np.array(Pi_vals))/number_of_geoms
-    GE_vals = sum(np.array(GE_vals))/number_of_geoms
+    DP_vals = sum(np.array(DP_vals))/number_of_geoms
     T_vals  = sum(np.array(T_vals))/number_of_geoms
     
-    plt.errorbar(re_vals, GE_vals, yerr=std_err_GE)
+    plt.errorbar(re_vals, DP_vals, yerr=std_err_DP)
     plt.grid()
-    plt.ylabel("Entropy")
+    plt.ylabel("$\langle \Delta p \\rangle$")
     plt.xlabel("$\log_{10}{Re}$")
-    plt.savefig('plots/GE-vs-log(Re).png')
+    plt.savefig('plots/DP-vs-log(Re).png')
     plt.cla()
     plt.clf()
 
@@ -98,11 +98,11 @@ def make_plot(number_of_geoms):
 
     plt.errorbar(re_vals, Pi_vals/np.max(abs(Pi_vals)), yerr=std_err_Pi, label = "$\pi$")
     plt.errorbar(re_vals, T_vals/np.max(abs(T_vals)), yerr=std_err_T, label = "T")
-    plt.errorbar(re_vals, GE_vals/np.max(abs(GE_vals)), yerr=std_err_GE, label = "GE")
+    plt.errorbar(re_vals, DP_vals/np.max(abs(DP_vals)), yerr=std_err_DP, label = "$\Delta p$")
     plt.xlabel("$\log_{10}{Re}$")
     plt.legend()
     plt.grid()
-    plt.title("Normalized $\pi$, $T$ and $GE$")
+    plt.title("Normalized $\pi$, $T$ and $\Delta p$")
     plt.savefig('plots/ALL-vs-log(Re).png')
     plt.cla()
     plt.clf()
@@ -207,7 +207,7 @@ vertices
 
 blocks
 (
-    hex (0 1 2 3 4 5 6 7) ($x $y $z) simpleGrading (1 1 1)
+    hex (0 1 2 3 4 5 6 7) ($xd $yd $zd) simpleGrading (1 1 1)
 );
 
 edges
@@ -258,7 +258,17 @@ mergePatchPairs
 
 // ************************************************************************* //
 """)
-        file.write(text.substitute(x = size['x']+2*margin, y = size['y'], z = size['z'], fab_type = front_back_type))
+        file.write(
+            text.substitute(
+                x = size['x']+2*margin,
+                y = size['y'],
+                z = size['z'],
+                xd = 2*(size['x']+2*margin),
+                yd = 2*size['y'],
+                zd = 2*size['z'],
+                fab_type = front_back_type
+            )
+        )
 
 ################################################################################
 #                                                                              #

@@ -38,18 +38,18 @@ RUN pip3 install ipython
 
 RUN apt install python-is-python3 -y
 #install swak4Foam
-WORKDIR /home/damian/openfoam2206
+WORKDIR /home/user/openfoam2206
 RUN hg clone http://hg.code.sf.net/p/openfoam-extend/swak4Foam swak4Foam
-# ADD swak4foam /home/damian/openfoam2206/
-WORKDIR /home/damian/openfoam2206/swak4Foam
+# ADD swak4foam /home/user/openfoam2206/
+WORKDIR /home/user/openfoam2206/swak4Foam
 RUN . /usr/lib/openfoam/openfoam2006/etc/bashrc && ./Allwmake
 
 RUN apt-get install gnuplot -y
 
 RUN apt-get install dos2unix -y
 
-WORKDIR /home/damian/MGR/IFPM
-ADD IFPM /home/damian/MGR/IFPM
+WORKDIR /home/user/MGR/IFPM
+ADD IFPM /home/user/MGR/IFPM
 # RUN ls -l
 # RUN sed -i 's/\r$//' run_simpleFoam.sh 
 RUN dos2unix run_simpleFoam.sh
@@ -57,13 +57,13 @@ RUN dos2unix run_meshing2D.sh
 RUN dos2unix run_meshing.sh
 RUN dos2unix prep_model.sh
 
-# ADD IFPM /home/damian/MGR/IFPM
-ADD OF_Model /home/damian/MGR/wd/OF_Model
+# ADD IFPM /home/user/MGR/IFPM
+ADD OF_Model /home/user/MGR/wd/OF_Model
 
-RUN useradd damian
+RUN useradd user
 
-# RUN chown damian /home/damian -R
-# RUN usermod -a -G sudo damian
+# RUN chown user /home/user -R
+# RUN usermod -a -G sudo user
 
 ENV OMPI_ALLOW_RUN_AS_ROOT=1
 ENV OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1
