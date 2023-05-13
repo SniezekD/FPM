@@ -7,8 +7,9 @@ from pathlib import Path
 
 
 class IFPM_postProc:
-    def __init__(self, vtk_path:Path, margin:float, size:dict) -> None:
-        self.margin = margin
+    def __init__(self, vtk_path:Path, in_margin:float, out_margin:float, size:dict) -> None:
+        self.in_margin = in_margin
+        self.out_margin = out_margin
         self.size = size
         self.vtk_path = vtk_path
 
@@ -28,16 +29,16 @@ class IFPM_postProc:
 
     def trimm_mesh(self):
         mesh = pv.read(self.vtk_path)
-        inlet_marg = mesh.clip('x', origin= (self.margin, 0,0), invert=True) 
+        inlet_marg = mesh.clip('x', origin= (self.in_margin, 0,0), invert=True) 
         outlet_marg = mesh.clip(
             'x', 
-            origin=(self.margin + self.size['x'],0,0),
+            origin=(self.out_margin + self.size['x'],0,0),
             invert=False
         ) 
-        mesh = mesh.clip('x', origin= (self.margin, 0,0), invert=False)
+        mesh = mesh.clip('x', origin= (self.in_margin, 0,0), invert=False)
         mesh = mesh.clip(
             'x', 
-            origin=(self.margin + self.size['x'],0,0),
+            origin=(self.out_margin + self.size['x'],0,0),
             invert=True
         )
         mesh = mesh[0]
@@ -107,7 +108,9 @@ class IFPM_postProc:
         avg_p_outlet = np.mean(p_outlet)
 
         delta_p = abs(avg_p_inlet - avg_p_outlet)
-        delta_p_on_L = delta_p / self.size['x'] - 2*self.margin
+        delta_p_on_L = delta_p / (self.size['x'] 
+                                  - self.in_margin 
+                                  - self.out_margin)
 
         print(f"     {delta_p}")
 

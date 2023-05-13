@@ -12,7 +12,8 @@ from stl import mesh
 class IFPM:
     def __init__(self, porosity: float,
                  size: dict,
-                 margin: int,
+                 in_margin: int,
+                 out_margin: int,
                  working_dir: Path,
                  r_r: float,
                  s_o: bool = False
@@ -20,7 +21,8 @@ class IFPM:
         """Inertial Flow in Porous Media class creator"""
         self.porosity   = porosity
         self.size       = size
-        self.margin     = margin
+        self.in_margin  = in_margin
+        self.out_margin = out_margin
         self.wd         = working_dir
         self.rounding_r = r_r
         self.save_obs   = s_o
@@ -60,12 +62,12 @@ class IFPM:
         lattice  = np.insert(
             lattice, 
             0, 
-            np.zeros((self.margin, self.size['y'], self.size['z'])),
+            np.zeros((self.in_margin, self.size['y'], self.size['z'])),
             axis=0
         )
         lattice  = np.append(
             lattice,
-            np.zeros((self.margin, self.size['y'], self.size['z'])),
+            np.zeros((self.out_margin, self.size['y'], self.size['z'])),
             axis=0
         )
         lattice  = lattice.transpose()
@@ -96,16 +98,16 @@ class IFPM:
 
         inlet      = plane(0, 0, 0,
                             0, self.size['y'], self.size['z'])
-        outlet     = plane(self.size['x'] + 2*self.margin, 0, 0,
+        outlet     = plane(self.size['x'] + self.in_margin + self.out_margin, 0, 0,
                             0, self.size['y'], self.size['z'])
         wall_up    = plane(0, self.size['y'], 0,
-                            self.size['x'] + 2*self.margin, 0, self.size['z'])
+                            self.size['x'] + self.in_margin + self.out_margin, 0, self.size['z'])
         wall_down  = plane(0, 0, 0,
-                            self.size['x'] + 2*self.margin, 0, self.size['z'])
+                            self.size['x'] + self.in_margin + self.out_margin, 0, self.size['z'])
         wall_front = plane(0, 0, 0,
-                            self.size['x'] + 2*self.margin, self.size['y'], 0)
+                            self.size['x'] + self.in_margin + self.out_margin, self.size['y'], 0)
         wall_back  = plane(0, 0, self.size['z'],
-                            self.size['x'] + 2*self.margin, self.size['y'], 0)
+                            self.size['x'] + self.in_margin + self.out_margin, self.size['y'], 0)
         
         obstacles       = []
         obstacles_names = []

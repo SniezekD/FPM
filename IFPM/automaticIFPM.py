@@ -71,13 +71,20 @@ def get_args():
         type=str,
         default='false',
         help='Whether or not to delete the output file'
-    )      
+    )  
     parser.add_argument(
-        "-marg",
-        "--margins",
+        "-imarg",
+        "--inlet_margin",
         type=int,
         default=4,
-        help='Size of the margin'
+        help='Size of the inlet margin'
+    )      
+    parser.add_argument(
+        "-omarg",
+        "--outlet_margin",
+        type=int,
+        default=4,
+        help='Size of the outlet margin'
     )
     parser.add_argument(
         "-eps",
@@ -125,7 +132,8 @@ if __name__ == '__main__':
     x                = args.x_size
     y                = args.y_size
     z                = args.z_size
-    margin           = args.margins
+    in_margin        = args.inlet_margin
+    out_margin       = args.outlet_margin
     Re_min           = args.Re_min
     Re_max           = args.Re_max
     Re_num           = args.Re_num
@@ -155,7 +163,8 @@ if __name__ == '__main__':
         ifpm = IFPM(
             porosity=epsilon,
             size={'x': x, 'y': y, 'z': z},
-            margin=margin,
+            in_margin=in_margin,
+            out_margin=out_margin,
             working_dir=Path(wd),
             r_r=r_radius,
             s_o=s_s_o
