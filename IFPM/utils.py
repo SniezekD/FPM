@@ -170,7 +170,7 @@ def plot_residuals(re_list:list, path:Path, savename:str=None) -> None:
 #                            CREATE BLOCK MESH DICT                            #
 #                                                                              #
 ################################################################################
-def  createBlockMeshDict(filePath, size, margin):
+def  createBlockMeshDict(filePath, size, in_margin, out_margin):
     if size['z'] == 1:
         front_back_type = 'empty'
     else:
@@ -260,10 +260,10 @@ mergePatchPairs
 """)
         file.write(
             text.substitute(
-                x = size['x']+2*margin,
+                x = size['x']+in_margin+out_margin,
                 y = size['y'],
                 z = size['z'],
-                xd = 2*(size['x']+2*margin),
+                xd = 2*(size['x']+in_margin+out_margin),
                 yd = 2*size['y'],
                 zd = 2*size['z'],
                 fab_type = front_back_type
@@ -297,9 +297,9 @@ FoamFile
 
 surfaceFile "constant/triSurface/col_model.fms";
 
-/* minCellSize 0.2; */
+minCellSize 0.1;
 
-maxCellSize 0.25;
+maxCellSize 0.1;
 
 /* boundaryCellSize 0.1; */
 
@@ -497,8 +497,8 @@ FoamFile
 {
     version     2.0;
     format      ascii;
-    class       dictionary;
-    object      blockMeshDict;
+    class       volVectorField;
+    object      U;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -510,9 +510,8 @@ boundaryField
 {
     inlet.stl
     {
-        type            groovyBC;
-        value           uniform ($v 0 0);
-        valueExpression "vector($v,0,0)";    
+        type            fixedValue;
+        value uniform   ($v 0 0);
     }
 
     outlet.stl
@@ -576,8 +575,8 @@ FoamFile
 {
     version     2.0;
     format      ascii;
-    class       dictionary;
-    object      blockMeshDict;
+    class       volScalarField;
+    object      p;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
