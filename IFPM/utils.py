@@ -41,11 +41,15 @@ def make_plot(number_of_geoms):
     Pi_vals = []
     DP_vals = []
     T_vals  = []
+    F_vals = []
+    rep_vals = []
     for i in range(number_of_geoms):
         with open(f"results-{i}.dat") as file:
             tmp_Pi = []
             tmp_T  = []
             tmp_DP = []
+            tmp_F = []
+            tmp_rep = []
             for line in file:
                 try:
                     vals = line.split()
@@ -54,25 +58,43 @@ def make_plot(number_of_geoms):
                         re_vals.append(float(vals[0]))
 
                     tmp_Pi.append(float(vals[1]))
-                    tmp_DP.append(float(vals[3]))
                     tmp_T.append(float(vals[2]))
+                    tmp_DP.append(float(vals[3]))
+                    tmp_F.append(float(vals[6]))
+                    tmp_rep.append(float(vals[7]))
                 except:
                     pass
             
             Pi_vals.append(tmp_Pi)
             DP_vals.append(tmp_DP)
             T_vals.append(tmp_T)
+            F_vals.append(tmp_F)
+            rep_vals.append(tmp_rep)
 
     re_vals = [np.log10(re) for re in re_vals]
     std_err_Pi = standard_err(Pi_vals)
     std_err_DP = standard_err(DP_vals)
     std_err_T  = standard_err(T_vals)
+    std_err_F  = standard_err(F_vals)
+    std_err_rep  = standard_err(rep_vals)
 
-    Pi_vals = sum(np.array(Pi_vals))/number_of_geoms
-    DP_vals = sum(np.array(DP_vals))/number_of_geoms
-    T_vals  = sum(np.array(T_vals))/number_of_geoms
+    Pi_vals = sum(np.array(Pi_vals)) / number_of_geoms
+    DP_vals = sum(np.array(DP_vals)) / number_of_geoms
+    T_vals  = sum(np.array(T_vals)) / number_of_geoms
+    F_vals  = -sum(np.array(F_vals)) / number_of_geoms
+    rep_vals  = sum(np.array(rep_vals)) / number_of_geoms
+
+    outfile = open("AvgResults.dat", "w")
+    outfile.write(("log_10(Re)\tpi\tstd_pi\tDP\tstd_DP\tT\tstd_T\tFriciton\t"
+                   "std_Friction\tre'\tstd_re'\n"))
+    for re,Pi,DP,T,F,rep in zip(re_vals,Pi_vals,DP_vals,T_vals,F_vals,rep_vals):
+        outfile.write((f"{re}\t{Pi}\t{std_err_Pi}\t{DP}\t{std_err_DP}\t{T}"
+                       f"\t{std_err_T}\t{F}\t{std_err_F}\t{rep}\t{std_err_rep}"
+                       f"\n"))
+
+    outfile.close()
     
-    plt.errorbar(re_vals, DP_vals, yerr=std_err_DP)
+    plt.plot(re_vals, DP_vals)
     plt.grid()
     plt.ylabel("$\langle \Delta p \\rangle$")
     plt.xlabel("$\log_{10}{Re}$")
@@ -93,6 +115,16 @@ def make_plot(number_of_geoms):
     plt.ylabel("$\pi$")
     plt.xlabel("$\log_{10}{Re}$")
     plt.savefig('plots/PI-vs-log(Re).png')
+    plt.cla()
+    plt.clf()
+
+    plt.plot(rep_vals, F_vals, "-o")
+    plt.grid()
+    plt.yscale('log')
+    plt.xscale('log')
+    plt.ylabel("Friction factor")
+    plt.xlabel("$\log_{10}{Re'}$")
+    plt.savefig("plots/Friction-vs-log(Re').png")
     plt.cla()
     plt.clf()
 
@@ -297,9 +329,9 @@ FoamFile
 
 surfaceFile "constant/triSurface/col_model.fms";
 
-minCellSize 0.1;
+minCellSize 0.05;
 
-maxCellSize 0.1;
+maxCellSize 0.05;
 
 /* boundaryCellSize 0.1; */
 

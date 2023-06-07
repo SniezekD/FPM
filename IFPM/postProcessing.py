@@ -7,7 +7,13 @@ from pathlib import Path
 
 
 class IFPM_postProc:
-    def __init__(self, vtk_path:Path, in_margin:float, out_margin:float, size:dict) -> None:
+    def __init__(
+            self,
+            vtk_path:Path,
+            in_margin:float,
+            out_margin:float,
+            size:dict
+        ) -> None:
         self.in_margin = in_margin
         self.out_margin = out_margin
         self.size = size
@@ -21,11 +27,13 @@ class IFPM_postProc:
         self.cell_volume_values = self.body_cells['Volume']
         
         self.T, self.uMag_avg, self.uX_avg = self.calculate_tortuosity()
+        self.inplet_press_plane, self.outlet_perss_plane = \
+            self.get_pressure_meas_planes()
         
         self.pi = self.calculate_pi()
         self.delta_p = self.calculate_avg_pressure_drop()
-        # self.entropy      = self.calculate_entropy()
-
+        self.friction_factor, self.re_Dash = self.calculate_friction_factor()
+        
 
     def trimm_mesh(self):
         mesh = pv.read(self.vtk_path)
@@ -49,6 +57,37 @@ class IFPM_postProc:
         outlet_marg = outlet_marg.compute_cell_sizes()
 
         return mesh, inlet_marg, outlet_marg
+    
+
+    def get_pressure_meas_planes(self):
+        mesh = pv.read(self.vtk_path)
+        inlet_pressure_plane = mesh.clip(
+            'x',
+            origin=(self.in_margin-1, 0,0),
+            invert=True
+        ) 
+        inlet_pressure_plane = inlet_pressure_plane.clip(
+            'x',
+            origin=(self.in_margin-2, 0,0),
+            invert=False
+        ) 
+        outlet_pressure_plane = mesh.clip(
+            'x', 
+            origin=(self.out_margin + self.size['x'] + 1,0,0),
+            invert=False
+        ) 
+        outlet_pressure_plane = outlet_pressure_plane.clip(
+            'x', 
+            origin=(self.out_margin + self.size['x'] + 2,0,0),
+            invert=True
+        ) 
+        
+        inlet_pressure_plane = inlet_pressure_plane[0]
+        inlet_pressure_plane = inlet_pressure_plane.compute_cell_sizes()
+        outlet_pressure_plane = outlet_pressure_plane[0]
+        outlet_pressure_plane = outlet_pressure_plane.compute_cell_sizes()
+
+        return inlet_pressure_plane, outlet_pressure_plane
 
 
     def calculate_pi(self) -> float:
@@ -101,19 +140,28 @@ class IFPM_postProc:
 
     def calculate_avg_pressure_drop(self) -> float:
         print("    Calculating Average Pressure Drop")
-        p_inlet = self.inlet_cells.cell_data['p']
-        p_outlet = self.outlet_cells.cell_data['p']
+        p_inlet = self.inplet_press_plane.cell_data['p']
+        p_outlet = self.outlet_perss_plane.cell_data['p']
 
         avg_p_inlet = np.mean(p_inlet)
         avg_p_outlet = np.mean(p_outlet)
 
         delta_p = abs(avg_p_inlet - avg_p_outlet)
-        delta_p_on_L = delta_p / (self.size['x'] 
-                                  - self.in_margin 
-                                  - self.out_margin)
+        
 
         print(f"     {delta_p}")
-
         
         return delta_p
+    
+    def calculate_friction_factor(self) -> float:
+        dp = self.delta_p
+        model_length = (self.size['x'] - self.in_margin - self.out_margin)
+        beta = 1.0
+        # In OpenFOAM pressure field is really pressure / density
+        f = -dp / (model_length * beta * self.uMag_avg**2)
+        nu = 1.0e-6
+        alpha = 1 
+        Re_dash = beta * self.uMag_avg / (alpha * nu)
+
+        return f, Re_dash
 

@@ -4,9 +4,10 @@ import utils
 import argparse
 import numpy as np
 import shutil
+import benchmarks
 from postProcessing import IFPM_postProc
 from pathlib import Path
-from ifpm import IFPM
+from ifpm import IFPM, FractalIFPM
 
 def get_args():
     parser = argparse.ArgumentParser(
@@ -112,17 +113,37 @@ def get_args():
         "--rounding_radius",
         type=float,
         default=1.0,
-        help="(only in 3D) Rounding radius used to round the vertices of the cubes. "
-            + "It should be defined as the fraction of the cube's edge length. "
-            + "If defined as more than sqrt(3)/2 ~= 0.866 there will be sharp cubes, "
-            + "if defined as less then or equal to 0.5 there will be spheres."
-    ) 
+        help=("Rounding radius used to round the vertices of the cubes. "
+              "It should be defined as the fraction of the cube's edge length. "
+              "If defined as more than sqrt(3)/2 ~= 0.866 there will be "
+              "sharp cubes, if defined as less then or equal to 0.5 there "
+              "will be spheres.")
+    )
     parser.add_argument(
         "-sso",
         "--save_separate_obstacles",
         type=str,
         default='false',
         help="If save separate obstacles' stls set to true"
+    )
+    parser.add_argument(
+        "-fractal",
+        "--fractal_lvl",
+        type=int,
+        default=0,
+        help=("If set to integer greater than 0 the geometry will be "
+              "Sierpinski carpet (2D) of Manger Sponge (3D) "
+              "- depends on the size of the system.")
+    )
+    parser.add_argument(
+        "-benchmark",
+        "--benchmark",
+        type=str,
+        required=False,
+        default=None,
+        help=("If set, a specific benchmark will be run. "
+              "Possible benchmarks:\n"
+              " - Ordered porous media 'orderdedPM'") 
     )
     return parser.parse_args()
 
@@ -144,6 +165,8 @@ if __name__ == '__main__':
     save             = utils.str2bool(args.save)
     r_radius         = args.rounding_radius
     s_s_o            = utils.str2bool(args.save_separate_obstacles)
+    fractal_lvl      = args.fractal_lvl
+    benchmark        = args.benchmark
 
     # Change the dos endline convention to unix convention 
     for f in ['prep_model.sh', 'run_meshing.sh',
@@ -158,17 +181,49 @@ if __name__ == '__main__':
             outFile = open(f"{args.outname}-{k}.dat", "w")
         else:
             outFile = open(f"{args.outname}-{k}.dat", "a")
-        outFile.write("Re\tPI\tT\tAvg_Delta_P\tAVG_uX\tAVG_uMag\n")
+        outFile.write("Re\tPI\tT\tAvg_Delta_P\tAVG_uX\tAVG_uMag\tFriction\tRe'\n")
 
-        ifpm = IFPM(
-            porosity=epsilon,
-            size={'x': x, 'y': y, 'z': z},
-            in_margin=in_margin,
-            out_margin=out_margin,
-            working_dir=Path(wd),
-            r_r=r_radius,
-            s_o=s_s_o
+        if fractal_lvl > 0:
+            ifpm = FractalIFPM(
+                fractal_level=fractal_lvl,
+                size={'x': x, 'y': y, 'z': z},
+                in_margin=in_margin,
+                out_margin=out_margin,
+                working_dir=Path(wd),
+                s_o=s_s_o
             )
+        elif benchmark == "orderdedPM":
+            print("Running orderdedPM benchmark")
+            lattice = benchmarks.ordered_PM_lattice(
+                porosity=epsilon,
+                x_dim = x,
+                y_dim = y,
+                z_dim = z,
+                in_margin=in_margin,
+                out_margin=out_margin
+            )
+            
+            ifpm = IFPM(
+                porosity=epsilon,
+                size={'x': x, 'y': y, 'z': z},
+                in_margin=in_margin,
+                out_margin=out_margin,
+                working_dir=Path(wd),
+                r_r=r_radius,
+                s_o=s_s_o,
+                lattice=lattice
+                )
+        else:
+            ifpm = IFPM(
+                porosity=epsilon,
+                size={'x': x, 'y': y, 'z': z},
+                in_margin=in_margin,
+                out_margin=out_margin,
+                working_dir=Path(wd),
+                r_r=r_radius,
+                s_o=s_s_o
+                )
+            
         ifpm.prepare_model()
         ifpm.run_meshing()
 
@@ -184,10 +239,16 @@ if __name__ == '__main__':
             ifpm.prep_convergence(Re)
 
             vtk_path = ifpm.wd.joinpath('OF_Model', 'VTK', 'OF_Model_500.vtm')
-            ifpm_pp = IFPM_postProc(vtk_path, ifpm.margin, ifpm.size)
+            ifpm_pp = IFPM_postProc(
+                vtk_path,
+                ifpm.in_margin,
+                ifpm.out_margin,
+                ifpm.size
+            )
             outFile.write(
                     (f"{Re}\t{ifpm_pp.pi}\t{ifpm_pp.T}\t{ifpm_pp.delta_p}"
-                     f"\t{ifpm_pp.uX_avg}\t{ifpm_pp.uMag_avg}\n")
+                     f"\t{ifpm_pp.uX_avg}\t{ifpm_pp.uMag_avg}"
+                     f"\t{ifpm_pp.friction_factor}\t{ifpm_pp.re_Dash}\n")
             )
             if save and k==0:
                 if ifpm.size['z'] == 1:
