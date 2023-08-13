@@ -1,3 +1,4 @@
+import os
 import sys
 import subprocess
 import numpy as np
@@ -31,9 +32,17 @@ def run_cmd2(arg: str, shell: bool = False) -> float:
         print(f"     Error! \n{arg} ended with code {status.returncode}.")
         sys.exit(status)
 
-def standard_err(vector):
+
+
+def standard_err(array):
+    std_err_vec = []
+    arr = np.array(array)
+    for j in range(arr.shape[1]):
+        vector = [arr[i,j] for i in range(arr.shape[0])]
+
+        std_err_vec.append(np.std(vector, ddof=1) / np.sqrt(np.size(vector)))
     
-    return np.std(vector, ddof=1) / np.sqrt(np.size(vector))
+    return std_err_vec
  
 
 def make_plot(number_of_geoms):
@@ -78,18 +87,26 @@ def make_plot(number_of_geoms):
     std_err_F  = standard_err(F_vals)
     std_err_rep  = standard_err(rep_vals)
 
+
     Pi_vals = sum(np.array(Pi_vals)) / number_of_geoms
     DP_vals = sum(np.array(DP_vals)) / number_of_geoms
     T_vals  = sum(np.array(T_vals)) / number_of_geoms
-    F_vals  = -sum(np.array(F_vals)) / number_of_geoms
+    F_vals  = sum(np.array(F_vals)) / number_of_geoms
     rep_vals  = sum(np.array(rep_vals)) / number_of_geoms
 
     outfile = open("AvgResults.dat", "w")
     outfile.write(("log_10(Re)\tpi\tstd_pi\tDP\tstd_DP\tT\tstd_T\tFriciton\t"
                    "std_Friction\tre'\tstd_re'\n"))
-    for re,Pi,DP,T,F,rep in zip(re_vals,Pi_vals,DP_vals,T_vals,F_vals,rep_vals):
-        outfile.write((f"{re}\t{Pi}\t{std_err_Pi}\t{DP}\t{std_err_DP}\t{T}"
-                       f"\t{std_err_T}\t{F}\t{std_err_F}\t{rep}\t{std_err_rep}"
+    for re,Pi,std_Pi,DP,std_DP,T,std_T,F,std_F,rep,std_rep in zip(
+        re_vals,
+        Pi_vals,std_err_Pi,
+        DP_vals,std_err_DP,
+        T_vals,std_err_T,
+        F_vals,std_err_F,
+        rep_vals,std_err_rep
+    ):
+        outfile.write((f"{re}\t{Pi}\t{std_Pi}\t{DP}\t{std_DP}\t{T}"
+                       f"\t{std_T}\t{F}\t{std_F}\t{rep}\t{std_rep}"
                        f"\n"))
 
     outfile.close()
@@ -153,40 +170,103 @@ def read_data_from_file(path:Path):
     
     return x_arr, data_arr
 
-def plot_residuals(re_list:list, path:Path, savename:str=None) -> None:
-    row_number = int(np.ceil(len(re_list)/5))
-    col_number = 5
-    fig, ax = plt.subplots(row_number, col_number, figsize=(20, 35))
+def plot_residuals(collective_path:Path, savename:str=None) -> None:
+    plt.rcParams.update({'font.size': 22})
+    of_dirs = os.listdir(collective_path)
+    of_dirs = [ofdir for ofdir in of_dirs if "OF_Model" in ofdir]
+    of_dirs = sorted(of_dirs, key = lambda x: float(x.split('_')[-1]))
+    number_of_plots = len(of_dirs)
+    if number_of_plots % 4 != 0:
+        col_number = 2
+        row_number = int(np.ceil(number_of_plots/col_number))
+        figsize = (col_number*10, row_number*5)
+    else:
+        col_number = 4
+        row_number = int(np.ceil(number_of_plots/col_number))
+        figsize = (col_number*5, row_number*5)
+    fig, ax = plt.subplots(
+        row_number,
+        col_number,
+        figsize=figsize,
+    )
     fig.tight_layout(pad=3.0)
+    labels = ["U${_x}$","U${_y}$","U${_z}$","p"]
 
-    for i, Re in enumerate(re_list):
-        Ux_path = path.joinpath(f'OF_Model_{Re:0.4f}', 'logs', 'Ux_0')
-        Uy_path = path.joinpath(f'OF_Model_{Re:0.4f}', 'logs', 'Uy_0')
-        Uz_path = path.joinpath(f'OF_Model_{Re:0.4f}', 'logs', 'Uz_0')
-        p_path  = path.joinpath(f'OF_Model_{Re:0.4f}', 'logs', 'p_0')
+    # fig.tight_layout(pad=2.0,h_pad=4.0)
+    lines_labels = [ax.get_legend_handles_labels() for ax in fig.axes]
+    lines, labels = [sum(lol, []) for lol in zip(*lines_labels)]    
 
+    for i, ofdir in enumerate(of_dirs):
+        Ux_path = collective_path.joinpath(ofdir, 'logs', 'Ux_0')
+        Uy_path = collective_path.joinpath(ofdir, 'logs', 'Uy_0')
+        if "Uz_0" in os.listdir(collective_path.joinpath(ofdir, 'logs')):
+            Uz_path = collective_path.joinpath(ofdir, 'logs', 'Uz_0')
+        else:
+            Uz_path = None
+        p_path  = collective_path.joinpath(ofdir, 'logs', 'p_0')
+        Re = float(ofdir.split('_')[-1])
+        print(Ux_path)
         iters, Ux_data = read_data_from_file(Ux_path)
         _    , Uy_data = read_data_from_file(Uy_path)
-        _    , Uz_data = read_data_from_file(Uz_path)
+        if Uz_path is not None:
+            _    , Uz_data = read_data_from_file(Uz_path)
         _    , p_data  = read_data_from_file(p_path)
 
         Ux = [u[0] for u in Ux_data]
         Uy = [u[0] for u in Uy_data]
-        Uz = [u[0] for u in Uz_data]
+        if Uz_path is not None:
+            Uz = [u[0] for u in Uz_data]
         p  = [p[0] for p in p_data]
 
-        ax[int(i/col_number), int(i%col_number)].plot(iters, Ux, label = "Ux_0")
-        ax[int(i/col_number), int(i%col_number)].plot(iters, Uy, label = "Uy_0")
-        ax[int(i/col_number), int(i%col_number)].plot(iters, Uz, label = "Uz_0")
-        ax[int(i/col_number), int(i%col_number)].plot(iters, p, label = "p_0")
+        ax[int(i/col_number), int(i%col_number)].plot(
+            iters,
+            Ux,
+            label = "U${_x}$",
+            color="red",
+            linewidth=4.0
+        )
+        ax[int(i/col_number), int(i%col_number)].plot(
+            iters,
+            Uy,
+            label = "U${_y}$",
+            color="blue",
+            linewidth=4.0
+        )
+        if Uz_path is not None:
+            ax[int(i/col_number), int(i%col_number)].plot(
+                iters,
+                Uz, 
+                color="green",
+                label = "U${_z}$",
+                linewidth=4.0
+            )
+        ax[int(i/col_number), int(i%col_number)].plot(
+            iters,
+            p,
+            label = "p",
+            color="gray",
+            linewidth=4.0
+        )
         ax[int(i/col_number), int(i%col_number)].set_title(
-            f"Residuals\nRe={Re:0.4f}"
+            f"Re={Re:0.4f}"
         )
         ax[int(i/col_number), int(i%col_number)].set_yscale('log')
-        ax[int(i/col_number), int(i%col_number)].legend()
-
+        # ax[int(i/col_number), int(i%col_number)].legend()
+        handles, labels = ax[int(i/col_number), int(i%col_number)].get_legend_handles_labels()
+    fig.legend(
+        handles,
+        labels,
+        loc="lower center",
+        bbox_to_anchor=(0.5,-0.015),
+        ncols=4,
+        columnspacing=5.0,
+        labelspacing=5.0,
+        fontsize=32,
+        fancybox=True,
+        frameon=True
+    )
     if savename is not None:
-        plt.savefig(f'{savename}.png')
+        plt.savefig(f'{savename}.png',bbox_inches='tight')
     else:
         plt.show()
 
@@ -329,9 +409,9 @@ FoamFile
 
 surfaceFile "constant/triSurface/col_model.fms";
 
-minCellSize 0.05;
+minCellSize 0.25;
 
-maxCellSize 0.05;
+maxCellSize 0.25;
 
 /* boundaryCellSize 0.1; */
 

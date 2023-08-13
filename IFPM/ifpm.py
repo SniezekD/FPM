@@ -33,7 +33,7 @@ class IFPM:
         else:
             self.lattice = lattice
 
-        if self.rounding_r <= 866 or self.rounding_r > 0.5:
+        if self.rounding_r <= 0.866 and self.rounding_r > 0.5:
             print(("Creating 3D simulation geometry with "
                    "cubes rounded at the vertices with "
                    f"radius {self.rounding_r} as obstacles."))

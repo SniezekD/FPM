@@ -2,7 +2,9 @@ import numpy as np
 import utils
 from ifpm import IFPM
 import pyvista as pv
+import pathlib
 import re 
+import matplotlib.pyplot as plt
 from pathlib import Path
 
 
@@ -147,8 +149,6 @@ class IFPM_postProc:
         avg_p_outlet = np.mean(p_outlet)
 
         delta_p = abs(avg_p_inlet - avg_p_outlet)
-        
-
         print(f"     {delta_p}")
         
         return delta_p
@@ -165,3 +165,33 @@ class IFPM_postProc:
 
         return f, Re_dash
 
+    def velocity_distribution(
+            self,
+            save_path:pathlib.Path=None
+        ) -> np.ndarray:
+        velocities = self.U_field
+        print(velocities.shape)
+        vel_x = velocities[:,0]
+        vel_y = velocities[:,1]
+        vel_z = velocities[:,2]
+        volumes = self.cell_volume_values
+        volumes_ratio = volumes / np.sum(volumes)
+        print(f"Total Volume: {np.sum(volumes)}")
+        print(f"Total Volume Ratio: {np.sum(volumes_ratio)}")
+
+        if save_path:
+            fig, (ax1, ax2, ax3) = plt.subplots(nrows=1, ncols=3, figsize=(8,4))
+            ax1.plot(vel_x, volumes_ratio, 'o', label="U_x")
+            ax2.plot(vel_y, volumes_ratio, 'o', label="U_y")
+            ax3.plot(vel_z, volumes_ratio, 'o', label="U_z")
+            plt.legend()
+            plt.savefig(save_path)
+
+        vortex_velocity_x = np.sum(np.where(vel_x <=0, vel_x, 0) * volumes_ratio)
+        print(vortex_velocity_x)
+
+        vel_mag = np.sqrt(vel_x**2 + vel_y**2 + vel_z**2)
+        vortex_velocity_magnitude = np.sum(np.where(vel_x <=0, vel_mag, 0) * volumes_ratio)
+        print(vortex_velocity_magnitude)
+
+        return vortex_velocity_x, vortex_velocity_magnitude

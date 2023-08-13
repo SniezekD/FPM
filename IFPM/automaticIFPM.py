@@ -116,7 +116,7 @@ def get_args():
         help=("Rounding radius used to round the vertices of the cubes. "
               "It should be defined as the fraction of the cube's edge length. "
               "If defined as more than sqrt(3)/2 ~= 0.866 there will be "
-              "sharp cubes, if defined as less then or equal to 0.5 there "
+              "sharp cubes, if defined as less than or equal to 0.5 there "
               "will be spheres.")
     )
     parser.add_argument(
@@ -238,7 +238,9 @@ if __name__ == '__main__':
             ifpm.save_as_VTK()
             ifpm.prep_convergence(Re)
 
-            vtk_path = ifpm.wd.joinpath('OF_Model', 'VTK', 'OF_Model_500.vtm')
+            # vtk_path = ifpm.wd.joinpath('OF_Model', 'VTK', 'OF_Model_50000.vtm') # pimple
+            vtk_path = ifpm.wd.joinpath('OF_Model', 'VTK', 'OF_Model_500.vtm') # simple
+            # vtk_path = ifpm.wd.joinpath('OF_Model', 'VTK', 'OF_Model_350.vtm') # piso
             ifpm_pp = IFPM_postProc(
                 vtk_path,
                 ifpm.in_margin,
@@ -246,9 +248,9 @@ if __name__ == '__main__':
                 ifpm.size
             )
             outFile.write(
-                    (f"{Re}\t{ifpm_pp.pi}\t{ifpm_pp.T}\t{ifpm_pp.delta_p}"
-                     f"\t{ifpm_pp.uX_avg}\t{ifpm_pp.uMag_avg}"
-                     f"\t{ifpm_pp.friction_factor}\t{ifpm_pp.re_Dash}\n")
+                (f"{Re}\t{ifpm_pp.pi}\t{ifpm_pp.T}\t{ifpm_pp.delta_p}"
+                 f"\t{ifpm_pp.uX_avg}\t{ifpm_pp.uMag_avg}"
+                 f"\t{ifpm_pp.friction_factor}\t{ifpm_pp.re_Dash}\n")
             )
             if save and k==0:
                 if ifpm.size['z'] == 1:
