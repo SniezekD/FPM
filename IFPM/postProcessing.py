@@ -165,22 +165,46 @@ class IFPM_postProc:
 
         return f, Re_dash
 
+    def calculate_mean_kinetic_energy_in_vortices(
+            self,
+            normalize: bool = False
+            ):
+        velocities = self.U_field
+        vel_x = velocities[:, 0]
+        volumes = self.cell_volume_values
+        total_fuid_volume = np.sum(volumes)
+
+        negative_vel_x_mask = vel_x < 0
+        kinetic_energy_vortex = np.sum(
+            2*vel_x[negative_vel_x_mask]**2 * volumes[negative_vel_x_mask]
+        )
+
+        mean_kin_energy_vortex = kinetic_energy_vortex / total_fuid_volume
+
+        if normalize:
+            min_value = mean_kin_energy_vortex.min()
+            max_value = mean_kin_energy_vortex.max()
+            mean_kin_energy_vortex = \
+                (mean_kin_energy_vortex - min_value) / (max_value - min_value)
+
+        return mean_kin_energy_vortex
+
     def velocity_distribution(
             self,
-            save_path:pathlib.Path=None
-        ) -> np.ndarray:
+            save_path: pathlib.Path = None
+            ) -> np.ndarray:
         velocities = self.U_field
         print(velocities.shape)
-        vel_x = velocities[:,0]
-        vel_y = velocities[:,1]
-        vel_z = velocities[:,2]
+        vel_x = velocities[:, 0]
+        vel_y = velocities[:, 1]
+        vel_z = velocities[:, 2]
         volumes = self.cell_volume_values
         volumes_ratio = volumes / np.sum(volumes)
         print(f"Total Volume: {np.sum(volumes)}")
         print(f"Total Volume Ratio: {np.sum(volumes_ratio)}")
 
         if save_path:
-            fig, (ax1, ax2, ax3) = plt.subplots(nrows=1, ncols=3, figsize=(8,4))
+            fig, (ax1, ax2, ax3) = plt.subplots(nrows=1, ncols=3, figsize=(8, 4))
             ax1.plot(vel_x, volumes_ratio, 'o', label="U_x")
             ax2.plot(vel_y, volumes_ratio, 'o', label="U_y")
             ax3.plot(vel_z, volumes_ratio, 'o', label="U_z")

@@ -57,6 +57,11 @@ class IFPM:
         lattice             = np.zeros(list(self.size.values()), dtype=int)
         number_of_cells     = np.prod(list(self.size.values()))
         number_of_obstacles = int((1-self.porosity)*number_of_cells)
+        if self.rounding_r < 0.5:
+            number_of_obstacles *= 6 / np.pi
+            number_of_obstacles = int(number_of_obstacles)
+            print("Making More spheres than there would be cubes")
+        
         for i in range(number_of_obstacles): 
             rnd_x = np.random.randint(self.size['x'])
             rnd_y = np.random.randint(self.size['y'])

@@ -95,66 +95,70 @@ def make_plot(number_of_geoms):
     rep_vals  = sum(np.array(rep_vals)) / number_of_geoms
 
     outfile = open("AvgResults.dat", "w")
-    outfile.write(("log_10(Re)\tpi\tstd_pi\tDP\tstd_DP\tT\tstd_T\tFriciton\t"
+    outfile.write(("log_10(Re)\tpi\tstd_pi\tT\tstd_T\tDP\tstd_DP\tFriciton\t"
                    "std_Friction\tre'\tstd_re'\n"))
     for re,Pi,std_Pi,DP,std_DP,T,std_T,F,std_F,rep,std_rep in zip(
+    # for re,Pi,std_Pi,T,std_T, in zip(
         re_vals,
-        Pi_vals,std_err_Pi,
-        DP_vals,std_err_DP,
-        T_vals,std_err_T,
-        F_vals,std_err_F,
-        rep_vals,std_err_rep
+        Pi_vals, std_err_Pi,
+        T_vals, std_err_T,
+        DP_vals, std_err_DP,
+        F_vals, std_err_F,
+        rep_vals, std_err_rep
     ):
         outfile.write((f"{re}\t{Pi}\t{std_Pi}\t{DP}\t{std_DP}\t{T}"
                        f"\t{std_T}\t{F}\t{std_F}\t{rep}\t{std_rep}"
                        f"\n"))
 
+        # outfile.write((f"{re}\t{Pi}\t{std_Pi}\t{T}"
+                    #    f"\t{std_T}"
+                    #    f"\n"))
     outfile.close()
     
-    plt.plot(re_vals, DP_vals)
-    plt.grid()
-    plt.ylabel("$\langle \Delta p \\rangle$")
-    plt.xlabel("$\log_{10}{Re}$")
-    plt.savefig('plots/DP-vs-log(Re).png')
-    plt.cla()
-    plt.clf()
+    # plt.plot(re_vals, DP_vals)
+    # plt.grid()
+    # plt.ylabel("$\langle \Delta p \\rangle$")
+    # plt.xlabel("$\log_{10}{Re}$")
+    # plt.savefig('plots/DP-vs-log(Re).png')
+    # plt.cla()
+    # plt.clf()
 
-    plt.errorbar(re_vals, T_vals, yerr=std_err_T)
-    plt.grid()
-    plt.ylabel("T")
-    plt.xlabel("$\log_{10}{Re}$")
-    plt.savefig('plots/T-vs-log(Re).png')
-    plt.cla()
-    plt.clf()
+    # plt.errorbar(re_vals, T_vals, yerr=std_err_T)
+    # plt.grid()
+    # plt.ylabel("T")
+    # plt.xlabel("$\log_{10}{Re}$")
+    # plt.savefig('plots/T-vs-log(Re).png')
+    # plt.cla()
+    # plt.clf()
 
-    plt.errorbar(re_vals, Pi_vals, yerr=std_err_Pi)
-    plt.grid()
-    plt.ylabel("$\pi$")
-    plt.xlabel("$\log_{10}{Re}$")
-    plt.savefig('plots/PI-vs-log(Re).png')
-    plt.cla()
-    plt.clf()
+    # plt.errorbar(re_vals, Pi_vals, yerr=std_err_Pi)
+    # plt.grid()
+    # plt.ylabel("$\pi$")
+    # plt.xlabel("$\log_{10}{Re}$")
+    # plt.savefig('plots/PI-vs-log(Re).png')
+    # plt.cla()
+    # plt.clf()
 
-    plt.plot(rep_vals, F_vals, "-o")
-    plt.grid()
-    plt.yscale('log')
-    plt.xscale('log')
-    plt.ylabel("Friction factor")
-    plt.xlabel("$\log_{10}{Re'}$")
-    plt.savefig("plots/Friction-vs-log(Re').png")
-    plt.cla()
-    plt.clf()
+    # plt.plot(rep_vals, F_vals, "-o")
+    # plt.grid()
+    # plt.yscale('log')
+    # plt.xscale('log')
+    # plt.ylabel("Friction factor")
+    # plt.xlabel("$\log_{10}{Re'}$")
+    # plt.savefig("plots/Friction-vs-log(Re').png")
+    # plt.cla()
+    # plt.clf()
 
-    plt.errorbar(re_vals, Pi_vals/np.max(abs(Pi_vals)), yerr=std_err_Pi, label = "$\pi$")
-    plt.errorbar(re_vals, T_vals/np.max(abs(T_vals)), yerr=std_err_T, label = "T")
-    plt.errorbar(re_vals, DP_vals/np.max(abs(DP_vals)), yerr=std_err_DP, label = "$\Delta p$")
-    plt.xlabel("$\log_{10}{Re}$")
-    plt.legend()
-    plt.grid()
-    plt.title("Normalized $\pi$, $T$ and $\Delta p$")
-    plt.savefig('plots/ALL-vs-log(Re).png')
-    plt.cla()
-    plt.clf()
+    # plt.errorbar(re_vals, Pi_vals/np.max(abs(Pi_vals)), yerr=std_err_Pi, label = "$\pi$")
+    # plt.errorbar(re_vals, T_vals/np.max(abs(T_vals)), yerr=std_err_T, label = "T")
+    # plt.errorbar(re_vals, DP_vals/np.max(abs(DP_vals)), yerr=std_err_DP, label = "$\Delta p$")
+    # plt.xlabel("$\log_{10}{Re}$")
+    # plt.legend()
+    # plt.grid()
+    # plt.title("Normalized $\pi$, $T$ and $\Delta p$")
+    # plt.savefig('plots/ALL-vs-log(Re).png')
+    # plt.cla()
+    # plt.clf()
 
 def read_data_from_file(path:Path):
     x_arr = []

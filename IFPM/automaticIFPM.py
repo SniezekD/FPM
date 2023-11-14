@@ -9,17 +9,17 @@ from postProcessing import IFPM_postProc
 from pathlib import Path
 from ifpm import IFPM, FractalIFPM
 
+
 def get_args():
     parser = argparse.ArgumentParser(
-                    prog = 'automaticIFPM',
-                    description = 'This program automaticaly \
-                                   generates results for IFPM'
-                    )
+        prog='automaticIFPM',
+        description='This program automaticaly generates results for IFPM'
+    )
     parser.add_argument(
         "Re_min",
         type=float,
         help='Minimal common (base 10) logarithm of Reynold number.'
-    ) 
+    )
     parser.add_argument(
         "Re_max",
         type=float,
@@ -30,7 +30,7 @@ def get_args():
         type=int,
         help='Number of Reynold numbers between Re_min and Re_max \
               to run a simulation for.'
-    )            
+    )
     parser.add_argument(
         "-gn",
         "--geometry_number",
@@ -65,21 +65,21 @@ def get_args():
         type=str,
         default='results',
         help='Name of the output file with Re vs pi.'
-    )  
+    )
     parser.add_argument(
         "-r",
         "--reset",
         type=str,
         default='false',
         help='Whether or not to delete the output file'
-    )  
+    )
     parser.add_argument(
         "-imarg",
         "--inlet_margin",
         type=int,
         default=4,
         help='Size of the inlet margin'
-    )      
+    )
     parser.add_argument(
         "-omarg",
         "--outlet_margin",
@@ -143,30 +143,30 @@ def get_args():
         default=None,
         help=("If set, a specific benchmark will be run. "
               "Possible benchmarks:\n"
-              " - Ordered porous media 'orderdedPM'") 
+              " - Ordered porous media 'orderdedPM'")
     )
     return parser.parse_args()
 
 
 if __name__ == '__main__':
-    args             = get_args()
-    x                = args.x_size
-    y                = args.y_size
-    z                = args.z_size
-    in_margin        = args.inlet_margin
-    out_margin       = args.outlet_margin
-    Re_min           = args.Re_min
-    Re_max           = args.Re_max
-    Re_num           = args.Re_num
-    geometry_number  = args.geometry_number
-    reset            = utils.str2bool(args.reset)
-    epsilon          = args.epsilon
-    wd               = args.work_dir
-    save             = utils.str2bool(args.save)
-    r_radius         = args.rounding_radius
-    s_s_o            = utils.str2bool(args.save_separate_obstacles)
-    fractal_lvl      = args.fractal_lvl
-    benchmark        = args.benchmark
+    args = get_args()
+    x = args.x_size
+    y = args.y_size
+    z = args.z_size
+    in_margin = args.inlet_margin
+    out_margin = args.outlet_margin
+    Re_min = args.Re_min
+    Re_max = args.Re_max
+    Re_num = args.Re_num
+    geometry_number = args.geometry_number
+    reset = utils.str2bool(args.reset)
+    epsilon = args.epsilon
+    wd = args.work_dir
+    save = utils.str2bool(args.save)
+    r_radius = args.rounding_radius
+    s_s_o = utils.str2bool(args.save_separate_obstacles)
+    fractal_lvl = args.fractal_lvl
+    benchmark = args.benchmark
 
     # Change the dos endline convention to unix convention 
     for f in ['prep_model.sh', 'run_meshing.sh',
@@ -181,7 +181,9 @@ if __name__ == '__main__':
             outFile = open(f"{args.outname}-{k}.dat", "w")
         else:
             outFile = open(f"{args.outname}-{k}.dat", "a")
-        outFile.write("Re\tPI\tT\tAvg_Delta_P\tAVG_uX\tAVG_uMag\tFriction\tRe'\n")
+        outFile.write("Re\tPI\tT\tAvg_Delta_P\tAVG_uX\tAVG_uMag\tFriction\tRe'"
+                      "\tVortex_mean_kinetic_energy"
+                      "\tVortex_mean_kinetic_energy_normalized\n")
 
         if fractal_lvl > 0:
             ifpm = FractalIFPM(
@@ -202,7 +204,7 @@ if __name__ == '__main__':
                 in_margin=in_margin,
                 out_margin=out_margin
             )
-            
+
             ifpm = IFPM(
                 porosity=epsilon,
                 size={'x': x, 'y': y, 'z': z},
@@ -223,7 +225,7 @@ if __name__ == '__main__':
                 r_r=r_radius,
                 s_o=s_s_o
                 )
-            
+
         ifpm.prepare_model()
         ifpm.run_meshing()
 
@@ -247,10 +249,16 @@ if __name__ == '__main__':
                 ifpm.out_margin,
                 ifpm.size
             )
+            vortex_ke = ifpm_pp.calculate_mean_kinetic_energy_in_vortices()
+            vortex_ke_norm = ifpm_pp.calculate_mean_kinetic_energy_in_vortices(
+                normalize=True
+            )
+
             outFile.write(
                 (f"{Re}\t{ifpm_pp.pi}\t{ifpm_pp.T}\t{ifpm_pp.delta_p}"
                  f"\t{ifpm_pp.uX_avg}\t{ifpm_pp.uMag_avg}"
-                 f"\t{ifpm_pp.friction_factor}\t{ifpm_pp.re_Dash}\n")
+                 f"\t{ifpm_pp.friction_factor}\t{ifpm_pp.re_Dash}"
+                 f"\t{vortex_ke}\t{vortex_ke_norm}\n")
             )
             if save and k==0:
                 if ifpm.size['z'] == 1:
@@ -265,5 +273,5 @@ if __name__ == '__main__':
                 of_path = of_path.joinpath('OF_Model')
                 os.makedirs(save_path, exist_ok=True)
                 shutil.copytree(src=of_path, dst=save_path, dirs_exist_ok=True)
-            
+
     utils.make_plot(geometry_number)
