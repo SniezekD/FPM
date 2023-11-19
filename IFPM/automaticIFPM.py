@@ -135,16 +135,7 @@ def get_args():
               "Sierpinski carpet (2D) of Manger Sponge (3D) "
               "- depends on the size of the system.")
     )
-    parser.add_argument(
-        "-benchmark",
-        "--benchmark",
-        type=str,
-        required=False,
-        default=None,
-        help=("If set, a specific benchmark will be run. "
-              "Possible benchmarks:\n"
-              " - Ordered porous media 'orderdedPM'")
-    )
+
     return parser.parse_args()
 
 
@@ -181,6 +172,7 @@ if __name__ == '__main__':
             outFile = open(f"{args.outname}-{k}.dat", "w")
         else:
             outFile = open(f"{args.outname}-{k}.dat", "a")
+            
         outFile.write("Re\tPI\tT\tAvg_Delta_P\tAVG_uX\tAVG_uMag\tFriction\tRe'"
                       "\tVortex_mean_kinetic_energy"
                       "\tVortex_mean_kinetic_energy_normalized\n")

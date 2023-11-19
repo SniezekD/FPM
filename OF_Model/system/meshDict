@@ -22,6 +22,7 @@ minCellSize 0.1;
 
 maxCellSize 0.1;
 
+
 /* boundaryCellSize 0.1; */
 
 /* boundaryCellSizeRefinementThickness 1; */

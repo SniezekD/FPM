@@ -60,6 +60,7 @@ class cube(grain):
             d_k:float = 1
         ) -> None:
         """3D Cube class. The point [i,j,k] is the lower left back corner."""
+
         super().__init__(i, j, k, d_i, d_j, d_k)
         self.bounding_box = (
             self.x, self.x+self.dx,
@@ -83,6 +84,7 @@ class ribbon(grain):
             d_k:float = 1.0
         ) -> None:
         """2D ribbon class. The point [i,j,k] is the lower left corner."""
+
         super().__init__(i, j, k, d_i, d_j, d_k)
         self.stl = self.generate_ribbon()
 
@@ -109,6 +111,7 @@ class ribbon(grain):
         ribbon = rectangles[0]
         for rec in rectangles[1:]:
             ribbon = ribbon.merge(rec)
+
         return ribbon
 
 

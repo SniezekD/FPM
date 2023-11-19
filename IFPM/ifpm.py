@@ -34,11 +34,13 @@ class IFPM:
             self.lattice = lattice
 
         if self.rounding_r <= 0.866 and self.rounding_r > 0.5:
+
             print(("Creating 3D simulation geometry with "
                    "cubes rounded at the vertices with "
                    f"radius {self.rounding_r} as obstacles."))
         elif self.rounding_r <= 0.5:
             if self.size["z"] == 1:    
+
                 print((f"Creating 2D simulation geometry with "
                    "cylinders as obstacles."))
             else:     
@@ -73,11 +75,13 @@ class IFPM:
             lattice, 
             0, 
             np.zeros((self.in_margin, self.size['y'], self.size['z'])),
+
             axis=0
         )
         lattice  = np.append(
             lattice,
             np.zeros((self.out_margin, self.size['y'], self.size['z'])),
+
             axis=0
         )
         lattice  = lattice.transpose()
@@ -168,12 +172,14 @@ class IFPM:
         return stls, obstacles_names
     
     
+
     def prepare_model(self, ) -> None:
         print("    Preparing model")
         for stl_name in self.stls.keys():
             save_path = f"/home/user/MGR/IFPM/{stl_name}.stl"
             self.stls[stl_name].save(save_path)
         if(self.size["z"] == 1):
+
             print("     Translating geometry into .fms format")
             self.translate_into_fms()
 
@@ -195,6 +201,7 @@ class IFPM:
                 self.size,
                 self.in_margin,
                 self.out_margin
+
             )
             utils.createSnappyHexMeshDict(
                 self.wd.joinpath(
@@ -295,6 +302,7 @@ class IFPM:
     def prep_convergence(self, Re: float) -> None:
         print("    Running foamLog")
         utils.run_cmd([r'./calc_convergence.sh', f'{Re:0.4f}'])
+        
 
 class Point:
     def __init__(self, x:float, y:float, z:float = 0) -> None:
@@ -532,4 +540,4 @@ class FractalIFPM(IFPM):
         
         print("Lattice translated into stl")
 
-        return stls, obstacles_names        
+        return stls, obstacles_names

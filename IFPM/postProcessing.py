@@ -19,6 +19,7 @@ class IFPM_postProc:
         ) -> None:
         self.in_margin = in_margin
         self.out_margin = out_margin
+
         self.size = size
         self.vtk_path = vtk_path
 
@@ -90,7 +91,6 @@ class IFPM_postProc:
 
         return inlet_pressure_plane, outlet_pressure_plane
 
-
     def calculate_pi(self) -> float:
         print("    Calculating Participation Number")
         n = len(self.U_field)
@@ -101,6 +101,7 @@ class IFPM_postProc:
                 self.cell_volume_values
                 )
             ]
+
         e_tot = sum(e_values)
         q_values_squared = [(e/e_tot)**2 for e in e_values]
         pi = (n*sum(q_values_squared))**(-1)
@@ -115,6 +116,7 @@ class IFPM_postProc:
         uX = [np.sqrt(u[0]**2) for u in self.U_field]
         uMag_sum = sum(uMag)
         uX_sum = sum(uX)
+
 
         uMag_avg = np.mean(uMag)
         uX_avg = np.mean(uX)

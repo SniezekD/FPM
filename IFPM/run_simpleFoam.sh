@@ -27,6 +27,7 @@ echo "    Running simpleFoam"
 if [ ! -d simpleLogs ]; then
     mkdir simpleLogs
 fi
+
 mpirun -np 6 simpleFoam -parallel &> simpleLogs/simpleFoam${Re}.log
 
  
@@ -44,6 +45,7 @@ mpirun -np 6 simpleFoam -parallel &> simpleLogs/simpleFoam${Re}.log
 
 
 check_return_code $?
+
 echo "    Reconstructing"
 reconstructPar -latestTime &> reconstructPar.log
 check_return_code $?
@@ -64,3 +66,4 @@ check_return_code $?
 #     cd /home/user/sharedVol/OF_Model
 #     mapFields -case /home/user/MGR/wd/OF_Model -consistent -sourceTime 0
 # fi
+
