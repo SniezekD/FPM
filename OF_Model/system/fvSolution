@@ -19,18 +19,25 @@ solvers
 {
     p
     {
-        solver          PCG;
-        preconditioner  DIC;
-        tolerance       1e-7;
+        solver          GAMG;
+        tolerance       1e-06;
         relTol          0.01;
+        smoother        DICGaussSeidel;
     }
+
+    pFinal
+    {
+        $p;
+        tolerance       1e-06;
+        relTol          0;
+    }
+
     U
     {
         solver          smoothSolver;
-        smoother        GaussSeidel;
-        tolerance       1e-8;
-        relTol          0.1;
-        nSweeps         1;
+        smoother        symGaussSeidel;
+        tolerance       1e-06;
+        relTol          0.01;
     }
 }
 

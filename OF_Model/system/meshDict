@@ -18,9 +18,10 @@ FoamFile
 
 surfaceFile "constant/triSurface/col_model.fms";
 
-minCellSize 0.25;
+minCellSize 0.1;
 
-maxCellSize 0.25;
+maxCellSize 0.1;
+
 
 /* boundaryCellSize 0.1; */
 

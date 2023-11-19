@@ -61,11 +61,14 @@ RUN dos2unix prep_model.sh
 ADD OF_Model /home/user/MGR/wd/OF_Model
 
 RUN useradd user
+RUN echo "user:userpass" | chpasswd
 
-# RUN chown user /home/user -R
-# RUN usermod -a -G sudo user
+RUN chown user /home/user -R
+RUN usermod -a -G sudo user
+
 
 ENV OMPI_ALLOW_RUN_AS_ROOT=1
 ENV OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1
+ENV OMPI_MCA_btl_vader_single_copy_mechanism="none"
 
 ENTRYPOINT ["tail", "-f", "/dev/null"]
