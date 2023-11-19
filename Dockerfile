@@ -68,5 +68,6 @@ RUN usermod -a -G sudo user
 
 ENV OMPI_ALLOW_RUN_AS_ROOT=1
 ENV OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1
+ENV OMPI_MCA_btl_vader_single_copy_mechanism="none"
 
 ENTRYPOINT ["tail", "-f", "/dev/null"]
