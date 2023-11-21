@@ -131,6 +131,11 @@ class IFPM_postProc:
         return entropy
 
     def calculate_avg_pressure_drop(self) -> float:
+        """
+        Calculate pressure difference between begining of the porous
+        zone and the end of porous zone in OpenFOAM units [m^2 / s^2].
+        delta_p = p_outlet - p_inlet
+        """
         print("    Calculating Average Pressure Drop")
         p_inlet = self.inplet_press_plane.cell_data['p']
         p_outlet = self.outlet_perss_plane.cell_data['p']
@@ -138,7 +143,7 @@ class IFPM_postProc:
         avg_p_inlet = np.mean(p_inlet)
         avg_p_outlet = np.mean(p_outlet)
 
-        delta_p = abs(avg_p_inlet - avg_p_outlet)
+        delta_p = abs(avg_p_outlet - avg_p_inlet)
         print(f"     {delta_p}")
 
         return delta_p
@@ -218,6 +223,95 @@ class IFPM_postProc:
         print(vortex_velocity_magnitude)
 
         return vortex_velocity_x, vortex_velocity_magnitude
+
+    def calculate_velocity_histogram(
+        self,
+        n_bins: int,
+        normalized: bool = False,
+        save_path: pathlib.Path = None
+    ):
+        velocity_field = self.U_field
+        velocity_mag = np.linalg.norm(velocity_field, axis=1)
+        mean_velocity = np.mean(velocity_mag)
+        velocity_mag /= mean_velocity
+        velocity_x = np.array(velocity_field[:, 0]) / mean_velocity
+        velocity_y = np.array(velocity_field[:, 1]) / mean_velocity
+        velocity_z = np.array(velocity_field[:, 2]) / mean_velocity
+        velocity_transverse = [
+            np.sqrt(v_y**2 + v_z**2) for v_y, v_z in zip(velocity_y, velocity_z)
+        ]
+        velocity_transverse = np.array(velocity_transverse) / mean_velocity
+
+        volumes = np.array(self.cell_volume_values)
+
+        histogram_mag = np.histogram(
+            velocity_mag,
+            bins=n_bins,
+            weights=volumes,
+            density=normalized
+        )
+
+        histogram_x = np.histogram(
+            velocity_x,
+            bins=n_bins,
+            weights=volumes,
+            density=normalized
+        )
+
+        histogram_y = np.histogram(
+            velocity_y,
+            bins=n_bins,
+            weights=volumes,
+            density=normalized
+        )
+
+        histogram_z = np.histogram(
+            velocity_z,
+            bins=n_bins,
+            weights=volumes,
+            density=normalized
+        )
+
+        histogram_transverse = np.histogram(
+            velocity_transverse,
+            bins=n_bins,
+            weights=volumes,
+            density=normalized
+        )
+
+        histograms = (
+            histogram_mag,
+            histogram_x,
+            histogram_y,
+            histogram_z,
+            histogram_transverse
+        )
+
+        if save_path is not None:
+            plt.cla()
+            plt.clf()
+            fig, ax = plt.subplots(1, 4, figsize=(16, 4))
+            ax[0].hist(velocity_mag, weights=volumes, bins=n_bins, density=True)
+            ax[0].set_title("Velocity magnitude")
+            ax[0].set_xlabel("u/<u>")
+
+            ax[1].hist(velocity_x, weights=volumes, bins=n_bins, density=True)
+            ax[1].set_title("Longitudinal velocity")
+            ax[1].set_xlabel(f"$u_x$/<u>")
+
+            ax[2].hist(velocity_y, weights=volumes, bins=n_bins, density=True)
+            ax[2].set_title("Transverse (y) velocity")
+            ax[2].set_xlabel(f"$u_y$/<u>")
+
+            ax[3].hist(velocity_z, weights=volumes, bins=n_bins, density=True)
+            ax[3].set_title("Transverse (z) velocity")
+            ax[3].set_xlabel(f"$u_z$/<u>")
+
+            plt.savefig(save_path)
+            plt.cla()
+            plt.clf()
+
+        return histograms
 
     def calculate_streamlines(self):
         mesh = self.body_cells
