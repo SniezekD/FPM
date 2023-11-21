@@ -1,10 +1,6 @@
 import numpy as np
-import utils
-from ifpm import IFPM
 import pyvista as pv
 import pathlib
-import re
-import typing
 import matplotlib.pyplot as plt
 from pathlib import Path
 
@@ -12,14 +8,13 @@ from pathlib import Path
 class IFPM_postProc:
     def __init__(
             self,
-            vtk_path:Path,
-            in_margin:float,
-            out_margin:float,
-            size:dict
-        ) -> None:
+            vtk_path: Path,
+            in_margin: float,
+            out_margin: float,
+            size: dict
+    ) -> None:
         self.in_margin = in_margin
         self.out_margin = out_margin
-
         self.size = size
         self.vtk_path = vtk_path
 
@@ -48,7 +43,7 @@ class IFPM_postProc:
         )
         mesh = mesh.clip('x', origin=(self.in_margin, 0, 0), invert=False)
         mesh = mesh.clip(
-            'x', 
+            'x',
             origin=(self.out_margin + self.size['x'], 0, 0),
             invert=True
         )
@@ -74,12 +69,12 @@ class IFPM_postProc:
             invert=False
         )
         outlet_pressure_plane = mesh.clip(
-            'x', 
+            'x',
             origin=(self.out_margin + self.size['x'] + 1, 0, 0),
             invert=False
         )
         outlet_pressure_plane = outlet_pressure_plane.clip(
-            'x', 
+            'x',
             origin=(self.out_margin + self.size['x'] + 2, 0, 0),
             invert=True
         )
@@ -101,7 +96,6 @@ class IFPM_postProc:
                 self.cell_volume_values
                 )
             ]
-
         e_tot = sum(e_values)
         q_values_squared = [(e/e_tot)**2 for e in e_values]
         pi = (n*sum(q_values_squared))**(-1)
@@ -116,7 +110,6 @@ class IFPM_postProc:
         uX = [np.sqrt(u[0]**2) for u in self.U_field]
         uMag_sum = sum(uMag)
         uX_sum = sum(uX)
-
 
         uMag_avg = np.mean(uMag)
         uX_avg = np.mean(uX)
@@ -151,15 +144,16 @@ class IFPM_postProc:
         return delta_p
 
     def calculate_friction_factor(self) -> tuple:
-        dp = self.delta_p
-        model_length = (self.size['x'] - self.in_margin - self.out_margin)
+        dp = self.delta_p  # In OF units [m^2 / s^2].
+        model_length = (self.size['x'])
+        print(f"Model Length is {model_length}")
         beta = 1.0
         # In OpenFOAM pressure field is really pressure / density
         f = -dp / (model_length * beta * self.uMag_avg**2)
         nu = 1.0e-6
-        alpha = 1 
+        alpha = 1.0
         Re_dash = beta * self.uMag_avg / (alpha * nu)
-
+        print(f"Re' = {Re_dash},  f = {f}")
         return f, Re_dash
 
     def calculate_mean_kinetic_energy_in_vortices(
@@ -201,7 +195,11 @@ class IFPM_postProc:
         print(f"Total Volume Ratio: {np.sum(volumes_ratio)}")
 
         if save_path:
-            fig, (ax1, ax2, ax3) = plt.subplots(nrows=1, ncols=3, figsize=(8, 4))
+            fig, (ax1, ax2, ax3) = plt.subplots(
+                nrows=1,
+                ncols=3,
+                figsize=(8, 4)
+            )
             ax1.plot(vel_x, volumes_ratio, 'o', label="U_x")
             ax2.plot(vel_y, volumes_ratio, 'o', label="U_y")
             ax3.plot(vel_z, volumes_ratio, 'o', label="U_z")
@@ -209,14 +207,21 @@ class IFPM_postProc:
             plt.savefig(save_path)
 
         vortex_velocity_x = np.sum(
-            np.where(vel_x <=0, vel_x, 0) * volumes_ratio
+            np.where(vel_x <= 0, vel_x, 0) * volumes_ratio
         )
         print(vortex_velocity_x)
 
         vel_mag = np.sqrt(vel_x**2 + vel_y**2 + vel_z**2)
         vortex_velocity_magnitude = np.sum(
-            np.where(vel_x <=0, vel_mag, 0) * volumes_ratio
+            np.where(vel_x <= 0, vel_mag, 0) * volumes_ratio
         )
         print(vortex_velocity_magnitude)
 
         return vortex_velocity_x, vortex_velocity_magnitude
+
+    def calculate_streamlines(self):
+        mesh = self.body_cells
+        internal_mesh = mesh.get(0)
+        print(mesh.cells)
+        print()
+        print(mesh.cells_connectivity)
