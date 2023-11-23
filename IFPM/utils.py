@@ -52,6 +52,8 @@ def make_plot(number_of_geoms):
     T_vals  = []
     F_vals = []
     rep_vals = []
+    uX_vals = []
+    uMag_vals = []
     for i in range(number_of_geoms):
         with open(f"results-{i}.dat") as file:
             tmp_Pi = []
@@ -59,6 +61,8 @@ def make_plot(number_of_geoms):
             tmp_DP = []
             tmp_F = []
             tmp_rep = []
+            tmp_uX_vals = []
+            tmp_uMag_vals = []
 
             for line in file:
                 try:
@@ -67,19 +71,23 @@ def make_plot(number_of_geoms):
                     if i == 0:
                         re_vals.append(float(vals[0]))
 
-                    tmp_Pi.append(float(vals[1])
+                    tmp_Pi.append(float(vals[1]))
                     tmp_T.append(float(vals[2]))
                     tmp_DP.append(float(vals[3]))
                     tmp_F.append(float(vals[6]))
                     tmp_rep.append(float(vals[7]))
+                    tmp_uX_vals.append(float(vals[4]))
+                    tmp_uMag_vals.append(float(vals[5]))
                 except:
                     pass
-            
+
             Pi_vals.append(tmp_Pi)
             DP_vals.append(tmp_DP)
             T_vals.append(tmp_T)
             F_vals.append(tmp_F)
             rep_vals.append(tmp_rep)
+            uX_vals.append(tmp_uX_vals)
+            uMag_vals.append(tmp_uMag_vals)
 
     re_vals = [np.log10(re) for re in re_vals]
     std_err_Pi = standard_err(Pi_vals)
@@ -87,6 +95,8 @@ def make_plot(number_of_geoms):
     std_err_T  = standard_err(T_vals)
     std_err_F  = standard_err(F_vals)
     std_err_rep  = standard_err(rep_vals)
+    std_err_uX = standard_err(uX_vals)
+    std_err_uMag = standard_err(uMag_vals)
 
 
     Pi_vals = sum(np.array(Pi_vals)) / number_of_geoms
@@ -94,22 +104,26 @@ def make_plot(number_of_geoms):
     T_vals  = sum(np.array(T_vals)) / number_of_geoms
     F_vals  = sum(np.array(F_vals)) / number_of_geoms
     rep_vals  = sum(np.array(rep_vals)) / number_of_geoms
+    uX_vals  = sum(np.array(uX_vals)) / number_of_geoms
+    uMag_vals  = sum(np.array(uMag_vals)) / number_of_geoms
 
     outfile = open("AvgResults.dat", "w")
     outfile.write(("log_10(Re)\tpi\tstd_pi\tT\tstd_T\tDP\tstd_DP\tFriciton\t"
-                   "std_Friction\tre'\tstd_re'\n"))
-    for re,Pi,std_Pi,DP,std_DP,T,std_T,F,std_F,rep,std_rep in zip(
+                   "std_Friction\tre'\tstd_re'\tU_x_std_Ux\tU_mag\tstd_uMag\n"))
+    for re,Pi,std_Pi,DP,std_DP,T,std_T,F,std_F,rep,std_rep, u_x, std_ux, u_mag, std_umag in zip(
     # for re,Pi,std_Pi,T,std_T, in zip(
         re_vals,
         Pi_vals, std_err_Pi,
         T_vals, std_err_T,
         DP_vals, std_err_DP,
         F_vals, std_err_F,
-        rep_vals, std_err_rep
+        rep_vals, std_err_rep,
+        uX_vals, std_err_uX,
+        uMag_vals, std_err_uMag
     ):
         outfile.write((f"{re}\t{Pi}\t{std_Pi}\t{DP}\t{std_DP}\t{T}"
                        f"\t{std_T}\t{F}\t{std_F}\t{rep}\t{std_rep}"
-                       f"\n"))
+                       f"\t{u_x}\t{std_ux}\t{u_mag}\t{std_umag}\n"))
 
         # outfile.write((f"{re}\t{Pi}\t{std_Pi}\t{T}"
                     #    f"\t{std_T}"

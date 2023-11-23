@@ -117,7 +117,7 @@ class IFPM_postProc:
         tortuosity = uMag_sum / uX_sum
         print(f"     {tortuosity}")
 
-        return tortuosity, uMag_avg, uX_avg
+        return tortuosity, uMag_avg, uX_avg, uMag_sum, uX_sum
 
     def calculate_entropy(self) -> float:
         print("    Calculating Gibbs Entorpy")
