@@ -11,4 +11,8 @@ docker-compose.yml
 *.png
 make_plot.py
 .vscode
-OF_Model*
+OF_Mod*
+OF_Model/*
+OF_Model\*
+
+OF_Model/0/*
