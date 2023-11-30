@@ -10,7 +10,7 @@ def ordered_PM_lattice(
         in_margin: int = 4,
         out_margin: int = 4
 ) -> np.ndarray:
-    """ 
+    """
     This function produces a ordered porous medium lattice of given size.
     """
 
@@ -26,11 +26,11 @@ def ordered_PM_lattice(
 
         for x in x_coords:
             for y in y_coords:
-                lattice[int(x),int(y)] = 1
+                lattice[int(x), int(y)] = 1
 
     elif z_dim > 1:
         # A 3D case
-        number_of_obstacles = x_dim * y_dim * z_dim (1 - porosity)
+        number_of_obstacles = x_dim * y_dim * z_dim * (1 - porosity)
         number_of_x_rows = int(np.ceil(number_of_obstacles**(1/3)))
         number_of_y_rows = int(np.ceil(number_of_obstacles**(1/3)))
         number_of_z_rows = int(np.floor(number_of_obstacles**(1/3)))
@@ -42,21 +42,21 @@ def ordered_PM_lattice(
         for x in x_coords:
             for y in y_coords:
                 for z in z_coords:
-                    lattice[int(x),int(y),int(z)] = 1
+                    lattice[int(x), int(y), int(z)] = 1
     else:
         sys.exit("Illegal value of input")
 
-    lattice  = np.insert(
-            lattice, 
-            0, 
+    lattice = np.insert(
+            lattice,
+            0,
             np.zeros((in_margin, y_dim, z_dim)),
             axis=0
         )
-    lattice  = np.append(
+    lattice = np.append(
             lattice,
             np.zeros((out_margin, y_dim, z_dim)),
             axis=0
         )
-    lattice  = lattice.transpose()
+    lattice = lattice.transpose()
 
     return lattice

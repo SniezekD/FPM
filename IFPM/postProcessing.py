@@ -1,14 +1,13 @@
+import pathlib
 import numpy as np
 import pyvista as pv
-import pathlib
 import matplotlib.pyplot as plt
-from pathlib import Path
 
 
 class IFPM_postProc:
     def __init__(
             self,
-            vtk_path: Path,
+            vtk_path: pathlib.Path,
             in_margin: float,
             out_margin: float,
             size: dict
@@ -18,7 +17,8 @@ class IFPM_postProc:
         self.size = size
         self.vtk_path = vtk_path
 
-        self.body_cells, self.inlet_cells, self.outlet_cells = self.trimm_mesh()
+        cut_mesh = self.trimm_mesh
+        self.body_cells, self.inlet_cells, self.outlet_cells = cut_mesh
 
         self.U_field = self.body_cells.cell_data['U']
         self.p_field = self.body_cells.cell_data['p']
@@ -291,21 +291,26 @@ class IFPM_postProc:
             plt.cla()
             plt.clf()
             fig, ax = plt.subplots(1, 4, figsize=(16, 4))
-            ax[0].hist(velocity_mag, weights=volumes, bins=n_bins, density=True)
+            ax[0].hist(
+                velocity_mag,
+                weights=volumes,
+                bins=n_bins,
+                density=True
+            )
             ax[0].set_title("Velocity magnitude")
             ax[0].set_xlabel("u/<u>")
 
             ax[1].hist(velocity_x, weights=volumes, bins=n_bins, density=True)
             ax[1].set_title("Longitudinal velocity")
-            ax[1].set_xlabel(f"$u_x$/<u>")
+            ax[1].set_xlabel("$u_x$/<u>")
 
             ax[2].hist(velocity_y, weights=volumes, bins=n_bins, density=True)
             ax[2].set_title("Transverse (y) velocity")
-            ax[2].set_xlabel(f"$u_y$/<u>")
+            ax[2].set_xlabel("$u_y$/<u>")
 
             ax[3].hist(velocity_z, weights=volumes, bins=n_bins, density=True)
             ax[3].set_title("Transverse (z) velocity")
-            ax[3].set_xlabel(f"$u_z$/<u>")
+            ax[3].set_xlabel("$u_z$/<u>")
 
             plt.savefig(save_path)
             plt.cla()
@@ -314,8 +319,4 @@ class IFPM_postProc:
         return histograms
 
     def calculate_streamlines(self):
-        mesh = self.body_cells
-        internal_mesh = mesh.get(0)
-        print(mesh.cells)
-        print()
-        print(mesh.cells_connectivity)
+        pass

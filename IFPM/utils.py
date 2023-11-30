@@ -1,10 +1,11 @@
 import os
 import sys
 import subprocess
+from pathlib import Path
+from string import Template
 import numpy as np
 import matplotlib.pyplot as plt
-from string import Template
-from pathlib import Path
+
 
 def str2bool(v):
     if isinstance(v, bool):
@@ -16,7 +17,8 @@ def str2bool(v):
     else:
         raise TypeError('Boolean value expected.')
 
-def run_cmd(args: list, shell: bool = False) -> float:
+
+def run_cmd(args: list, shell: bool = False):
     status = subprocess.run(args, shell)
     if status.returncode == 0:
         print("     Done")
@@ -24,7 +26,8 @@ def run_cmd(args: list, shell: bool = False) -> float:
         print(f"     Error! \n{args} ended with code {status.returncode}.")
         sys.exit(status)
 
-def run_cmd2(arg: str, shell: bool = False) -> float:
+
+def run_cmd2(arg: str, shell: bool = False):
     status = subprocess.run(arg, shell)
     if status.returncode == 0:
         print("     Done")
@@ -33,31 +36,30 @@ def run_cmd2(arg: str, shell: bool = False) -> float:
         sys.exit(status)
 
 
-
 def standard_err(array):
     std_err_vec = []
     arr = np.array(array)
     for j in range(arr.shape[1]):
-        vector = [arr[i,j] for i in range(arr.shape[0])]
+        vector = [arr[i, j] for i in range(arr.shape[0])]
 
         std_err_vec.append(np.std(vector, ddof=1) / np.sqrt(np.size(vector)))
-    
+
     return std_err_vec
- 
+
 
 def make_plot(number_of_geoms):
     re_vals = []
-    Pi_vals = []
+    pi_vals = []
     DP_vals = []
-    T_vals  = []
-    F_vals = []
+    t_vals = []
+    f_vals = []
     rep_vals = []
     uX_vals = []
     uMag_vals = []
     for i in range(number_of_geoms):
         with open(f"results-{i}.dat") as file:
             tmp_Pi = []
-            tmp_T  = []
+            tmp_T = []
             tmp_DP = []
             tmp_F = []
             tmp_rep = []
@@ -67,7 +69,7 @@ def make_plot(number_of_geoms):
             for line in file:
                 try:
                     vals = line.split()
-                  
+
                     if i == 0:
                         re_vals.append(float(vals[0]))
 
@@ -78,104 +80,63 @@ def make_plot(number_of_geoms):
                     tmp_rep.append(float(vals[7]))
                     tmp_uX_vals.append(float(vals[4]))
                     tmp_uMag_vals.append(float(vals[5]))
-                except:
+                except ValueError:
                     pass
 
-            Pi_vals.append(tmp_Pi)
+            pi_vals.append(tmp_Pi)
             DP_vals.append(tmp_DP)
-            T_vals.append(tmp_T)
-            F_vals.append(tmp_F)
+            t_vals.append(tmp_T)
+            f_vals.append(tmp_F)
             rep_vals.append(tmp_rep)
             uX_vals.append(tmp_uX_vals)
             uMag_vals.append(tmp_uMag_vals)
 
     re_vals = [np.log10(re) for re in re_vals]
-    std_err_Pi = standard_err(Pi_vals)
+    std_err_Pi = standard_err(pi_vals)
     std_err_DP = standard_err(DP_vals)
-    std_err_T  = standard_err(T_vals)
-    std_err_F  = standard_err(F_vals)
-    std_err_rep  = standard_err(rep_vals)
+    std_err_T = standard_err(t_vals)
+    std_err_F = standard_err(f_vals)
+    std_err_rep = standard_err(rep_vals)
     std_err_uX = standard_err(uX_vals)
     std_err_uMag = standard_err(uMag_vals)
 
-
-    Pi_vals = sum(np.array(Pi_vals)) / number_of_geoms
+    pi_vals = sum(np.array(pi_vals)) / number_of_geoms
     DP_vals = sum(np.array(DP_vals)) / number_of_geoms
-    T_vals  = sum(np.array(T_vals)) / number_of_geoms
-    F_vals  = sum(np.array(F_vals)) / number_of_geoms
-    rep_vals  = sum(np.array(rep_vals)) / number_of_geoms
-    uX_vals  = sum(np.array(uX_vals)) / number_of_geoms
-    uMag_vals  = sum(np.array(uMag_vals)) / number_of_geoms
+    t_vals = sum(np.array(t_vals)) / number_of_geoms
+    f_vals = sum(np.array(f_vals)) / number_of_geoms
+    rep_vals = sum(np.array(rep_vals)) / number_of_geoms
+    uX_vals = sum(np.array(uX_vals)) / number_of_geoms
+    uMag_vals = sum(np.array(uMag_vals)) / number_of_geoms
 
     outfile = open("AvgResults.dat", "w")
     outfile.write(("log_10(Re)\tpi\tstd_pi\tT\tstd_T\tDP\tstd_DP\tFriciton\t"
                    "std_Friction\tre'\tstd_re'\tU_x_std_Ux\tU_mag\tstd_uMag\n"))
-    for re,Pi,std_Pi,DP,std_DP,T,std_T,F,std_F,rep,std_rep, u_x, std_ux, u_mag, std_umag in zip(
-    # for re,Pi,std_Pi,T,std_T, in zip(
-        re_vals,
-        Pi_vals, std_err_Pi,
-        T_vals, std_err_T,
-        DP_vals, std_err_DP,
-        F_vals, std_err_F,
-        rep_vals, std_err_rep,
-        uX_vals, std_err_uX,
-        uMag_vals, std_err_uMag
-    ):
+    for re, Pi, std_Pi, DP, std_DP, T, std_T, F, std_F, rep, std_rep, \
+        u_x, std_ux, u_mag, std_umag in zip(
+            re_vals,
+            pi_vals,
+            std_err_Pi,
+            t_vals,
+            std_err_T,
+            DP_vals,
+            std_err_DP,
+            f_vals,
+            std_err_F,
+            rep_vals,
+            std_err_rep,
+            uX_vals,
+            std_err_uX,
+            uMag_vals,
+            std_err_uMag
+            ):
         outfile.write((f"{re}\t{Pi}\t{std_Pi}\t{DP}\t{std_DP}\t{T}"
                        f"\t{std_T}\t{F}\t{std_F}\t{rep}\t{std_rep}"
                        f"\t{u_x}\t{std_ux}\t{u_mag}\t{std_umag}\n"))
 
-        # outfile.write((f"{re}\t{Pi}\t{std_Pi}\t{T}"
-                    #    f"\t{std_T}"
-                    #    f"\n"))
     outfile.close()
-    
-    # plt.plot(re_vals, DP_vals)
-    # plt.grid()
-    # plt.ylabel("$\langle \Delta p \\rangle$")
-    # plt.xlabel("$\log_{10}{Re}$")
-    # plt.savefig('plots/DP-vs-log(Re).png')
-    # plt.cla()
-    # plt.clf()
 
-    # plt.errorbar(re_vals, T_vals, yerr=std_err_T)
-    # plt.grid()
-    # plt.ylabel("T")
-    # plt.xlabel("$\log_{10}{Re}$")
-    # plt.savefig('plots/T-vs-log(Re).png')
-    # plt.cla()
-    # plt.clf()
 
-    # plt.errorbar(re_vals, Pi_vals, yerr=std_err_Pi)
-    # plt.grid()
-    # plt.ylabel("$\pi$")
-    # plt.xlabel("$\log_{10}{Re}$")
-    # plt.savefig('plots/PI-vs-log(Re).png')
-    # plt.cla()
-    # plt.clf()
-
-    # plt.plot(rep_vals, F_vals, "-o")
-    # plt.grid()
-    # plt.yscale('log')
-    # plt.xscale('log')
-    # plt.ylabel("Friction factor")
-    # plt.xlabel("$\log_{10}{Re'}$")
-    # plt.savefig("plots/Friction-vs-log(Re').png")
-    # plt.cla()
-    # plt.clf()
-
-    # plt.errorbar(re_vals, Pi_vals/np.max(abs(Pi_vals)), yerr=std_err_Pi, label = "$\pi$")
-    # plt.errorbar(re_vals, T_vals/np.max(abs(T_vals)), yerr=std_err_T, label = "T")
-    # plt.errorbar(re_vals, DP_vals/np.max(abs(DP_vals)), yerr=std_err_DP, label = "$\Delta p$")
-    # plt.xlabel("$\log_{10}{Re}$")
-    # plt.legend()
-    # plt.grid()
-    # plt.title("Normalized $\pi$, $T$ and $\Delta p$")
-    # plt.savefig('plots/ALL-vs-log(Re).png')
-    # plt.cla()
-    # plt.clf()
-
-def read_data_from_file(path:Path):
+def read_data_from_file(path: Path):
     x_arr = []
     data_arr = []
     with open(path, "r") as file:
@@ -184,16 +145,16 @@ def read_data_from_file(path:Path):
             try:
                 x_arr.append(float(data[0]))
                 data_arr.append(np.array(data[1:], dtype=float))
-            except:
+            except ValueError:
                 pass
-    
+
     return x_arr, data_arr
 
-def plot_residuals(collective_path:Path, savename:str=None) -> None:
+def plot_residuals(collective_path: Path, savename: str = None) -> None:
     plt.rcParams.update({'font.size': 22})
     of_dirs = os.listdir(collective_path)
     of_dirs = [ofdir for ofdir in of_dirs if "OF_Model" in ofdir]
-    of_dirs = sorted(of_dirs, key = lambda x: float(x.split('_')[-1]))
+    of_dirs = sorted(of_dirs, key=lambda x: float(x.split('_')[-1]))
     number_of_plots = len(of_dirs)
     if number_of_plots % 4 != 0:
         col_number = 2
@@ -209,11 +170,11 @@ def plot_residuals(collective_path:Path, savename:str=None) -> None:
         figsize=figsize,
     )
     fig.tight_layout(pad=3.0)
-    labels = ["U${_x}$","U${_y}$","U${_z}$","p"]
+    labels = ["U${_x}$", "U${_y}$", "U${_z}$", "p"]
 
     # fig.tight_layout(pad=2.0,h_pad=4.0)
     lines_labels = [ax.get_legend_handles_labels() for ax in fig.axes]
-    lines, labels = [sum(lol, []) for lol in zip(*lines_labels)]    
+    lines, labels = [sum(lol, []) for lol in zip(*lines_labels)]
 
     for i, ofdir in enumerate(of_dirs):
         Ux_path = collective_path.joinpath(ofdir, 'logs', 'Ux_0')
@@ -222,61 +183,62 @@ def plot_residuals(collective_path:Path, savename:str=None) -> None:
             Uz_path = collective_path.joinpath(ofdir, 'logs', 'Uz_0')
         else:
             Uz_path = None
-        p_path  = collective_path.joinpath(ofdir, 'logs', 'p_0')
+        p_path = collective_path.joinpath(ofdir, 'logs', 'p_0')
         Re = float(ofdir.split('_')[-1])
         print(Ux_path)
         iters, Ux_data = read_data_from_file(Ux_path)
-        _    , Uy_data = read_data_from_file(Uy_path)
+        _, Uy_data = read_data_from_file(Uy_path)
         if Uz_path is not None:
-            _    , Uz_data = read_data_from_file(Uz_path)
-        _    , p_data  = read_data_from_file(p_path)
+            _, Uz_data = read_data_from_file(Uz_path)
+        _, p_data = read_data_from_file(p_path)
 
         Ux = [u[0] for u in Ux_data]
         Uy = [u[0] for u in Uy_data]
         if Uz_path is not None:
             Uz = [u[0] for u in Uz_data]
-        p  = [p[0] for p in p_data]
+        p = [p[0] for p in p_data]
 
-        ax[int(i/col_number), int(i%col_number)].plot(
+        ax[int(i / col_number), int(i % col_number)].plot(
             iters,
             Ux,
-            label = "U${_x}$",
+            label="U${_x}$",
             color="red",
             linewidth=4.0
         )
-        ax[int(i/col_number), int(i%col_number)].plot(
+        ax[int(i / col_number), int(i % col_number)].plot(
             iters,
             Uy,
-            label = "U${_y}$",
+            label="U${_y}$",
             color="blue",
             linewidth=4.0
         )
         if Uz_path is not None:
-            ax[int(i/col_number), int(i%col_number)].plot(
+            ax[int(i / col_number), int(i % col_number)].plot(
                 iters,
-                Uz, 
+                Uz,
                 color="green",
-                label = "U${_z}$",
+                label="U${_z}$",
                 linewidth=4.0
             )
-        ax[int(i/col_number), int(i%col_number)].plot(
+        ax[int(i / col_number), int(i % col_number)].plot(
             iters,
             p,
-            label = "p",
+            label="p",
             color="gray",
             linewidth=4.0
         )
-        ax[int(i/col_number), int(i%col_number)].set_title(
+        ax[int(i / col_number), int(i % col_number)].set_title(
             f"Re={Re:0.4f}"
         )
-        ax[int(i/col_number), int(i%col_number)].set_yscale('log')
-        # ax[int(i/col_number), int(i%col_number)].legend()
-        handles, labels = ax[int(i/col_number), int(i%col_number)].get_legend_handles_labels()
+        ax[int(i / col_number), int(i % col_number)].set_yscale('log')
+
+        tmp_ax = ax[int(i / col_number), int(i % col_number)]
+        handles, labels = tmp_ax.get_legend_handles_labels()
     fig.legend(
         handles,
         labels,
         loc="lower center",
-        bbox_to_anchor=(0.5,-0.015),
+        bbox_to_anchor=(0.5, -0.015),
         ncols=4,
         columnspacing=5.0,
         labelspacing=5.0,
@@ -288,78 +250,26 @@ def plot_residuals(collective_path:Path, savename:str=None) -> None:
         plt.savefig(f'{savename}.png',bbox_inches='tight')
     else:
         plt.show()
-                                  
-
-def read_data_from_file(path:Path):
-    x_arr = []
-    data_arr = []
-    with open(path, "r") as file:
-        for line in file:
-            data = line.split()
-            try:
-                x_arr.append(float(data[0]))
-                data_arr.append(np.array(data[1:], dtype=float))
-            except:
-                pass
-    
-    return x_arr, data_arr
-
-def plot_residuals(re_list:list, path:Path, savename:str=None) -> None:
-    row_number = int(np.ceil(len(re_list)/5))
-    col_number = 5
-    fig, ax = plt.subplots(row_number, col_number, figsize=(20, 35))
-    fig.tight_layout(pad=3.0)
-
-    for i, Re in enumerate(re_list):
-        Ux_path = path.joinpath(f'OF_Model_{Re:0.4f}', 'logs', 'Ux_0')
-        Uy_path = path.joinpath(f'OF_Model_{Re:0.4f}', 'logs', 'Uy_0')
-        Uz_path = path.joinpath(f'OF_Model_{Re:0.4f}', 'logs', 'Uz_0')
-        p_path  = path.joinpath(f'OF_Model_{Re:0.4f}', 'logs', 'p_0')
-
-        iters, Ux_data = read_data_from_file(Ux_path)
-        _    , Uy_data = read_data_from_file(Uy_path)
-        _    , Uz_data = read_data_from_file(Uz_path)
-        _    , p_data  = read_data_from_file(p_path)
-
-        Ux = [u[0] for u in Ux_data]
-        Uy = [u[0] for u in Uy_data]
-        Uz = [u[0] for u in Uz_data]
-        p  = [p[0] for p in p_data]
-
-        ax[int(i/col_number), int(i%col_number)].plot(iters, Ux, label = "Ux_0")
-        ax[int(i/col_number), int(i%col_number)].plot(iters, Uy, label = "Uy_0")
-        ax[int(i/col_number), int(i%col_number)].plot(iters, Uz, label = "Uz_0")
-        ax[int(i/col_number), int(i%col_number)].plot(iters, p, label = "p_0")
-        ax[int(i/col_number), int(i%col_number)].set_title(
-            f"Residuals\nRe={Re:0.4f}"
-        )
-        ax[int(i/col_number), int(i%col_number)].set_yscale('log')
-        ax[int(i/col_number), int(i%col_number)].legend()
-
-    if savename is not None:
-        plt.savefig(f'{savename}.png')
-    else:
-        plt.show()
 
 
+# /-------------------------------------------------------------------\
+#                                OF UTILITIES
+# \-------------------------------------------------------------------/
 
-
-#/-----------------------------------------------------------------------------\
-#                               OF UTILITIES 
-#\-----------------------------------------------------------------------------|
-
-################################################################################
-#                                                                              #
-#                            CREATE BLOCK MESH DICT                            #
-#                                                                              #
-################################################################################
+#######################################################################
+#                                                                     #
+#                            CREATE BLOCK MESH DICT                   #
+#                                                                     #
+#######################################################################
 def  createBlockMeshDict(filePath, size, in_margin, out_margin):
     if size['z'] == 1:
         front_back_type = 'empty'
     else:
         front_back_type = 'wall'
     with open(filePath, "w") as file:
-        text = Template("""/*--------------------------------*- C++ -*----------------------------------*\\
+        text = Template(
+"""
+/*--------------------------------*- C++ -*----------------------------------*\\
 | =========                 |                                                 |
 | \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
 |  \\    /   O peration     | Version:  v2006                                 |
@@ -443,24 +353,27 @@ mergePatchPairs
 """)
         file.write(
             text.substitute(
-                x = size['x']+in_margin+out_margin,
-                y = size['y'],
-                z = size['z'],
-                xd = 2*(size['x']+in_margin+out_margin),
-                yd = 2*size['y'],
-                zd = 2*size['z'],
-                fab_type = front_back_type
+                x=size['x'] + in_margin + out_margin,
+                y=size['y'],
+                z=size['z'],
+                xd=2 * (size['x'] + in_margin + out_margin),
+                yd=2 * size['y'],
+                zd=2 * size['z'],
+                fab_type=front_back_type
             )
         )
 
-################################################################################
-#                                                                              #
-#                          CREATE SNAPPY HEX MESH DICT                         #
-#                                                                              #
-################################################################################
+
+########################################################################
+#                                                                      #
+#                          CREATE SNAPPY HEX MESH DICT                 #
+#                                                                      #
+########################################################################
 def createMeshDict(filePath):
- with open(filePath, "w") as file:
-        text = """/*--------------------------------*- C++ -*----------------------------------*\
+    with open(filePath, "w") as file:
+        text = \
+"""
+/*--------------------------------*- C++ -*----------------------------------*\\
 | =========                 |                                                |
 | \\      /  F ield         | cfMesh: A library for mesh generation          |
 |  \\    /   O peration     |                                                |
@@ -501,14 +414,18 @@ localRefinement
 // ************************************************************************* //
 """
         file.write(text)
-################################################################################
-#                                                                              #
-#                          CREATE SNAPPY HEX MESH DICT                         #
-#                                                                              #
-################################################################################
-def  createSnappyHexMeshDict(filePath):
+
+
+########################################################################
+#                                                                      #
+#                      CREATE SNAPPY HEX MESH DICT                     #
+#                                                                      #
+########################################################################
+def createSnappyHexMeshDict(filePath):
     with open(filePath, "w") as file:
-        text = """/*--------------------------------*- C++ -*----------------------------------*\\
+        text = \
+"""
+/*--------------------------------*- C++ -*----------------------------------*\\
 | =========                 |                                                 |
 | \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
 |  \\    /   O peration     | Version:  v2006                                 |
@@ -592,7 +509,7 @@ castellatedMeshControls
 
     resolveFeatureAngle 30;
     refinementRegions { }
-    locationInMesh (0.5 0.5 0.5); 
+    locationInMesh (0.5 0.5 0.5);
     allowFreeStandingZoneFaces true;
 }
 
@@ -654,14 +571,16 @@ writeFlags
 mergeTolerance 1E-6;
 
 
-// ************************************************************************* //"""
+// ************************************************************************* //
+"""
         file.write(text)
 
-################################################################################
-#                                                                              #
-#                        INITIAL CONDITIONS FOR VELOCITY                       #
-#                                                                              #
-################################################################################
+
+########################################################################
+#                                                                      #
+#                    INITIAL CONDITIONS FOR VELOCITY                   #
+#                                                                      #
+########################################################################
 def make_0_U(filePath, size, Re: float):
     if size['z'] == 1:
         front_back_type = 'empty'
@@ -669,7 +588,9 @@ def make_0_U(filePath, size, Re: float):
         front_back_type = 'noSlip'
     velocity = Re*1e-6
     with open(filePath, "w") as file:
-        text = Template("""/*--------------------------------*- C++ -*----------------------------------*\\
+        text = Template(
+"""
+/*--------------------------------*- C++ -*----------------------------------*\\
 | =========                 |                                                 |
 | \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
 |  \\    /   O peration     | Version:  v2006                                 |
@@ -720,12 +641,12 @@ boundaryField
     wall_front.stl
     {
         type            $fab_type;
-    }   
+    }
 
     wall_back.stl
     {
         type            $fab_type;
-    }   
+    }
 
     grains.stl
     {
@@ -733,13 +654,19 @@ boundaryField
     }
 }
 """)
-        file.write(text.substitute(v = velocity, fab_type = front_back_type))
+        file.write(
+            text.substitute(
+                v=velocity,
+                fab_type=front_back_type
+            )
+        )
 
-################################################################################
-#                                                                              #
-#                        INITIAL CONDITIONS FOR PRESSURE                       #
-#                                                                              #
-################################################################################
+
+########################################################################
+#                                                                      #
+#                    INITIAL CONDITIONS FOR PRESSURE                   #
+#                                                                      #
+########################################################################
 def make_0_p(filePath, size):
     if size['z'] == 1:
         front_back_type = 'empty'
@@ -747,7 +674,9 @@ def make_0_p(filePath, size):
         front_back_type = 'zeroGradient'
 
     with open(filePath, "w") as file:
-        text = Template("""/*--------------------------------*- C++ -*----------------------------------*\\
+        text = Template(
+"""
+/*--------------------------------*- C++ -*----------------------------------*\\
 | =========                 |                                                 |
 | \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
 |  \\    /   O peration     | Version:  v2006                                 |
@@ -812,4 +741,4 @@ boundaryField
 }
     """)
 
-        file.write(text.substitute(fab_type = front_back_type))
+        file.write(text.substitute(fab_type=front_back_type))

@@ -5,9 +5,9 @@ import argparse
 import numpy as np
 import shutil
 import benchmarks
-from postProcessing import IFPM_postProc
+from ifpm.postProcessing import IFPM_postProc
 from pathlib import Path
-from ifpm import IFPM, FractalIFPM
+from ifpm.ifpm import IFPM, FractalIFPM
 
 
 def get_args():
