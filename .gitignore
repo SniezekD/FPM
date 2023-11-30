@@ -1,4 +1,3 @@
-test.py
 swak4foam/*
 swak4foam*
 OF_Model copy/*
@@ -7,6 +6,11 @@ IFPM/*.dat
 IFPM/*.log
 IFPM/__pycache__
 IFPM/results/*
+ifpm/plots/*
+ifpm/*.dat
+ifpm/*.log
+ifpm/__pycache__
+ifpm/results/*
 docker-compose.yml
 *.png
 make_plot.py
@@ -14,5 +18,6 @@ make_plot.py
 OF_Mod*
 OF_Model/*
 OF_Model\*
-
+OF_Model
 OF_Model/0/*
+OF*
