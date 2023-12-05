@@ -173,7 +173,6 @@ class IFPM_postProc:
         velocities = self.U_field
         vel_x = velocities[:, 0]
         volumes = self.cell_volume_values
-        total_fuid_volume = np.sum(volumes)
 
         negative_vel_x_mask = vel_x < 0
         vortex_volumes = volumes[negative_vel_x_mask]
@@ -185,7 +184,6 @@ class IFPM_postProc:
             print(kinetic_energy_vortex)
 
             kinetic_energy_vortex = np.array(kinetic_energy_vortex)
-            print(kin_energy_density_vortex)
             if normalize:
                 min_value = np.min(kinetic_energy_vortex)
                 max_value = np.max(kinetic_energy_vortex)
