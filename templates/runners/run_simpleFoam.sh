@@ -12,12 +12,6 @@ fi
 Re=$1
 source /usr/lib/openfoam/openfoam2006/etc/bashrc
 
-# if (( $(echo "$Re > 0.01" |bc -l) )); then
-#     echo "    Mapping fields from previous case pimpleFoam"
-#     mapFields -case /home/user/sharedVol/OF_Model -consistent -sourceTime 0  &> mapFields.log
-#     sed -i sed -i 's/endTime         50000;/endTime         25000;/' ../wd/OF_Model/system/controlDict
-# fi
-
 cd ../wd/OF_Model 
 echo "    Decomposing"
 decomposePar -force &> decomposePar.log
