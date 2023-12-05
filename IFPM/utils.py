@@ -10,21 +10,12 @@ import matplotlib.pyplot as plt
 import jinja2
 
 
-def run_cmd(args: list, shell: bool = False):
+def run_cmd(args: list, shell: bool = True):
     status = subprocess.run(args, shell)
     if status.returncode == 0:
         print("     Done")
     else:
         print(f"     Error! \n{args} ended with code {status.returncode}.")
-        sys.exit(status)
-
-
-def run_cmd2(arg: str, shell: bool = False):
-    status = subprocess.run(arg, shell)
-    if status.returncode == 0:
-        print("     Done")
-    else:
-        print(f"     Error! \n{arg} ended with code {status.returncode}.")
         sys.exit(status)
 
 
@@ -256,12 +247,14 @@ def plot_residuals(collective_path: Path, savename: str = None) -> None:
 #######################################################################
 def createBlockMeshDict(filePath, size, in_margin, out_margin):
     if size['z'] == 1:
-        front_back_type = 'empty'
+        front_type = 'empty'
+        back_type = 'empty'
     else:
-        front_back_type = 'wall'
+        front_type = 'wall'
+        back_type = 'wall'
 
     jinja2_env = jinja2.Environment(
-        loader=jinja2.FileSystemLoader('../templates/')
+        loader=jinja2.FileSystemLoader('templates/OF_files/')
     )
 
     template = jinja2_env.get_template('blockMesh_template.txt')
@@ -272,7 +265,8 @@ def createBlockMeshDict(filePath, size, in_margin, out_margin):
         dx=2 * (size['x'] + in_margin + out_margin),
         dy=2 * size['y'],
         dz=2 * size['z'],
-        fab_type=front_back_type
+        front_bc_type=front_type,
+        back_bc_type=back_type
     )
     with open(filePath, "w") as file:
         file.write(content)
@@ -292,7 +286,7 @@ def createMeshDict(
         refinement_thickness: float = 0.25
 ):
     jinja2_env = jinja2.Environment(
-        loader=jinja2.FileSystemLoader('../templates/')
+        loader=jinja2.FileSystemLoader('templates/OF_files/')
     )
 
     template = jinja2_env.get_template('cfmesh_template.txt')
@@ -321,7 +315,7 @@ def createSnappyHexMeshDict(
         location_in_mesh: List[float] = [0.5, 0.5, 0.5]
 ):
     jinja2_env = jinja2.Environment(
-        loader=jinja2.FileSystemLoader('../templates/')
+        loader=jinja2.FileSystemLoader('templates/OF_files/')
     )
 
     template = jinja2_env.get_template('snappyHexMesh_template.txt')
@@ -352,7 +346,7 @@ def make_0_U(
     velocity = Re*1e-6
 
     jinja2_env = jinja2.Environment(
-        loader=jinja2.FileSystemLoader('../templates/')
+        loader=jinja2.FileSystemLoader('templates/OF_files/')
     )
 
     template = jinja2_env.get_template('U_template.txt')
@@ -377,7 +371,7 @@ def make_0_p(
         back_type: str
 ):
     jinja2_env = jinja2.Environment(
-        loader=jinja2.FileSystemLoader('../templates/')
+        loader=jinja2.FileSystemLoader('templates/OF_files/')
     )
 
     template = jinja2_env.get_template('P_template.txt')

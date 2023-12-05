@@ -11,7 +11,7 @@ fi
 
 source /usr/lib/openfoam/openfoam2006/etc/bashrc
 
-cd ../wd/OF_Model 
+cd {{ working_dir }}/OF_Model 
 echo "    Decomposing"
 decomposePar -force &> decomposePar.log
 check_return_code $?
@@ -21,7 +21,7 @@ if [ ! -d {{ solver_of_name }}Logs ]; then
     mkdir {{ solver_of_name }}Logs
 fi
 
-mpirun -np {{ number_of_procs }}  {{ solver_of_name }} -parallel &>  {{ solver_of_name }}Logs/ {{ solver_of_name }}{{ reynolds_number }}.log
+mpirun -np {{ number_of_procs }}  {{ solver_of_name }} -parallel &>  {{ solver_of_name }}Logs/{{ solver_of_name }}{{ reynolds_number }}.log
 
 check_return_code $?
 

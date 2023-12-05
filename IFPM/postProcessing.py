@@ -17,7 +17,7 @@ class IFPM_postProc:
         self.size = size
         self.vtk_path = vtk_path
 
-        cut_mesh = self.trimm_mesh
+        cut_mesh = self.trimm_mesh()
         self.body_cells, self.inlet_cells, self.outlet_cells = cut_mesh
 
         self.U_field = self.body_cells.cell_data['U']
@@ -25,7 +25,14 @@ class IFPM_postProc:
 
         self.cell_volume_values = self.body_cells['Volume']
 
-        self.T, self.uMag_avg, self.uX_avg = self.calculate_tortuosity()
+        tortuosity_output = self.calculate_tortuosity()
+
+        self.T = tortuosity_output[0]
+        self.uMag_avg = tortuosity_output[1]
+        self.uX_avg = tortuosity_output[2]
+        self.uMag_sum = tortuosity_output[3]
+        self.uX_sum = tortuosity_output[4]
+
         self.inplet_press_plane, self.outlet_perss_plane = \
             self.get_pressure_meas_planes()
 
@@ -151,53 +158,61 @@ class IFPM_postProc:
     def calculate_friction_factor(self) -> tuple:
         dp = self.delta_p  # In OF units [m^2 / s^2].
         model_length = (self.size['x'])
-        print(f"Model Length is {model_length}")
         beta = 1.0
         # In OpenFOAM pressure field is really pressure / density
         f = -dp / (model_length * beta * self.uMag_avg**2)
         nu = 1.0e-6
         alpha = 1.0
         Re_dash = beta * self.uMag_avg / (alpha * nu)
-        print(f"Re' = {Re_dash},  f = {f}")
         return f, Re_dash
 
-    def calculate_mean_kinetic_energy_in_vortices(
+    def calculate_avg_kinetic_energy_in_vortices(
             self,
             normalize: bool = False
-            ):
+    ):
         velocities = self.U_field
         vel_x = velocities[:, 0]
         volumes = self.cell_volume_values
         total_fuid_volume = np.sum(volumes)
 
         negative_vel_x_mask = vel_x < 0
-        kinetic_energy_vortex = np.sum(
-            2*vel_x[negative_vel_x_mask]**2 * volumes[negative_vel_x_mask]
-        )
+        vortex_volumes = volumes[negative_vel_x_mask]
 
-        mean_kin_energy_vortex = kinetic_energy_vortex / total_fuid_volume
+        kinetic_energy_vortex = \
+            vel_x[negative_vel_x_mask]**2 * vortex_volumes
 
-        if normalize:
-            min_value = np.min(mean_kin_energy_vortex)
-            max_value = np.max(mean_kin_energy_vortex)
-            mean_kin_energy_vortex = \
-                (mean_kin_energy_vortex - min_value) / (max_value - min_value)
+        if kinetic_energy_vortex:
+            print(kinetic_energy_vortex)
 
-        return mean_kin_energy_vortex
+            kinetic_energy_vortex = np.array(kinetic_energy_vortex)
+            print(kin_energy_density_vortex)
+            if normalize:
+                min_value = np.min(kinetic_energy_vortex)
+                max_value = np.max(kinetic_energy_vortex)
+                print(f"Min value: {min_value}")
+                print(f"Max value: {max_value}")
+                kinetic_energy_vortex -= min_value
+                kinetic_energy_vortex /= (max_value - min_value)
+
+            avg_kin_energy_vortex = np.average(
+                kinetic_energy_vortex,
+                weights=vortex_volumes
+            )
+        else:
+            avg_kin_energy_vortex = 0
+
+        return avg_kin_energy_vortex
 
     def velocity_distribution(
             self,
             save_path: pathlib.Path = None
             ) -> tuple:
         velocities = self.U_field
-        print(velocities.shape)
         vel_x = velocities[:, 0]
         vel_y = velocities[:, 1]
         vel_z = velocities[:, 2]
         volumes = self.cell_volume_values
         volumes_ratio = volumes / np.sum(volumes)
-        print(f"Total Volume: {np.sum(volumes)}")
-        print(f"Total Volume Ratio: {np.sum(volumes_ratio)}")
 
         if save_path:
             fig, (ax1, ax2, ax3) = plt.subplots(
@@ -214,13 +229,11 @@ class IFPM_postProc:
         vortex_velocity_x = np.sum(
             np.where(vel_x <= 0, vel_x, 0) * volumes_ratio
         )
-        print(vortex_velocity_x)
 
         vel_mag = np.sqrt(vel_x**2 + vel_y**2 + vel_z**2)
         vortex_velocity_magnitude = np.sum(
             np.where(vel_x <= 0, vel_mag, 0) * volumes_ratio
         )
-        print(vortex_velocity_magnitude)
 
         return vortex_velocity_x, vortex_velocity_magnitude
 

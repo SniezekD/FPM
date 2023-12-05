@@ -12,6 +12,7 @@ ifpm/*.log
 ifpm/__pycache__
 ifpm/results/*
 docker-compose.yml
+result*
 *.png
 make_plot.py
 .vscode

@@ -1,12 +1,15 @@
 import os
-import utils
+import tempfile
+import stat
 import pathlib
 from typing import List
 
 import numpy as np
 import pyvista as pv
+import jinja2
 
-import ifpm.mystl as mystl
+from ifpm import utils
+from ifpm import mystl
 
 
 class IFPM:
@@ -18,6 +21,7 @@ class IFPM:
             out_margin: int,
             working_dir: pathlib.Path,
             r_r: float,
+            proc_num: int,
             s_o: bool = False,
             lattice: np.ndarray = None
     ) -> None:
@@ -29,6 +33,7 @@ class IFPM:
         self.wd = working_dir
         self.rounding_r = r_r
         self.save_obs = s_o
+        self.proc_num = proc_num
         if lattice is None:
             self.lattice = self.porosity_lattice()
         else:
@@ -234,19 +239,67 @@ class IFPM:
                     'snappyHexMeshDict'
                 )
             )
-        utils.run_cmd([r'./prep_model.sh'])
+        runners_env = jinja2.Environment(
+            loader=jinja2.FileSystemLoader('templates/runners/')
+        )
+        prep_template = runners_env.get_template('prep_model_template.txt')
+        prep_content = prep_template.render(
+            working_dir=self.wd
+        )
+
+        of_files_env = jinja2.Environment(
+            loader=jinja2.FileSystemLoader('templates/OF_files/')
+        )
+        decompose_temp = of_files_env.get_template(
+            'decomposeParDict_template.txt'
+        )
+        decompose_content = decompose_temp.render(
+            number_of_procs=self.proc_num
+        )
+        decompose_dict_file = self.wd.joinpath(
+            "OF_Model/system/decomposeParDict"
+        )
+        with open(decompose_dict_file, 'w') as file:
+            file.write(decompose_content)
+
+        run_file = tempfile.NamedTemporaryFile(suffix='.sh', delete=False)
+        with open(run_file.name, "w") as file:
+            file.write(prep_content)
+            os.chmod(run_file.name, stat.S_IRWXO)
+            # os.system(run_file.name)
+        utils.run_cmd(['bash', run_file.name])
+        # utils.run_cmd([r'./prep_model.sh'])
 
     def run_meshing(self) -> None:
         """
         Runs OpenFOAM meshing commands.
         Mesh is done with snappyHexMesh tool.
         """
+        run_script_file = tempfile.NamedTemporaryFile(
+            suffix='.sh',
+            delete=False
+        )
+        jinja2_env = jinja2.Environment(
+            loader=jinja2.FileSystemLoader('templates/runners/')
+        )
+
         if self.size["z"] == 1:
             print("    Creating the mesh with cfMesh")
-            utils.run_cmd([r'./run_meshing2D.sh'])
+            template = jinja2_env.get_template('run_meshing2D_template.txt')
+            content = template.render(
+                working_dir=self.wd
+            )
         else:
             print("    Creating the mesh with snappyHexMesh")
-            utils.run_cmd([r'./run_meshing.sh'])
+            template = jinja2_env.get_template('run_meshing_template.txt')
+            content = template.render(
+                number_of_procs=self.proc_num,
+                working_dir=self.wd
+            )
+        with open(run_script_file.name, 'w') as file:
+            file.write(content)
+        os.chmod(run_script_file.name, stat.S_IRWXO)
+        utils.run_cmd(['bash', run_script_file.name])
 
     def prepare_initial_conditions(self, Re: float) -> None:
         print("    Preparing Initial Conditions")
@@ -256,7 +309,7 @@ class IFPM:
         if self.size['z'] == 1:
             front_bc_type_u = 'empty'
             back_bc_type_u = 'empty'
-            
+
             front_bc_type_p = 'empty'
             back_bc_type_p = 'empty'
         else:
@@ -269,22 +322,55 @@ class IFPM:
         utils.make_0_U(U_file, front_bc_type_u, back_bc_type_u, Re)
         utils.make_0_p(p_file, front_bc_type_p, back_bc_type_p)
 
-    def run_single_simulation(self, Re: float, n_par: int = 6) -> None:
+    def run_single_simulation(
+            self,
+            Re: float,
+            of_solver: str = 'simpleFoam'
+    ) -> None:
         """
         Runs SimpeFoam (an OpenFOAM solver) with parellisation
         into n_par processors. Setting the value of n_par into
         a value differnet than 6 (default) requires changes inside
         'decomposeParDict' inside OF case directory.
         """
+        run_file = tempfile.NamedTemporaryFile(suffix='.sh', delete=False)
+        jinja2_env = jinja2.Environment(
+            loader=jinja2.FileSystemLoader('templates/runners/')
+        )
+        template = jinja2_env.get_template('run_simpleFoam_template.txt')
+        content = template.render(
+            number_of_procs=self.proc_num,
+            working_dir=self.wd,
+            solver_of_name=of_solver,
+            reynolds_number=f'{Re:0.4f}'
+        )
+        with open(run_file.name, 'w') as file:
+            file.write(content)
+        os.chmod(file.name, stat.S_IRWXO)
         print("    Running the Simulation")
-        utils.run_cmd([r'./run_simpleFoam.sh', f'{Re:0.4f}'])
+        utils.run_cmd(['bash', run_file.name])
 
-    def save_as_VTK(self) -> None:
-        print("    Saving results in VTK format")
-
-    def prep_convergence(self, Re: float) -> None:
+    def prep_convergence(
+            self,
+            Re: float,
+            of_solver: str = 'simpleFoam'
+    ) -> None:
+        run_file = tempfile.NamedTemporaryFile(suffix='.sh', delete=False)
+        jinja2_env = jinja2.Environment(
+            loader=jinja2.FileSystemLoader('templates/runners/')
+        )
+        template = jinja2_env.get_template('calc_convergence_template.txt')
+        content = template.render(
+            working_dir=self.wd,
+            solver_name=of_solver,
+            reynolds_number=f'{Re:0.4f}'
+        )
+        with open(run_file.name, 'w') as file:
+            file.write(content)
+        os.chmod(file.name, stat.S_IRWXO)
         print("    Running foamLog")
-        utils.run_cmd([r'./calc_convergence.sh', f'{Re:0.4f}'])
+        utils.run_cmd(['bash', run_file.name])
+        # utils.run_cmd([r'./calc_convergence.sh', f'{Re:0.4f}'])
 
 
 class Point:
@@ -340,6 +426,7 @@ class FractalIFPM(IFPM):
             working_dir: pathlib.Path,
             in_margin: int,
             out_margin: int,
+            proc_num: int,
             s_o: bool = False
     ) -> None:
 
