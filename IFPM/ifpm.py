@@ -253,8 +253,21 @@ class IFPM:
 
         U_file = self.wd.joinpath('OF_Model', '0', 'U')
         p_file = self.wd.joinpath('OF_Model', '0', 'p')
-        utils.make_0_U(U_file, self.size, Re)
-        utils.make_0_p(p_file, self.size)
+        if self.size['z'] == 1:
+            front_bc_type_u = 'empty'
+            back_bc_type_u = 'empty'
+            
+            front_bc_type_p = 'empty'
+            back_bc_type_p = 'empty'
+        else:
+            front_bc_type_u = 'noSlip'
+            back_bc_type_u = 'noSlip'
+
+            front_bc_type_p = 'zeroGradient'
+            back_bc_type_p = 'zeroGradient'
+
+        utils.make_0_U(U_file, front_bc_type_u, back_bc_type_u, Re)
+        utils.make_0_p(p_file, front_bc_type_p, back_bc_type_p)
 
     def run_single_simulation(self, Re: float, n_par: int = 6) -> None:
         """

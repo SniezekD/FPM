@@ -1,10 +1,13 @@
 import os
 import sys
 import subprocess
+import pathlib
+from typing import List
 from pathlib import Path
 from string import Template
 import numpy as np
 import matplotlib.pyplot as plt
+import jinja2
 
 
 def str2bool(v):
@@ -150,6 +153,7 @@ def read_data_from_file(path: Path):
 
     return x_arr, data_arr
 
+
 def plot_residuals(collective_path: Path, savename: str = None) -> None:
     plt.rcParams.update({'font.size': 22})
     of_dirs = os.listdir(collective_path)
@@ -261,159 +265,57 @@ def plot_residuals(collective_path: Path, savename: str = None) -> None:
 #                            CREATE BLOCK MESH DICT                   #
 #                                                                     #
 #######################################################################
-def  createBlockMeshDict(filePath, size, in_margin, out_margin):
+def createBlockMeshDict(filePath, size, in_margin, out_margin):
     if size['z'] == 1:
         front_back_type = 'empty'
     else:
         front_back_type = 'wall'
+
+    jinja2_env = jinja2.Environment(
+        loader=jinja2.FileSystemLoader('../templates/')
+    )
+
+    template = jinja2_env.get_template('blockMesh_template.txt')
+    content = template.render(
+        x=size['x'] + in_margin + out_margin,
+        y=size['y'],
+        z=size['z'],
+        dx=2 * (size['x'] + in_margin + out_margin),
+        dy=2 * size['y'],
+        dz=2 * size['z'],
+        fab_type=front_back_type
+    )
     with open(filePath, "w") as file:
-        text = Template(
-"""
-/*--------------------------------*- C++ -*----------------------------------*\\
-| =========                 |                                                 |
-| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
-|  \\    /   O peration     | Version:  v2006                                 |
-|   \\  /    A nd           | Website:  www.openfoam.com                      |
-|    \\/     M anipulation  |                                                 |
-\\*---------------------------------------------------------------------------*/
-FoamFile
-{
-    version     2.0;
-    format      ascii;
-    class       dictionary;
-    object      blockMeshDict;
-}
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
-scale   1;
-
-vertices
-(
-    (0  0  0)
-    ($x 0  0)
-    ($x $y 0)
-    (0  $y 0)
-    (0  0  $z)
-    ($x 0  $z)
-    ($x $y $z)
-    (0  $y $z)
-);
-
-blocks
-(
-    hex (0 1 2 3 4 5 6 7) ($xd $yd $zd) simpleGrading (1 1 1)
-);
-
-edges
-(
-);
-
-boundary
-(
-   inlet.stl
-    {
-        type patch;
-        faces
-        (
-            (0 3 7 4)
-        );
-    }
-    outlet.stl
-    {
-        type patch;
-        faces
-        (
-            (1 5 6 2)
-        );
-    }
-    walls.stl
-    {
-        type wall;
-        faces
-        (
-            (0 1 2 3)
-            (4 5 6 7)
-        );
-    }
-    frontAndBack.stl
-    {
-        type $fab_type;
-        faces
-        (
-            (0 1 5 4)
-            (2 3 7 6)
-        );
-    }
-);
-
-mergePatchPairs
-(
-);
-
-// ************************************************************************* //
-""")
-        file.write(
-            text.substitute(
-                x=size['x'] + in_margin + out_margin,
-                y=size['y'],
-                z=size['z'],
-                xd=2 * (size['x'] + in_margin + out_margin),
-                yd=2 * size['y'],
-                zd=2 * size['z'],
-                fab_type=front_back_type
-            )
-        )
+        file.write(content)
 
 
 ########################################################################
 #                                                                      #
-#                          CREATE SNAPPY HEX MESH DICT                 #
+#                      CREATE MESHDICT FOR CFMESH                      #
 #                                                                      #
 ########################################################################
-def createMeshDict(filePath):
-    with open(filePath, "w") as file:
-        text = \
-"""
-/*--------------------------------*- C++ -*----------------------------------*\\
-| =========                 |                                                |
-| \\      /  F ield         | cfMesh: A library for mesh generation          |
-|  \\    /   O peration     |                                                |
-|   \\  /    A nd           | Author: Franjo Juretic                         |
-|    \\/     M anipulation  | E-mail: franjo.juretic@c-fields.com            |
-\*---------------------------------------------------------------------------*/
-FoamFile
-{
-    version   2.0;
-    format    ascii;
-    class     dictionary;
-    location  "system";
-    object    meshDict;
-}
+def createMeshDict(
+        file_path: pathlib.Path,
+        surface_file_path: str = 'constant/triSurface/col_model.fms',
+        min_cell_size: float = 0.25,
+        max_cell_size: float = 0.25,
+        additional_refinement_level: int = 2,
+        refinement_thickness: float = 0.25
+):
+    jinja2_env = jinja2.Environment(
+        loader=jinja2.FileSystemLoader('../templates/')
+    )
 
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
-
-surfaceFile "constant/triSurface/col_model.fms";
-
-minCellSize 0.25;
-
-maxCellSize 0.25;
-
-/* boundaryCellSize 0.1; */
-
-/* boundaryCellSizeRefinementThickness 1; */
-
-localRefinement
-{
-    "grains.stl"
-    {
-        additionalRefinementLevel 2;
-        refinementThickness 0.25;
-    }
-}
-
-
-// ************************************************************************* //
-"""
-        file.write(text)
+    template = jinja2_env.get_template('cfmesh_template.txt')
+    content = template.render(
+        surface_file=surface_file_path,
+        min_cell_size=min_cell_size,
+        max_cell_size=max_cell_size,
+        additional_refinement_level=additional_refinement_level,
+        refinement_thickness=refinement_thickness
+    )
+    with open(file_path, "w") as file:
+        file.write(content)
 
 
 ########################################################################
@@ -421,159 +323,30 @@ localRefinement
 #                      CREATE SNAPPY HEX MESH DICT                     #
 #                                                                      #
 ########################################################################
-def createSnappyHexMeshDict(filePath):
-    with open(filePath, "w") as file:
-        text = \
-"""
-/*--------------------------------*- C++ -*----------------------------------*\\
-| =========                 |                                                 |
-| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
-|  \\    /   O peration     | Version:  v2006                                 |
-|   \\  /    A nd           | Website:  www.openfoam.com                      |
-|    \\/     M anipulation  |                                                 |
-\\*---------------------------------------------------------------------------*/
-FoamFile
-{
-    version     2.0;
-    format      ascii;
-    class       dictionary;
-    object      snappyHexMeshDict;
-}
+def createSnappyHexMeshDict(
+        file_path: pathlib.Path,
+        min_surface_refinement_lvl: int = 2,
+        max_surface_refinement_lvl: int = 2,
+        max_global_cells: int = 2000000,
+        max_local_cells: int = 100000,
+        location_in_mesh: List[float] = [0.5, 0.5, 0.5]
+):
+    jinja2_env = jinja2.Environment(
+        loader=jinja2.FileSystemLoader('../templates/')
+    )
 
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
-
-castellatedMesh true;
-snap            true;
-addLayers       false;
-
-geometry
-{
-    grains.stl
-    {
-        type triSurfaceMesh;
-        name grains.stl;
-    }
-    inlet.stl
-    {
-        type triSurfaceMesh;
-        name inlet.stl;
-    }
-    outlet.stl
-    {
-        type triSurfaceMesh;
-        name outlet.stl;
-    }
-    wall_up.stl
-    {
-        type triSurfaceMesh;
-        name wall_up.stl;
-    }
-    wall_down.stl
-    {
-        type triSurfaceMesh;
-        name wall_down.stl;
-    }
-    wall_front.stl
-    {
-        type triSurfaceMesh;
-        name wall_front.stl;
-    }
-    wall_back.stl
-    {
-        type triSurfaceMesh;
-        name wall_back.stl;
-    }
-}
-
-castellatedMeshControls
-{
-    maxLocalCells 100000;
-    maxGlobalCells 2000000;
-    minRefinementCells 1;
-    nCellsBetweenLevels 1;
-
-    features
-    (
-    );
-
-    refinementSurfaces
-    {
-        grains.stl{ level (2 2); }
-        wall_front.stl{ level (2 2); }
-        wall_back.stl{ level (2 2); }
-        wall_down.stl{ level (2 2); }
-        wall_up.stl{ level (2 2); }
-        inlet.stl{ level (2 2); patchInfo { type patch; } }
-        outlet.stl{ level (2 2); patchInfo { type patch; } }
-    }
-
-    resolveFeatureAngle 30;
-    refinementRegions { }
-    locationInMesh (0.5 0.5 0.5);
-    allowFreeStandingZoneFaces true;
-}
-
-snapControls
-{
-    nSmoothPatch 3;
-    tolerance 1.0;
-    nSolveIter 300;
-    nRelaxIter 5;
-    nFeatureSnapIter 10;
-    implicitFeatureSnap false;
-    explicitFeatureSnap true;
-    multiRegionFeatureSnap true;
-}
-
-addLayersControls
-{
-    relativeSizes true;
-    layers
-    {
-    }
-    expansionRatio 1.0;
-    finalLayerThickness 0.3;
-    minThickness 0.25;
-    nGrow 0;
-    featureAngle 30;
-    nRelaxIter 5;
-    nSmoothSurfaceNormals 1;
-    nSmoothNormals 3;
-    nSmoothThickness 10;
-    maxFaceThicknessRatio 0.5;
-    maxThicknessToMedialRatio 0.3;
-    minMedialAxisAngle 90;
-    nBufferCellsNoExtrude 0;
-    nLayerIter 50;
-    nRelaxedIter 20;
-}
-
-meshQualityControls
-{
-    #include "meshQualityDict"
-
-    relaxed
-    {
-        maxNonOrtho 75;
-    }
-    nSmoothScale 4;
-    errorReduction 0.75;
-}
-
-
-writeFlags
-(
-    scalarLevels    // write volScalarField with cellLevel for postprocessing
-    layerSets       // write cellSets, faceSets of faces in layer
-    layerFields     // write volScalarField for layer coverage
-);
-
-mergeTolerance 1E-6;
-
-
-// ************************************************************************* //
-"""
-        file.write(text)
+    template = jinja2_env.get_template('snappyHexMesh_template.txt')
+    content = template.render(
+        min_surface_refinement_lvl=min_surface_refinement_lvl,
+        max_surface_refinement_lvl=max_surface_refinement_lvl,
+        max_global_cells=max_global_cells,
+        max_local_cells=max_local_cells,
+        location_in_mesh_x=location_in_mesh[0],
+        location_in_mesh_y=location_in_mesh[1],
+        location_in_mesh_z=location_in_mesh[2]
+    )
+    with open(file_path, "w") as file:
+        file.write(content)
 
 
 ########################################################################
@@ -581,85 +354,27 @@ mergeTolerance 1E-6;
 #                    INITIAL CONDITIONS FOR VELOCITY                   #
 #                                                                      #
 ########################################################################
-def make_0_U(filePath, size, Re: float):
-    if size['z'] == 1:
-        front_back_type = 'empty'
-    else:
-        front_back_type = 'noSlip'
+def make_0_U(
+        filePath: pathlib.Path,
+        front_type: str,
+        back_type: str,
+        Re: float
+):
     velocity = Re*1e-6
+
+    jinja2_env = jinja2.Environment(
+        loader=jinja2.FileSystemLoader('../templates/')
+    )
+
+    template = jinja2_env.get_template('U_template.txt')
+    content = template.render(
+        v=velocity,
+        front_bc_type=front_type,
+        back_bc_type=back_type
+
+    )
     with open(filePath, "w") as file:
-        text = Template(
-"""
-/*--------------------------------*- C++ -*----------------------------------*\\
-| =========                 |                                                 |
-| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
-|  \\    /   O peration     | Version:  v2006                                 |
-|   \\  /    A nd           | Website:  www.openfoam.com                      |
-|    \\/     M anipulation  |                                                 |
-\\*---------------------------------------------------------------------------*/
-FoamFile
-{
-    version     2.0;
-    format      ascii;
-    class       volVectorField;
-    object      U;
-}
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
-
-dimensions      [0 1 -1 0 0 0 0];
-
-internalField   uniform (0 0 0);
-
-boundaryField
-{
-    inlet.stl
-    {
-        type            fixedValue;
-        value uniform   ($v 0 0);
-    }
-
-    outlet.stl
-    {
-        type            zeroGradient;
-    }
-
-    walls.stl
-    {
-        type            noSlip;
-    }
-
-    wall_up.stl
-    {
-        type            noSlip;
-    }
-
-    wall_down.stl
-    {
-        type            noSlip;
-    }
-
-    wall_front.stl
-    {
-        type            $fab_type;
-    }
-
-    wall_back.stl
-    {
-        type            $fab_type;
-    }
-
-    grains.stl
-    {
-        type            noSlip;
-    }
-}
-""")
-        file.write(
-            text.substitute(
-                v=velocity,
-                fab_type=front_back_type
-            )
-        )
+        file.write(content)
 
 
 ########################################################################
@@ -667,78 +382,20 @@ boundaryField
 #                    INITIAL CONDITIONS FOR PRESSURE                   #
 #                                                                      #
 ########################################################################
-def make_0_p(filePath, size):
-    if size['z'] == 1:
-        front_back_type = 'empty'
-    else:
-        front_back_type = 'zeroGradient'
+def make_0_p(
+        filePath: pathlib.Path,
+        front_type: str,
+        back_type: str
+):
+    jinja2_env = jinja2.Environment(
+        loader=jinja2.FileSystemLoader('../templates/')
+    )
 
+    template = jinja2_env.get_template('P_template.txt')
+    content = template.render(
+        front_bc_type=front_type,
+        back_bc_type=back_type
+
+    )
     with open(filePath, "w") as file:
-        text = Template(
-"""
-/*--------------------------------*- C++ -*----------------------------------*\\
-| =========                 |                                                 |
-| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
-|  \\    /   O peration     | Version:  v2006                                 |
-|   \\  /    A nd           | Website:  www.openfoam.com                      |
-|    \\/     M anipulation  |                                                 |
-\\*---------------------------------------------------------------------------*/
-FoamFile
-{
-    version     2.0;
-    format      ascii;
-    class       volScalarField;
-    object      p;
-}
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
-
-dimensions      [0 2 -2 0 0 0 0];
-
-internalField   uniform 0;
-
-boundaryField
-{
-    inlet.stl
-    {
-        type            zeroGradient;
-    }
-
-    outlet.stl
-    {
-        type            fixedValue;
-        value uniform   0;
-    }
-
-    walls.stl
-    {
-        type            zeroGradient;
-    }
-
-    wall_up.stl
-    {
-        type            zeroGradient;
-    }
-
-    wall_down.stl
-    {
-        type            zeroGradient;
-    }
-
-    wall_front.stl
-    {
-        type            $fab_type;
-    }
-
-    wall_back.stl
-    {
-        type            $fab_type;
-    }
-
-    grains.stl
-    {
-        type            zeroGradient;
-    }
-}
-    """)
-
-        file.write(text.substitute(fab_type=front_back_type))
+        file.write(content)
