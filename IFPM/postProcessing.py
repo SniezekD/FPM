@@ -171,24 +171,19 @@ class IFPM_postProc:
             normalize: bool = False
     ):
         velocities = self.U_field
-        vel_x = velocities[:, 0]
+        vel_x = np.array(velocities[:, 0])
         volumes = self.cell_volume_values
 
         negative_vel_x_mask = vel_x < 0
-        vortex_volumes = volumes[negative_vel_x_mask]
+        vortex_volumes = np.array(volumes[negative_vel_x_mask])
+        negative_vel_x = np.array(vel_x[negative_vel_x_mask])
+        kinetic_energy_vortex = negative_vel_x**2 * vortex_volumes
 
-        kinetic_energy_vortex = \
-            vel_x[negative_vel_x_mask]**2 * vortex_volumes
-
-        if kinetic_energy_vortex:
-            print(kinetic_energy_vortex)
-
+        if kinetic_energy_vortex.size > 0:
             kinetic_energy_vortex = np.array(kinetic_energy_vortex)
             if normalize:
                 min_value = np.min(kinetic_energy_vortex)
                 max_value = np.max(kinetic_energy_vortex)
-                print(f"Min value: {min_value}")
-                print(f"Max value: {max_value}")
                 kinetic_energy_vortex -= min_value
                 kinetic_energy_vortex /= (max_value - min_value)
 

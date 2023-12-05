@@ -181,7 +181,7 @@ if __name__ == '__main__':
         outFile.write("Re\tPI\tT\tAvg_Delta_P\tAVG_uX\tAVG_uMag\tFriction\tRe'"
                       "\tVortex_mean_kinetic_energy"
                       "\tVortex_mean_kinetic_energy_normalized"
-                      "\tPI_numerator\tPI_denominator\n")
+                      "\tT_numerator\tT_denominator\n")
 
         if fractal_lvl > 0:
             ifpm = FractalIFPM(
@@ -231,15 +231,15 @@ if __name__ == '__main__':
             vortex_ke_norm = ifpm_pp.calculate_avg_kinetic_energy_in_vortices(
                 normalize=True
             )
-            pi_numerator = ifpm_pp.uMag_sum
-            pi_denominator = ifpm_pp.uX_sum
+            T_numerator = ifpm_pp.uMag_sum
+            T_denominator = ifpm_pp.uX_sum
 
             outFile.write(
                 (f"{Re}\t{ifpm_pp.pi}\t{ifpm_pp.T}\t{ifpm_pp.delta_p}"
                  f"\t{ifpm_pp.uX_avg}\t{ifpm_pp.uMag_avg}"
                  f"\t{ifpm_pp.friction_factor}\t{ifpm_pp.re_Dash}"
                  f"\t{vortex_ke}\t{vortex_ke_norm}"
-                 f"\t{pi_numerator}\t{pi_denominator}\n")
+                 f"\t{T_numerator}\t{T_denominator}\n")
             )
 
             if save and k == 0:
