@@ -10,17 +10,6 @@ import matplotlib.pyplot as plt
 import jinja2
 
 
-def str2bool(v):
-    if isinstance(v, bool):
-        return v
-    if v.lower() in ('yes', 'true', 't', 'y', '1'):
-        return True
-    elif v.lower() in ('no', 'false', 'f', 'n', '0'):
-        return False
-    else:
-        raise TypeError('Boolean value expected.')
-
-
 def run_cmd(args: list, shell: bool = False):
     status = subprocess.run(args, shell)
     if status.returncode == 0:

@@ -69,8 +69,7 @@ def get_args():
     parser.add_argument(
         "-r",
         "--reset",
-        type=str,
-        default='false',
+        action='store_true',
         help='Whether or not to delete the output file'
     )
     parser.add_argument(
@@ -104,9 +103,9 @@ def get_args():
     parser.add_argument(
         "-s",
         "--save",
-        type=str,
-        default='false',
-        help='Save openFOAM directory for each Re?'
+        action='store_true',
+        help=('Save openFOAM directory for each Re for the first '
+              'geometry realisation?')
     )
     parser.add_argument(
         "-rr",
@@ -122,9 +121,9 @@ def get_args():
     parser.add_argument(
         "-sso",
         "--save_separate_obstacles",
-        type=str,
-        default='false',
-        help="If save separate obstacles' stls set to true"
+        action='store_true',
+        help=("If present, separate obstacles' stls will be saved "
+              "instead of one collective one.")
     )
     parser.add_argument(
         "-fractal",
@@ -144,18 +143,22 @@ if __name__ == '__main__':
     x = args.x_size
     y = args.y_size
     z = args.z_size
+
     in_margin = args.inlet_margin
     out_margin = args.outlet_margin
+
     Re_min = args.Re_min
     Re_max = args.Re_max
     Re_num = args.Re_num
+
     geometry_number = args.geometry_number
-    reset = utils.str2bool(args.reset)
+    reset = args.reset
+    save = args.save
+    s_s_o = args.save_separate_obstacles
+
     epsilon = args.epsilon
     wd = args.work_dir
-    save = utils.str2bool(args.save)
     r_radius = args.rounding_radius
-    s_s_o = utils.str2bool(args.save_separate_obstacles)
     fractal_lvl = args.fractal_lvl
     benchmark = args.benchmark
 
