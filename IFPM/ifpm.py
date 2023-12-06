@@ -266,9 +266,7 @@ class IFPM:
         with open(run_file.name, "w") as file:
             file.write(prep_content)
             os.chmod(run_file.name, stat.S_IRWXO)
-            # os.system(run_file.name)
         utils.run_cmd(['bash', run_file.name])
-        # utils.run_cmd([r'./prep_model.sh'])
 
     def run_meshing(self) -> None:
         """
@@ -370,7 +368,6 @@ class IFPM:
         os.chmod(file.name, stat.S_IRWXO)
         print("    Running foamLog")
         utils.run_cmd(['bash', run_file.name])
-        # utils.run_cmd([r'./calc_convergence.sh', f'{Re:0.4f}'])
 
 
 class Point:

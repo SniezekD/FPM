@@ -156,9 +156,8 @@ def plot_residuals(collective_path: Path, savename: str = None) -> None:
     fig.tight_layout(pad=3.0)
     labels = ["U${_x}$", "U${_y}$", "U${_z}$", "p"]
 
-    # fig.tight_layout(pad=2.0,h_pad=4.0)
     lines_labels = [ax.get_legend_handles_labels() for ax in fig.axes]
-    lines, labels = [sum(lol, []) for lol in zip(*lines_labels)]
+    _, labels = [sum(lol, []) for lol in zip(*lines_labels)]
 
     for i, ofdir in enumerate(of_dirs):
         Ux_path = collective_path.joinpath(ofdir, 'logs', 'Ux_0')
@@ -237,14 +236,9 @@ def plot_residuals(collective_path: Path, savename: str = None) -> None:
 
 
 # /-------------------------------------------------------------------\
-#                                OF UTILITIES
+#                       OpenFOAM UTILITIES
 # \-------------------------------------------------------------------/
 
-#######################################################################
-#                                                                     #
-#                            CREATE BLOCK MESH DICT                   #
-#                                                                     #
-#######################################################################
 def createBlockMeshDict(filePath, size, in_margin, out_margin):
     if size['z'] == 1:
         front_type = 'empty'
@@ -272,11 +266,6 @@ def createBlockMeshDict(filePath, size, in_margin, out_margin):
         file.write(content)
 
 
-########################################################################
-#                                                                      #
-#                      CREATE MESHDICT FOR CFMESH                      #
-#                                                                      #
-########################################################################
 def createMeshDict(
         file_path: pathlib.Path,
         surface_file_path: str = 'constant/triSurface/col_model.fms',
@@ -301,11 +290,6 @@ def createMeshDict(
         file.write(content)
 
 
-########################################################################
-#                                                                      #
-#                      CREATE SNAPPY HEX MESH DICT                     #
-#                                                                      #
-########################################################################
 def createSnappyHexMeshDict(
         file_path: pathlib.Path,
         min_surface_refinement_lvl: int = 2,
@@ -332,11 +316,6 @@ def createSnappyHexMeshDict(
         file.write(content)
 
 
-########################################################################
-#                                                                      #
-#                    INITIAL CONDITIONS FOR VELOCITY                   #
-#                                                                      #
-########################################################################
 def make_0_U(
         filePath: pathlib.Path,
         front_type: str,
@@ -360,11 +339,6 @@ def make_0_U(
         file.write(content)
 
 
-########################################################################
-#                                                                      #
-#                    INITIAL CONDITIONS FOR PRESSURE                   #
-#                                                                      #
-########################################################################
 def make_0_p(
         filePath: pathlib.Path,
         front_type: str,
