@@ -38,3 +38,4 @@ OF_Model/system/fvSchemes
 OF_Model/system/meshDict_backup
 OF_Model/system/meshQualityDict
 OF_Model/system/surfaceFeatureExtractDict
+*.stl
