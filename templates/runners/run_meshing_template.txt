@@ -7,7 +7,7 @@ echo "        Creating boundary mesh with blockMesh"
 blockMesh &> blockMesh.log
 echo "         Done"
 
-echo "        Decomposing the mesh into 6 domains"
+echo "        Decomposing the mesh into {{ number_of_procs }} domains"
 decomposePar -force &> decomposeParMesh.log
 echo "         Done"
 
