@@ -113,8 +113,8 @@ class IFPM:
         """
         print("    Translating the lattice into stl.")
 
-        inlet = mystl.plane(0, 0, 0, 0, self.size['y'], self.size['z'])
-        outlet = mystl.plane(
+        inlet = mystl.Plane(0, 0, 0, 0, self.size['y'], self.size['z'])
+        outlet = mystl.Plane(
             self.size['x'] + self.in_margin + self.out_margin,
             0,
             0,
@@ -122,7 +122,7 @@ class IFPM:
             self.size['y'],
             self.size['z']
         )
-        wall_up = mystl.plane(
+        wall_up = mystl.Plane(
             0,
             self.size['y'],
             0,
@@ -130,7 +130,7 @@ class IFPM:
             0,
             self.size['z']
         )
-        wall_down = mystl.plane(
+        wall_down = mystl.Plane(
             0,
             0,
             0,
@@ -138,7 +138,7 @@ class IFPM:
             0,
             self.size['z']
         )
-        wall_front = mystl.plane(
+        wall_front = mystl.Plane(
             0,
             0,
             0,
@@ -146,7 +146,7 @@ class IFPM:
             self.size['y'],
             0
         )
-        wall_back = mystl.plane(
+        wall_back = mystl.Plane(
             0,
             0,
             self.size['z'],
@@ -164,18 +164,18 @@ class IFPM:
                 if self.rounding_r > 0.866:
                     # if the case is 2D
                     if self.size["z"] == 1:
-                        tmp_obstacle = mystl.ribbon(x, y, z)
+                        tmp_obstacle = mystl.Ribbon(x, y, z)
                     else:
-                        tmp_obstacle = mystl.cube(x, y, z)
+                        tmp_obstacle = mystl.Cube(x, y, z)
 
                 elif self.rounding_r <= 0.5:
                     # if the case is 2D:
                     if self.size["z"] == 1:
-                        tmp_obstacle = mystl.cylinder(x, y, z)
+                        tmp_obstacle = mystl.Cylinder(x, y, z)
                     else:
-                        tmp_obstacle = mystl.sphere(x, y, z)
+                        tmp_obstacle = mystl.Sphere(x, y, z)
                 else:
-                    tmp_obstacle = mystl.rounded_cube(x, y, z, self.rounding_r)
+                    tmp_obstacle = mystl.RoundedCube(x, y, z, self.rounding_r)
 
                 obstacles_names.append(tmp_obstacle.get_name())
                 obstacles.append(tmp_obstacle.stl)
@@ -188,7 +188,7 @@ class IFPM:
 
         for obs in obstacles[1:]:
             obstacles_stl = obstacles_stl.merge(obs)
-        obstacles_stl = mystl.collective_grains(obstacles_stl)
+        obstacles_stl = mystl.CollectiveGrains(obstacles_stl)
 
         stls = {'inlet': inlet,
                 'outlet': outlet,
@@ -491,7 +491,7 @@ class FractalIFPM(IFPM):
 
         if dimension == 2:
             # 2D case
-            cutout = mystl.ribbon(
+            cutout = mystl.Ribbon(
                 i=up_left_point[0] + edge_len + self.in_margin,
                 j=up_left_point[1] + edge_len,
                 d_i=edge_len,
@@ -499,7 +499,7 @@ class FractalIFPM(IFPM):
             )
 
         elif dimension == 3:
-            cutout = mystl.cube(
+            cutout = mystl.Cube(
                 i=up_left_point[0] + edge_len + self.in_margin,
                 j=up_left_point[1] + edge_len,
                 k=up_left_point[2] + edge_len,
@@ -563,8 +563,8 @@ class FractalIFPM(IFPM):
         """
         print("    Translating the lattice into stl.")
 
-        inlet = mystl.plane(0, 0, 0, 0, self.size['y'], self.size['z'])
-        outlet = mystl.plane(
+        inlet = mystl.Plane(0, 0, 0, 0, self.size['y'], self.size['z'])
+        outlet = mystl.Plane(
             self.size['x'] + self.in_margin + self.out_margin,
             0,
             0,
@@ -572,7 +572,7 @@ class FractalIFPM(IFPM):
             self.size['y'],
             self.size['z']
         )
-        wall_up = mystl.plane(
+        wall_up = mystl.Plane(
             0,
             self.size['y'],
             0,
@@ -580,7 +580,7 @@ class FractalIFPM(IFPM):
             0,
             self.size['z']
         )
-        wall_down = mystl.plane(
+        wall_down = mystl.Plane(
             0,
             0,
             0,
@@ -588,7 +588,7 @@ class FractalIFPM(IFPM):
             0,
             self.size['z']
         )
-        wall_front = mystl.plane(
+        wall_front = mystl.Plane(
             0,
             0,
             0,
@@ -596,7 +596,7 @@ class FractalIFPM(IFPM):
             self.size['y'],
             0
         )
-        wall_back = mystl.plane(
+        wall_back = mystl.Plane(
             0,
             0,
             self.size['z'],
@@ -616,7 +616,7 @@ class FractalIFPM(IFPM):
         obstacles_stl = obstacles[0]
         for obs in obstacles[1:]:
             obstacles_stl = obstacles_stl.merge(obs)
-        obstacles_stl = mystl.collective_grains(obstacles_stl)
+        obstacles_stl = mystl.CollectiveGrains(obstacles_stl)
 
         stls = {'inlet': inlet,
                 'outlet': outlet,

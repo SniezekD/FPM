@@ -5,7 +5,7 @@ import numpy as np
 import pyvista as pv
 
 
-class collective_grains():
+class CollectiveGrains():
     def __init__(self, grains) -> None:
         self.stl = grains
 
@@ -19,7 +19,7 @@ class collective_grains():
             print("No stl to save!")
 
 
-class grain:
+class Grain:
     def __init__(
             self,
             i: float,
@@ -51,7 +51,7 @@ class grain:
             print("No stl to save!")
 
 
-class cube(grain):
+class Cube(Grain):
     def __init__(
             self,
             i: float,
@@ -75,7 +75,7 @@ class cube(grain):
         )
 
 
-class ribbon(grain):
+class Ribbon(Grain):
     def __init__(
             self,
             i: float,
@@ -116,7 +116,7 @@ class ribbon(grain):
         return ribbon
 
 
-class plane(grain):
+class Plane(Grain):
     def __init__(
         self,
         i: float,
@@ -158,7 +158,7 @@ class plane(grain):
         )
 
 
-class sphere(grain):
+class Sphere(Grain):
     def __init__(
             self,
             i: float,
@@ -178,9 +178,26 @@ class sphere(grain):
             theta_resolution=30,
             phi_resolution=30
         )
+    def translate(self, translation_vector: list, inplace: bool=False):
+        new_x = self.x + translation_vector[0]
+        new_y = self.y + translation_vector[1]
+        new_z = self.z + translation_vector[2]
+
+        if inplace:
+            self.x = new_x
+            self.y = new_y
+            self.z = new_z
+        else:
+            return Sphere(
+                i=new_x,
+                j=new_y,
+                k=new_z,
+                diameter=self.radius * 2
+            )
 
 
-class rounded_cube(grain):
+
+class RoundedCube(Grain):
     def __init__(
             self,
             i: float,
@@ -223,7 +240,7 @@ class rounded_cube(grain):
         self.stl = self.sphere.boolean_intersection(self.cube)
 
 
-class cylinder(grain):
+class Cylinder(Grain):
     def __init__(
             self,
             i: float,

@@ -48,14 +48,14 @@ RUN apt-get install gnuplot -y
 
 RUN apt-get install dos2unix -y
 
-WORKDIR /home/user/MGR/IFPM
-ADD IFPM /home/user/MGR/IFPM
+WORKDIR /home/user/MGR/ifpm
+ADD ifpm /home/user/MGR/ifpm
 # RUN ls -l
 # RUN sed -i 's/\r$//' run_simpleFoam.sh 
-RUN dos2unix run_simpleFoam.sh
-RUN dos2unix run_meshing2D.sh
-RUN dos2unix run_meshing.sh
-RUN dos2unix prep_model.sh
+# RUN dos2unix run_simpleFoam.sh
+# RUN dos2unix run_meshing2D.sh
+# RUN dos2unix run_meshing.sh
+# RUN dos2unix prep_model.sh
 
 # ADD IFPM /home/user/MGR/IFPM
 ADD OF_Model /home/user/MGR/wd/OF_Model
