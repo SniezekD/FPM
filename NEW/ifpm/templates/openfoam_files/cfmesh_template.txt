@@ -22,13 +22,10 @@ minCellSize {{ min_cell_size }};
 
 maxCellSize {{ max_cell_size }};
 
-/* boundaryCellSize 0.1; */
-
-/* boundaryCellSizeRefinementThickness 1; */
 
 localRefinement
 {
-    "grains.stl"
+    "obstacles.stl"
     {
         additionalRefinementLevel {{ additional_refinement_level }};
         refinementThickness {{ refinement_thickness }};

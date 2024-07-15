@@ -1,8 +1,8 @@
 /*--------------------------------*- C++ -*----------------------------------*\\
 | =========                 |                                                 |
 | \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
-|  \\    /   O peration     | Version:  v2006                                 |
-|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|  \\    /   O peration     | Version:  12                                    |
+|   \\  /    A nd           | Website:  www.openfoam.org                      |
 |    \\/     M anipulation  |                                                 |
 \\*---------------------------------------------------------------------------*/
 FoamFile
@@ -21,37 +21,37 @@ addLayers       false;
 
 geometry
 {
-    grains.stl
+    obstacles
     {
         type triSurfaceMesh;
-        name grains.stl;
+        name obstacles.stl;
     }
-    inlet.stl
+    wall_left
     {
         type triSurfaceMesh;
-        name inlet.stl;
+        name wall_left.stl;
     }
-    outlet.stl
+    wall_right
     {
         type triSurfaceMesh;
-        name outlet.stl;
+        name wall_right.stl;
     }
-    wall_up.stl
+    wall_up
     {
         type triSurfaceMesh;
         name wall_up.stl;
     }
-    wall_down.stl
+    wall_down
     {
         type triSurfaceMesh;
         name wall_down.stl;
     }
-    wall_front.stl
+    wall_front
     {
         type triSurfaceMesh;
         name wall_front.stl;
     }
-    wall_back.stl
+    wall_back
     {
         type triSurfaceMesh;
         name wall_back.stl;
@@ -71,13 +71,13 @@ castellatedMeshControls
 
     refinementSurfaces
     {
-        grains.stl{ level ({{ min_surface_refinement_lvl }} {{ max_surface_refinement_lvl }}); }
-        wall_front.stl{ level ({{ min_surface_refinement_lvl }} {{ max_surface_refinement_lvl }}); }
-        wall_back.stl{ level ({{ min_surface_refinement_lvl }} {{ max_surface_refinement_lvl }}); }
-        wall_down.stl{ level ({{ min_surface_refinement_lvl }} {{ max_surface_refinement_lvl }}); }
-        wall_up.stl{ level ({{ min_surface_refinement_lvl }} {{ max_surface_refinement_lvl }}); }
-        inlet.stl{ level ({{ min_surface_refinement_lvl }} {{ max_surface_refinement_lvl }}); patchInfo { type patch; } }
-        outlet.stl{ level ({{ min_surface_refinement_lvl }} {{ max_surface_refinement_lvl }}); patchInfo { type patch; } }
+        obstacles{ level ({{ min_surface_refinement_lvl }} {{ max_surface_refinement_lvl }}); }
+        wall_front{ level ({{ min_surface_refinement_lvl }} {{ max_surface_refinement_lvl }}); }
+        wall_back{ level ({{ min_surface_refinement_lvl }} {{ max_surface_refinement_lvl }}); }
+        wall_down{ level ({{ min_surface_refinement_lvl }} {{ max_surface_refinement_lvl }}); }
+        wall_up{ level ({{ min_surface_refinement_lvl }} {{ max_surface_refinement_lvl }}); }
+        wall_left{ level ({{ min_surface_refinement_lvl }} {{ max_surface_refinement_lvl }}); patchInfo { type patch; } }
+        wall_right{ level ({{ min_surface_refinement_lvl }} {{ max_surface_refinement_lvl }}); patchInfo { type patch; } }
     }
 
     resolveFeatureAngle 30;

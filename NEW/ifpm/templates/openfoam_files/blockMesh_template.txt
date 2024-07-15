@@ -1,8 +1,8 @@
 /*--------------------------------*- C++ -*----------------------------------*\\
 | =========                 |                                                 |
 | \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
-|  \\    /   O peration     | Version:  v2006                                 |
-|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|  \\    /   O peration     | Version:  12                                    |
+|   \\  /    A nd           | Website:  www.openfoam.org                      |
 |    \\/     M anipulation  |                                                 |
 \\*---------------------------------------------------------------------------*/
 FoamFile
@@ -38,17 +38,17 @@ edges
 
 boundary
 (
-   inlet.stl
+   wall_left.stl
     {
-        type patch;
+        type            {{ left_bc_type }};
         faces
         (
             (0 3 7 4)
         );
     }
-    outlet.stl
+    wall_right.stl
     {
-        type patch;
+        type            {{ right_bc_type }};
         faces
         (
             (1 5 6 2)
@@ -57,7 +57,7 @@ boundary
     
     wall_up.stl
     {
-        type            wall;
+        type            {{ up_bc_type }};
         faces
         (
             (0 1 2 3)
@@ -66,7 +66,7 @@ boundary
 
     wall_down.stl
     {
-        type            wall;
+        type            {{ down_bc_type }};
         faces
         (
             (4 5 6 7)
