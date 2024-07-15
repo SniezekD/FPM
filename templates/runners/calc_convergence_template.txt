@@ -1,7 +1,0 @@
-#!/bin/bash
-
-source /usr/lib/openfoam/openfoam2006/etc/bashrc
-
-cd {{ working_dir }}/OF_Model 
-
-foamLog -quiet {{ solver_name }}Logs/simpleFoam{{ reynolds_number }}.log
