@@ -71,13 +71,48 @@ castellatedMeshControls
 
     refinementSurfaces
     {
-        obstacles{ level ({{ min_surface_refinement_lvl }} {{ max_surface_refinement_lvl }}); }
-        wall_front{ level ({{ min_surface_refinement_lvl }} {{ max_surface_refinement_lvl }}); }
-        wall_back{ level ({{ min_surface_refinement_lvl }} {{ max_surface_refinement_lvl }}); }
-        wall_down{ level ({{ min_surface_refinement_lvl }} {{ max_surface_refinement_lvl }}); }
-        wall_up{ level ({{ min_surface_refinement_lvl }} {{ max_surface_refinement_lvl }}); }
-        wall_left{ level ({{ min_surface_refinement_lvl }} {{ max_surface_refinement_lvl }}); patchInfo { type patch; } }
-        wall_right{ level ({{ min_surface_refinement_lvl }} {{ max_surface_refinement_lvl }}); patchInfo { type patch; } }
+        obstacles{
+            level ({{ min_surface_refinement_lvl }} {{ max_surface_refinement_lvl }});
+            {% if obstacles_patch_info is not none %}   
+                patchInfo         { type {{ obstacles_patch_info }}; }
+            {% endif %}
+        }
+        wall_front{
+            level ({{ min_surface_refinement_lvl }} {{ max_surface_refinement_lvl }});
+            {% if front_patch_info is not none %}   
+                patchInfo         { type {{ front_patch_info }}; }
+            {% endif %}
+        }
+        wall_back{
+            level ({{ min_surface_refinement_lvl }} {{ max_surface_refinement_lvl }});
+            {% if back_patch_info is not none %}   
+                patchInfo         { type {{ back_patch_info }}; }
+            {% endif %}
+        }
+        wall_down{
+            level ({{ min_surface_refinement_lvl }} {{ max_surface_refinement_lvl }});
+            {% if down_patch_info is not none %}   
+                patchInfo         { type {{ down_patch_info }}; }
+            {% endif %}
+        }
+        wall_up{
+            level ({{ min_surface_refinement_lvl }} {{ max_surface_refinement_lvl }});
+            {% if up_patch_info is not none %}   
+                patchInfo         { type {{ up_patch_info }}; }
+            {% endif %}
+        }
+        wall_left{
+            level ({{ min_surface_refinement_lvl }} {{ max_surface_refinement_lvl }});
+            {% if left_patch_info is not none %}   
+                patchInfo         { type {{ left_patch_info }}; }
+            {% endif %}
+        }
+        wall_right{
+            level ({{ min_surface_refinement_lvl }} {{ max_surface_refinement_lvl }});
+            {% if right_patch_info is not none %}   
+                patchInfo         { type {{ right_patch_info }}; }
+            {% endif %} 
+        }
     }
 
     resolveFeatureAngle 30;

@@ -19,6 +19,10 @@ FoamFile
  
  numberOfSubdomains {{ number_of_procs }};
  
- method          {{ decompose_method }};
+{% if decompose_method is not none %}   
+    method          {{ decompose_method }};
+{% else %}
+    method          scotch;
+{% endif %}
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
