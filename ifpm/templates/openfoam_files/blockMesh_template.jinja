@@ -17,14 +17,14 @@ scale   1;
 
 vertices
 (
-    (0  0  0)
-    ({{ x }} 0  0)
-    ({{ x }} {{ y }} 0)
-    (0  {{ y }} 0)
-    (0  0  {{ y }})
-    ({{ x }} 0  {{ y }})
-    ({{ x }} {{ y }} {{ y }})
-    (0  {{ y }} {{ y }})
+    ({{ x_min }} {{ y_min }} {{ z_min }})
+    ({{ x_max }} {{ y_min }} {{ z_min }})
+    ({{ x_max }} {{ y_max }} {{ z_min }})
+    ({{ x_min }} {{ y_max }} {{ z_min }})
+    ({{ x_min }} {{ y_min }} {{ z_max }})
+    ({{ x_max }} {{ y_min }} {{ z_max }})
+    ({{ x_max }} {{ y_max }} {{ z_max }})
+    ({{ x_min }} {{ y_max }} {{ z_max }})
 );
 
 blocks
@@ -38,7 +38,7 @@ edges
 
 boundary
 (
-   wall_left.stl
+   wall_left
     {
         type            {{ left_bc_type }};
         faces
@@ -46,7 +46,7 @@ boundary
             (0 3 7 4)
         );
     }
-    wall_right.stl
+    wall_right
     {
         type            {{ right_bc_type }};
         faces
@@ -55,7 +55,7 @@ boundary
         );
     }
     
-    wall_up.stl
+    wall_up
     {
         type            {{ up_bc_type }};
         faces
@@ -64,7 +64,7 @@ boundary
         );
     }
 
-    wall_down.stl
+    wall_down
     {
         type            {{ down_bc_type }};
         faces
@@ -73,7 +73,7 @@ boundary
         );
     }
 
-    wall_front.stl
+    wall_front
     {
         type            {{ front_bc_type }};
         faces
@@ -82,7 +82,7 @@ boundary
         );
     }
 
-    wall_back.stl
+    wall_back
     {
         type            {{ back_bc_type }};
         faces

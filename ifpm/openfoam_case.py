@@ -22,8 +22,8 @@ class openFoamCase():
         blockmesh_boundary_types: dict,
         u_boundary_types: dict,
         p_boundary_types: dict,
-        bounding_box_coords: np.ndarray,
-        bounding_box_discretization: np.ndarray,
+        bounding_box_coords: dict,
+        bounding_box_discretization: dict,
         turbulence_model: str = None,
         decompose_method: str = None,
         transport_model: str = None,
@@ -57,8 +57,8 @@ class openFoamCase():
         system_dir = of_dir / 'system'
         constant_dir = of_dir / 'constant'
 
-        jinja_env = jinja2.environment(
-            loader=jinja2.FileSystemLoader("templates/openfoam_files")
+        jinja_env = jinja2.Environment(
+            loader=jinja2.FileSystemLoader("/home/user/repos/ifpm/templates/openfoam_files/")
         )
         all_templates = {}
 
@@ -66,25 +66,25 @@ class openFoamCase():
         zero_u_template = jinja_env.get_template("U_template.jinja")
         zero_u_content = zero_u_template.render(
             left_bc_type=self.u_boundary_types['left_bc_type'],
-            left_value_type=self.u_boundary_types['left_value_type'],
+            left_field_type=self.u_boundary_types['left_field_type'],
             left_field_value=self.u_boundary_types['left_field_value'],
             right_bc_type=self.u_boundary_types['right_bc_type'],
-            right_value_type=self.u_boundary_types['right_value_type'],
+            right_field_type=self.u_boundary_types['right_field_type'],
             right_field_value=self.u_boundary_types['right_field_value'],
             up_bc_type=self.u_boundary_types['up_bc_type'],
-            up_value_type=self.u_boundary_types['up_value_type'],
+            up_field_type=self.u_boundary_types['up_field_type'],
             up_field_value=self.u_boundary_types['up_field_value'],
             down_bc_type=self.u_boundary_types['down_bc_type'],
-            down_value_type=self.u_boundary_types['down_value_type'],
+            down_field_type=self.u_boundary_types['down_field_type'],
             down_field_value=self.u_boundary_types['down_field_value'],
             front_bc_type=self.u_boundary_types['front_bc_type'],
-            front_value_type=self.u_boundary_types['front_value_type'],
+            front_field_type=self.u_boundary_types['front_field_type'],
             front_field_value=self.u_boundary_types['front_field_value'],
             back_bc_type=self.u_boundary_types['back_bc_type'],
-            back_value_type=self.u_boundary_types['back_value_type'],
+            back_field_type=self.u_boundary_types['back_field_type'],
             back_field_value=self.u_boundary_types['back_field_value'],
             obstacles_bc_type=self.u_boundary_types['obstacles_bc_type'],
-            obstacles_value_type=self.u_boundary_types['obstacles_value_type'],
+            obstacles_field_type=self.u_boundary_types['obstacles_field_type'],
             obstacles_field_value=self.u_boundary_types['obstacles_field_value'],
         )
         all_templates['zero_u'] = {
@@ -96,25 +96,25 @@ class openFoamCase():
         zero_p_template = jinja_env.get_template("p_template.jinja")
         zero_p_content = zero_p_template.render(
             left_bc_type=self.p_boundary_types['left_bc_type'],
-            left_value_type=self.p_boundary_types['left_value_type'],
+            left_field_type=self.p_boundary_types['left_field_type'],
             left_field_value=self.p_boundary_types['left_field_value'],
             right_bc_type=self.p_boundary_types['right_bc_type'],
-            right_value_type=self.p_boundary_types['right_value_type'],
+            right_field_type=self.p_boundary_types['right_field_type'],
             right_field_value=self.p_boundary_types['right_field_value'],
             up_bc_type=self.p_boundary_types['up_bc_type'],
-            up_value_type=self.p_boundary_types['up_value_type'],
+            up_field_type=self.p_boundary_types['up_field_type'],
             up_field_value=self.p_boundary_types['up_field_value'],
             down_bc_type=self.p_boundary_types['down_bc_type'],
-            down_value_type=self.p_boundary_types['down_value_type'],
+            down_field_type=self.p_boundary_types['down_field_type'],
             down_field_value=self.p_boundary_types['down_field_value'],
             front_bc_type=self.p_boundary_types['front_bc_type'],
-            front_value_type=self.p_boundary_types['front_value_type'],
+            front_field_type=self.p_boundary_types['front_field_type'],
             front_field_value=self.p_boundary_types['front_field_value'],
             back_bc_type=self.p_boundary_types['back_bc_type'],
-            back_value_type=self.p_boundary_types['back_value_type'],
+            back_field_type=self.p_boundary_types['back_field_type'],
             back_field_value=self.p_boundary_types['back_field_value'],
             obstacles_bc_type=self.p_boundary_types['obstacles_bc_type'],
-            obstacles_value_type=self.p_boundary_types['obstacles_value_type'],
+            obstacles_field_type=self.p_boundary_types['obstacles_field_type'],
             obstacles_field_value=self.p_boundary_types['obstacles_field_value'],
         )
         all_templates['zero_p'] = {
@@ -152,12 +152,15 @@ class openFoamCase():
             "blockMesh_template.jinja"
         )
         blockmesh_dict_content = blockmesh_dict_template.render(
-           x=self.bounding_box_coords[0],
-           y=self.bounding_box_coords[1],
-           z=self.bounding_box_coords[2],
-           dx=self.bounding_box_discretization[0],
-           dy=self.bounding_box_discretization[1],
-           dz=self.bounding_box_discretization[2],
+           x_min=self.bounding_box_coords['x_min'],
+           x_max=self.bounding_box_coords['x_max'],
+           y_min=self.bounding_box_coords['y_min'],
+           y_max=self.bounding_box_coords['y_max'],
+           z_min=self.bounding_box_coords['z_min'],
+           z_max=self.bounding_box_coords['z_max'],
+           dx=self.bounding_box_discretization['dx'],
+           dy=self.bounding_box_discretization['dy'],
+           dz=self.bounding_box_discretization['dy'],
            left_bc_type=self.blockmesh_boundary_types['left'],
            right_bc_type=self.blockmesh_boundary_types['right'],
            up_bc_type=self.blockmesh_boundary_types['up'],
@@ -210,7 +213,19 @@ class openFoamCase():
             'content': turbulence_properties_content
         }
 
-        fv_schemes_path = constant_dir / 'fvSchemes'
+        physical_properties_path = constant_dir / 'physicalProperties'
+        physical_properties_template = jinja_env.get_template(
+            "physicalProperties_template.jinja"
+        )
+        physical_properties_content = physical_properties_template.render(
+            kin_viscosity=self.fluid_kinematic_viscosity
+        )
+        all_templates['physicalproperties'] = {
+            'path': physical_properties_path,
+            'content': physical_properties_content
+        }
+
+        fv_schemes_path = system_dir / 'fvSchemes'
         fv_schemes_template = jinja_env.get_template(
             "fvSchemes_template.jinja"
         )
@@ -220,7 +235,7 @@ class openFoamCase():
             'content': fv_schemes_content
         }
 
-        fv_solution_path = constant_dir / 'fvSolution'
+        fv_solution_path = system_dir / 'fvSolution'
         fv_solution_template = jinja_env.get_template(
             "fvSolution_template.jinja"
         )
@@ -243,7 +258,8 @@ class openFoamCase():
             'content': decomposepar_dict_content
         }
 
-        for template in all_templates:
+        for name, template in all_templates.items():
+            template['path'].parent.mkdir(exist_ok=True, parents=True)
             with open(template['path'], mode="w", encoding="utf-8") as file:
                 file.write(template['content'])
             print(f"... created {template['path']}")
