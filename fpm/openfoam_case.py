@@ -58,7 +58,7 @@ class openFoamCase():
         constant_dir = of_dir / 'constant'
 
         jinja_env = jinja2.Environment(
-            loader=jinja2.FileSystemLoader("/home/user/repos/ifpm/templates/openfoam_files/")
+            loader=jinja2.FileSystemLoader("/home/repos/fpm/fpm/templates/openfoam_files/")
         )
         all_templates = {}
 
@@ -145,6 +145,17 @@ class openFoamCase():
         all_templates['snappyhexmeshdict'] = {
             'path': snappy_dict_path,
             'content': snappy_dict_content
+        }
+
+        mesh_quality_dict_path = system_dir / 'meshQualityDict'
+        mesh_quality_dict_template = jinja_env.get_template(
+            "meshQualityDict_template.jinja"
+        )
+        mesh_quality_dict_content = mesh_quality_dict_template.render(
+        )
+        all_templates['snappyhexmeshdict'] = {
+            'path': mesh_quality_dict_path,
+            'content': mesh_quality_dict_content
         }
 
         blockmesh_dict_path = system_dir / 'blockMeshDict'
