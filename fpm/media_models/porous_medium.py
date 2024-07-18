@@ -1,7 +1,10 @@
-from abc import ABC, abstractmethod  # , abstractproperty
+from abc import ABC, abstractmethod
 
 
-class porous_medium(ABC):
+class porousMedium(ABC):
     @abstractmethod
-    def method1():
+    def create_boundary_walls():
+        pass
+
+    def create_obstacles():
         pass
