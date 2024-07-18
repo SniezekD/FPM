@@ -1,6 +1,6 @@
 import pyvista as pv
 import numpy as np
-import ifpm.mystl as mystl
+import fpm.geometry.mystl as mystl
 
 
 class ReversedSwissCheese:
@@ -29,7 +29,7 @@ class ReversedSwissCheese:
         self.walls = None
 
     def create_walls(self):
-        """Create walls that will be used as geometrical 
+        """Create walls that will be used as geometrical
         boundaries to the model.
         """
         upper_wall = mystl.Plane(
@@ -99,10 +99,10 @@ class ReversedSwissCheese:
 
     def create_obstacles(self, geometry_bounds_type: str):
         """Create set of obstacles inside boundaries.
-        The obstacles are spheres with random radii placed in 
-        random positions. If geometr boundary conditions are 
-        set as periodic in any direction, then if an obstacle 
-        collides with a wall then a copy of it would be created 
+        The obstacles are spheres with random radii placed in
+        random positions. If geometr boundary conditions are
+        set as periodic in any direction, then if an obstacle
+        collides with a wall then a copy of it would be created
         to reflect those geometrical boundary condition.
         """
         if geometry_bounds_type not in self.GEOMETRY_BOUNDARY_CONDITIONS:
@@ -152,7 +152,9 @@ class ReversedSwissCheese:
                     [-(self.bounds[1] - self.bounds[0]), 0, 0],
                     [(self.bounds[1] - self.bounds[0]), 0, 0]
                 ]
-                n_collision_cells = [tmp_sphere.stl.collision(w)[1] for w in walls_of_interest]
+                n_collision_cells = [
+                    tmp_sphere.stl.collision(w)[1] for w in walls_of_interest
+                ]
                 for i, n_coll_i in enumerate(n_collision_cells):
                     if n_coll_i != 0:
                         translated_tmp_sphere = tmp_sphere.translate(
@@ -166,7 +168,9 @@ class ReversedSwissCheese:
                     [0, -(self.bounds[3] - self.bounds[2]), 0],
                     [0, (self.bounds[3] - self.bounds[2]), 0]
                 ]
-                n_collision_cells = [tmp_sphere.stl.collision(w)[1] for w in walls_of_interest]
+                n_collision_cells = [
+                    tmp_sphere.stl.collision(w)[1] for w in walls_of_interest
+                ]
                 for j, n_coll_j in enumerate(n_collision_cells):
                     if n_coll_j != 0:
                         translated_tmp_sphere = tmp_sphere.translate(
@@ -180,7 +184,9 @@ class ReversedSwissCheese:
                     [0, 0, -(self.bounds[5] - self.bounds[4])],
                     [0, 0, (self.bounds[5] - self.bounds[4])]
                 ]
-                n_collision_cells = [tmp_sphere.stl.collision(w)[1] for w in walls_of_interest]
+                n_collision_cells = [
+                    tmp_sphere.stl.collision(w)[1] for w in walls_of_interest
+                ]
                 for k, n_coll_k in enumerate(n_collision_cells):
                     if n_coll_k != 0:
                         translated_tmp_sphere = tmp_sphere.translate(
@@ -199,7 +205,9 @@ class ReversedSwissCheese:
                     [0, -(self.bounds[3] - self.bounds[2]), 0],
                     [0, (self.bounds[3] - self.bounds[2]), 0]
                 ]
-                n_collision_cells = [tmp_sphere.stl.collision(w)[1] for w in walls_of_interest]
+                n_collision_cells = [
+                    tmp_sphere.stl.collision(w)[1] for w in walls_of_interest
+                ]
                 for i, n_coll_i in enumerate(n_collision_cells):
                     if n_coll_i != 0:
                         translated_tmp_sphere = tmp_sphere.translate(
@@ -230,7 +238,9 @@ class ReversedSwissCheese:
                     [0, 0, -(self.bounds[5] - self.bounds[4])],
                     [0, 0, (self.bounds[5] - self.bounds[4])]
                 ]
-                n_collision_cells = [tmp_sphere.stl.collision(w)[1] for w in walls_of_interest]
+                n_collision_cells = [
+                    tmp_sphere.stl.collision(w)[1] for w in walls_of_interest
+                ]
                 for i, n_coll_i in enumerate(n_collision_cells):
                     if n_coll_i != 0:
                         translated_tmp_sphere = tmp_sphere.translate(
@@ -261,7 +271,9 @@ class ReversedSwissCheese:
                     [0, 0, -(self.bounds[5] - self.bounds[4])],
                     [0, 0, (self.bounds[5] - self.bounds[4])]
                 ]
-                n_collision_cells = [tmp_sphere.stl.collision(w)[1] for w in walls_of_interest]
+                n_collision_cells = [
+                    tmp_sphere.stl.collision(w)[1] for w in walls_of_interest
+                ]
                 for j, n_coll_j in enumerate(n_collision_cells):
                     if n_coll_j != 0:
                         translated_tmp_sphere = tmp_sphere.translate(
@@ -295,7 +307,9 @@ class ReversedSwissCheese:
                     [0, 0, -(self.bounds[5] - self.bounds[4])],
                     [0, 0, (self.bounds[5] - self.bounds[4])]
                 ]
-                n_collision_cells = [tmp_sphere.stl.collision(w)[1] for w in walls_of_interest]
+                n_collision_cells = [
+                    tmp_sphere.stl.collision(w)[1] for w in walls_of_interest
+                ]
                 for i, n_coll_i in enumerate(n_collision_cells):
                     if n_coll_i != 0:
                         translated_tmp_sphere = tmp_sphere.translate(
@@ -314,7 +328,9 @@ class ReversedSwissCheese:
                                     translation_vector=trans_vec
                                 )
                                 obstacles.append(translated_tmp_sphere)
-                                for k, n_coll_k in enumerate(n_collision_cells):
+                                for k, n_coll_k in enumerate(
+                                    n_collision_cells
+                                ):
                                     if k in (j, i):
                                         continue
                                     if n_coll_k != 0:
@@ -323,12 +339,15 @@ class ReversedSwissCheese:
                                             + np.array(translation_vectors[j])
                                             + np.array(translation_vectors[k])
                                         )
-                                        translated_tmp_sphere = tmp_sphere.translate(
-                                            translation_vector=trans_vec
-                                        )
+                                        translated_tmp_sphere = \
+                                            tmp_sphere.translate(
+                                                translation_vector=trans_vec
+                                            )
                                         obstacles.append(translated_tmp_sphere)
 
             # Update porosity
             tmp_stls = [o.stl for o in obstacles]
             tmp_collective_obstacles = pv.MultiBlock(tmp_stls).combine()
-            tmp_porosity = 1.0 - tmp_collective_obstacles.volume / bounds_volume
+            tmp_porosity = (
+                1.0 - tmp_collective_obstacles.volume / bounds_volume
+            )
