@@ -1,9 +1,10 @@
 import pyvista as pv
 import numpy as np
-import fpm.geometry.mystl as mystl
+import fpm.geometry.shapes as shapes
+from fpm.media_models.porous_medium import porousMedium
 
 
-class ReversedSwissCheese:
+class ReversedSwissCheese(porousMedium):
     GEOMETRY_BOUNDARY_CONDITIONS = [
         'periodic_xyz',
         'periodic_xy',
@@ -32,7 +33,7 @@ class ReversedSwissCheese:
         """Create walls that will be used as geometrical
         boundaries to the model.
         """
-        upper_wall = mystl.Plane(
+        upper_wall = shapes.Plane(
             i=self.bounds[0],
             j=self.bounds[3],
             k=self.bounds[4],
@@ -41,7 +42,7 @@ class ReversedSwissCheese:
             d_k=self.bounds[5] - self.bounds[4]
         )
 
-        lower_wall = mystl.Plane(
+        lower_wall = shapes.Plane(
             i=self.bounds[0],
             j=self.bounds[2],
             k=self.bounds[4],
@@ -50,7 +51,7 @@ class ReversedSwissCheese:
             d_k=self.bounds[5] - self.bounds[4]
         )
 
-        right_wall = mystl.Plane(
+        right_wall = shapes.Plane(
             i=self.bounds[1],
             j=self.bounds[2],
             k=self.bounds[4],
@@ -59,7 +60,7 @@ class ReversedSwissCheese:
             d_k=self.bounds[5] - self.bounds[4]
         )
 
-        left_wall = mystl.Plane(
+        left_wall = shapes.Plane(
             i=self.bounds[0],
             j=self.bounds[2],
             k=self.bounds[4],
@@ -68,7 +69,7 @@ class ReversedSwissCheese:
             d_k=self.bounds[5] - self.bounds[4]
         )
 
-        front_wall = mystl.Plane(
+        front_wall = shapes.Plane(
             i=self.bounds[0],
             j=self.bounds[2],
             k=self.bounds[5],
@@ -77,7 +78,7 @@ class ReversedSwissCheese:
             d_k=0
         )
 
-        back_wall = mystl.Plane(
+        back_wall = shapes.Plane(
             i=self.bounds[0],
             j=self.bounds[2],
             k=self.bounds[4],
@@ -137,7 +138,7 @@ class ReversedSwissCheese:
                 high=self.max_radius
             )
 
-            tmp_sphere = mystl.Sphere(
+            tmp_sphere = shapes.Sphere(
                 i=x_pos,
                 j=y_pos,
                 k=z_pos,
