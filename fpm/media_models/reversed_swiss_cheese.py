@@ -4,7 +4,7 @@ import fpm.geometry.shapes as shapes
 from fpm.media_models.porous_medium import porousMedium
 
 
-class ReversedSwissCheese(porousMedium):
+class SwissCheese(porousMedium):
     GEOMETRY_BOUNDARY_CONDITIONS = [
         'periodic_xyz',
         'periodic_xy',
