@@ -54,4 +54,4 @@ ADD poetry.lock /home/repos/FPM/poetry.lock
 ADD pyproject.toml /home/repos/FPM/pyproject.toml
 RUN poetry install
 
-WORKDIR /home/user/
+WORKDIR /home/
