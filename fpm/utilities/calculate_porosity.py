@@ -145,7 +145,9 @@ def map_index_to_coordinate(
 
 def calculate_porosity(
     porous_medium: porousMedium,
-    discretization: tuple = (100, 100, 100)
+    obstacles: list = None,
+    discretization: tuple = (100, 100, 100),
+    saved_state: np.ndarray = None
 ) -> float:
     """Calculate porosity of given porpus medium.
     The larger the discretization, the better the precision
@@ -161,32 +163,40 @@ def calculate_porosity(
     Returns:
         float: Porosity of the porous medium
     """
+
+    if obstacles is None:
+        obstacles_list = porous_medium.obstacles
+    else:
+        obstacles_list = obstacles
     if porous_medium.bounds is None:
         print("Trying to calculate porosity, but"
               "bounds are not defined. Exiting!")
         exit(1)
 
-    if porous_medium.obstacles is None:
+    if obstacles_list is None:
         print("There are no obstacles")
         return 1.0
 
-    bulk_volume = discretization[0] * discretization[1] * discretization[2]
 
     # discretized porous medium
-    discretized_pm = np.ones(
-        (discretization[0], discretization[1], discretization[2])
-    )
-    nx = np.linsace(
+    if saved_state is None:
+        discretized_pm = np.ones(
+            (discretization[0], discretization[1], discretization[2])
+        )
+    else:
+        discretized_pm = saved_state
+
+    nx = np.linspace(
         porous_medium.bounds[0],
         porous_medium.bounds[1],
         discretization[0]
     )
-    ny = np.linsace(
+    ny = np.linspace(
         porous_medium.bounds[2],
         porous_medium.bounds[3],
         discretization[1]
     )
-    nz = np.linsace(
+    nz = np.linspace(
         porous_medium.bounds[4],
         porous_medium.bounds[5],
         discretization[2]
@@ -194,7 +204,10 @@ def calculate_porosity(
 
     pm_x, pm_y, pm_z = np.meshgrid(nx, ny, nz)
 
-    for obstacle in porous_medium.obstacles:
+    if saved_state is not None:
+        obstacles_list = [obstacles_list[-1]]
+
+    for obstacle in obstacles_list:
         if obstacle.type == 'sphere':
             dist_arr = np.sqrt(
                 (pm_x - obstacle.position[0])**2 +
@@ -203,7 +216,6 @@ def calculate_porosity(
             )
 
             mask = dist_arr <= obstacle.radius
-
             discretized_pm[mask] = 0
 
         elif obstacle.type in ["Cube", "RoundedCube", "Cylinder"] :
@@ -235,6 +247,7 @@ def calculate_porosity(
                   "implemented here yet.")
             exit(1)
 
+    bulk_volume = discretization[0] * discretization[1] * discretization[2]
     porosity = np.sum(discretized_pm) / bulk_volume
 
-    return porosity
+    return porosity, discretized_pm

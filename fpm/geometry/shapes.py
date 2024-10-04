@@ -150,7 +150,7 @@ class Cube(Shape):
                     min_bounds[0], max_bounds[0],
                     min_bounds[1], max_bounds[1],
                     min_bounds[2], max_bounds[2]
-                ]
+                ],
                 clean=True,
                 point_dtype='float32',
             )
@@ -213,29 +213,29 @@ class Plane(Shape):
             return self.stl
         else:
             if self.size[0] == 0:
-                self.normal = (1, 0, 0)
-                self.i_size = self.size[2]
-                self.j_size = self.size[1]
+                normal = (1, 0, 0)
+                i_size = self.size[2]
+                j_size = self.size[1]
             elif self.size[1] == 0:
-                self.normal = (0, 1, 0)
-                self.i_size = self.size[0]
-                self.j_size = self.size[2]
+                normal = (0, 1, 0)
+                i_size = self.size[0]
+                j_size = self.size[2]
             elif self.size[2] == 0:
-                self.normal = (0, 0, 1)
-                self.i_size = self.size[0]
-                self.j_size = self.size[1]
+                normal = (0, 0, 1)
+                i_size = self.size[0]
+                j_size = self.size[1]
 
-            self.center = [
-                self.x + 0.5*self.dx,
-                self.y + 0.5*self.dy,
-                self.z + 0.5*self.dz,
+            center = [
+                self.position[0] + 0.5*self.size[0],
+                self.position[1] + 0.5*self.size[1],
+                self.position[2] + 0.5*self.size[2],
             ]
 
             pv_plane = pv.Plane(
-                center=self.center,
-                direction=self.normal,
-                i_size=self.i_size,
-                j_size=self.j_size,
+                center=center,
+                direction=normal,
+                i_size=i_size,
+                j_size=j_size,
                 i_resolution=1,
                 j_resolution=1
             )
@@ -248,29 +248,29 @@ class Plane(Shape):
             pv_plane = self.stl
         else:
             if self.size[0] == 0:
-                self.normal = (1, 0, 0)
-                self.i_size = self.size[2]
-                self.j_size = self.size[1]
+                normal = (1, 0, 0)
+                i_size = self.size[2]
+                j_size = self.size[1]
             elif self.size[1] == 0:
-                self.normal = (0, 1, 0)
-                self.i_size = self.size[0]
-                self.j_size = self.size[2]
+                normal = (0, 1, 0)
+                i_size = self.size[0]
+                j_size = self.size[2]
             elif self.size[2] == 0:
-                self.normal = (0, 0, 1)
-                self.i_size = self.size[0]
-                self.j_size = self.size[1]
+                normal = (0, 0, 1)
+                i_size = self.size[0]
+                j_size = self.size[1]
 
-            self.center = [
-                self.x + 0.5*self.dx,
-                self.y + 0.5*self.dy,
-                self.z + 0.5*self.dz,
+            center = [
+                self.position[0] + 0.5*self.size[0],
+                self.position[1] + 0.5*self.size[1],
+                self.position[2] + 0.5*self.size[2],
             ]
 
             pv_plane = pv.Plane(
-                center=self.center,
-                direction=self.normal,
-                i_size=self.i_size,
-                j_size=self.j_size,
+                center=center,
+                direction=normal,
+                i_size=i_size,
+                j_size=j_size,
                 i_resolution=1,
                 j_resolution=1
             )

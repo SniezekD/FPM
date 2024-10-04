@@ -3,6 +3,7 @@ import pyvista as pv
 import numpy as np
 import fpm.geometry.shapes as shapes
 from fpm.media_models.porous_medium import porousMedium
+from fpm.utilities.calculate_porosity import calculate_porosity
 
 
 class SwissCheese(porousMedium):
@@ -102,12 +103,12 @@ class SwissCheese(porousMedium):
         )
 
         walls = {
-            "upper": upper_wall,
-            "lower": lower_wall,
-            "right": right_wall,
-            "left": left_wall,
-            "front": front_wall,
-            "back": back_wall,
+            "wall_up": upper_wall,
+            "wall_down": lower_wall,
+            "wall_right": right_wall,
+            "wall_left": left_wall,
+            "wall_front": front_wall,
+            "wall_back": back_wall,
         }
 
         return walls
@@ -135,6 +136,7 @@ class SwissCheese(porousMedium):
         )
         print(bounds_volume)
         tmp_porosity = 1.0
+        saved_state_for_porosity = None
         while tmp_porosity > self.porosity:
             x_pos = np.random.uniform(
                 low=self.bounds[0],
@@ -158,7 +160,7 @@ class SwissCheese(porousMedium):
                 radius=radius
             )
             if geometry_bounds_type == 'non_periodic':
-                print(f"sphere volume {tmp_sphere.to_stl().volume}")
+                # print(f"sphere volume {tmp_sphere.to_stl().volume}")
                 obstacles.append(tmp_sphere)
 
             elif geometry_bounds_type == 'periodic_x':
@@ -361,26 +363,31 @@ class SwissCheese(porousMedium):
                                         obstacles.append(translated_tmp_sphere)
 
             # Update porosity
-            tmp_stls = [o.to_stl() for o in obstacles]
-            print(f"number of obstacles: {len(obstacles)}")
-            tmp_collective_obstacles = pv.MultiBlock(tmp_stls).combine(
-                merge_points=True
-            )
-            print(f"tmp_collective_obstacles volume {tmp_collective_obstacles.volume}")
+            # tmp_stls = [o.to_stl() for o in obstacles]
+            # print(f"number of obstacles: {len(obstacles)}")
+            # tmp_collective_obstacles = pv.MultiBlock(tmp_stls).combine(
+            #     merge_points=True
+            # )
+            # print(f"tmp_collective_obstacles volume {tmp_collective_obstacles.volume}")
 
-            tmp_porosity = (
-                1.0 - tmp_collective_obstacles.volume / bounds_volume
+            tmp_porosity, saved_state_for_porosity = calculate_porosity(
+                porous_medium=self,
+                obstacles=obstacles,
+                discretization=(100, 100, 100),
+                saved_state=saved_state_for_porosity
             )
-            print(f"Current porosity is {tmp_porosity}")
-
+            # print(f"Current porosity is {tmp_porosity}")
         return obstacles
 
     def save_stls(self, savepath: pathlib.Path) -> None:
+        savepath.mkdir(parents=True, exist_ok=True)
+
         if self.walls is not None:
-            for name, o in self.walls:
+            for name, o in self.walls.items():
                 dest = savepath / f"{name}.stl"
                 o.save_stl(destination=dest)
 
         if self.obstacles is not None:
             dest = savepath / "obstacles.stl"
-            self.obstacles.save_stl(destination=dest)
+            all_obstacles = pv.merge([o.to_stl() for o in self.obstacles])
+            all_obstacles.save(dest)
