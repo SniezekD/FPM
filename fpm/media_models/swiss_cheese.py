@@ -1,3 +1,4 @@
+import pathlib
 import pyvista as pv
 import numpy as np
 import fpm.geometry.shapes as shapes
@@ -23,68 +24,81 @@ class SwissCheese(porousMedium):
         min_radius: float,
         max_radius: float
     ) -> None:
+        """Crate a swissCheese porous medium object.
+        The obstacles are modelled as spheres with random radii that are 
+        choosen from uniform distribution between given minimum and maximum 
+        values.
+
+        Args:
+            porosity (float): Desired porosity of the medium.
+            bounds (list): bounding box coordinates 
+                    [x_min, x_max, y_min, y_max, z_min, z_max].
+            min_radius (float): Minimal obstacle radius.
+            max_radius (float): Maximal obstacle radius.
+        """
         self.porosity = porosity
         self.bounds = bounds
         self.min_radius = min_radius
         self.max_radius = max_radius
         self.walls = None
+        self.obstacles = None
 
-    def create_walls(self):
+    def create_boundary_walls(self):
         """Create walls that will be used as geometrical
         boundaries to the model.
         """
         upper_wall = shapes.Plane(
-            i=self.bounds[0],
-            j=self.bounds[3],
-            k=self.bounds[4],
-            d_i=self.bounds[1] - self.bounds[0],
-            d_j=0,
-            d_k=self.bounds[5] - self.bounds[4]
+            position=[self.bounds[0], self.bounds[3], self.bounds[4]],
+            size=[
+                self.bounds[1] - self.bounds[0],
+                0,
+                self.bounds[5] - self.bounds[4]
+            ]
         )
 
         lower_wall = shapes.Plane(
-            i=self.bounds[0],
-            j=self.bounds[2],
-            k=self.bounds[4],
-            d_i=self.bounds[1] - self.bounds[0],
-            d_j=0,
-            d_k=self.bounds[5] - self.bounds[4]
+            position=[self.bounds[0], self.bounds[2], self.bounds[4]],
+            size=[
+                self.bounds[1] - self.bounds[0],
+                0,
+                self.bounds[5] - self.bounds[4]
+            ]
         )
 
         right_wall = shapes.Plane(
-            i=self.bounds[1],
-            j=self.bounds[2],
-            k=self.bounds[4],
-            d_i=0,
-            d_j=self.bounds[3] - self.bounds[2],
-            d_k=self.bounds[5] - self.bounds[4]
+            position=[self.bounds[1], self.bounds[2], self.bounds[4]],
+            size=[
+                0,
+                self.bounds[3] - self.bounds[2],
+                self.bounds[5] - self.bounds[4]
+            ]
         )
 
         left_wall = shapes.Plane(
-            i=self.bounds[0],
-            j=self.bounds[2],
-            k=self.bounds[4],
-            d_i=0,
-            d_j=self.bounds[3] - self.bounds[2],
-            d_k=self.bounds[5] - self.bounds[4]
+            position=[self.bounds[0], self.bounds[2], self.bounds[4]],
+            size=[
+                0,
+                self.bounds[3] - self.bounds[2],
+                self.bounds[5] - self.bounds[4]
+            ]
         )
 
         front_wall = shapes.Plane(
-            i=self.bounds[0],
-            j=self.bounds[2],
-            k=self.bounds[5],
-            d_i=self.bounds[1] - self.bounds[0],
-            d_j=self.bounds[3] - self.bounds[2],
-            d_k=0
+            position=[self.bounds[0], self.bounds[2], self.bounds[5]],
+            size=[
+                self.bounds[1] - self.bounds[0],
+                self.bounds[3] - self.bounds[2],
+                0
+            ]
         )
 
         back_wall = shapes.Plane(
-            i=self.bounds[0],
-            j=self.bounds[2],
-            k=self.bounds[4],
-            d_i=self.bounds[1] - self.bounds[0],
-            d_j=self.bounds[3] - self.bounds[2],
-            d_k=0
+            position=[self.bounds[0], self.bounds[2], self.bounds[4]],
+            size=[
+                self.bounds[1] - self.bounds[0],
+                self.bounds[3] - self.bounds[2],
+                0
+            ]
         )
 
         walls = {
@@ -111,7 +125,7 @@ class SwissCheese(porousMedium):
                              f"are: {self.GEOMETRY_BOUNDARY_CONDITIONS}")
 
         if self.walls is None:
-            self.walls = self.create_walls()
+            self.walls = self.create_boundary_walls()
 
         obstacles = []
         bounds_volume = (
@@ -119,6 +133,7 @@ class SwissCheese(porousMedium):
             * (self.bounds[3] - self.bounds[2])
             * (self.bounds[5] - self.bounds[4])
         )
+        print(bounds_volume)
         tmp_porosity = 1.0
         while tmp_porosity > self.porosity:
             x_pos = np.random.uniform(
@@ -139,12 +154,11 @@ class SwissCheese(porousMedium):
             )
 
             tmp_sphere = shapes.Sphere(
-                i=x_pos,
-                j=y_pos,
-                k=z_pos,
-                diameter=2*radius
+                position=[x_pos, y_pos, z_pos],
+                radius=radius
             )
             if geometry_bounds_type == 'non_periodic':
+                print(f"sphere volume {tmp_sphere.to_stl().volume}")
                 obstacles.append(tmp_sphere)
 
             elif geometry_bounds_type == 'periodic_x':
@@ -347,8 +361,26 @@ class SwissCheese(porousMedium):
                                         obstacles.append(translated_tmp_sphere)
 
             # Update porosity
-            tmp_stls = [o.stl for o in obstacles]
-            tmp_collective_obstacles = pv.MultiBlock(tmp_stls).combine()
+            tmp_stls = [o.to_stl() for o in obstacles]
+            print(f"number of obstacles: {len(obstacles)}")
+            tmp_collective_obstacles = pv.MultiBlock(tmp_stls).combine(
+                merge_points=True
+            )
+            print(f"tmp_collective_obstacles volume {tmp_collective_obstacles.volume}")
+
             tmp_porosity = (
                 1.0 - tmp_collective_obstacles.volume / bounds_volume
             )
+            print(f"Current porosity is {tmp_porosity}")
+
+        return obstacles
+
+    def save_stls(self, savepath: pathlib.Path) -> None:
+        if self.walls is not None:
+            for name, o in self.walls:
+                dest = savepath / f"{name}.stl"
+                o.save_stl(destination=dest)
+
+        if self.obstacles is not None:
+            dest = savepath / "obstacles.stl"
+            self.obstacles.save_stl(destination=dest)
