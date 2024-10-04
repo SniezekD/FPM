@@ -1,2 +1,3 @@
 OLD/
 tests/
+*__pycache__*
