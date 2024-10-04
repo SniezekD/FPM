@@ -153,7 +153,7 @@ class openFoamCase():
         )
         mesh_quality_dict_content = mesh_quality_dict_template.render(
         )
-        all_templates['snappyhexmeshdict'] = {
+        all_templates['meshqualitdict'] = {
             'path': mesh_quality_dict_path,
             'content': mesh_quality_dict_content
         }
