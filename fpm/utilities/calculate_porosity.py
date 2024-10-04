@@ -219,7 +219,6 @@ def calculate_porosity(
             ]
 
             discretized_pm_idxs = [
-                
                 map_coordinate_to_index(
                     x=p[0],
                     y=p[1],
