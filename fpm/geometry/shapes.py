@@ -31,7 +31,7 @@ class Shape(ABC):
         return self._type
 
     @abstractmethod
-    def save_stl(self, destination: pathlib.Path) -> None:
+    def save_stl(self, destination: pathlib.Path, binary: bool = False) -> None:
         pass
 
 
@@ -77,7 +77,7 @@ class Sphere(Shape):
             self.stl = pv_sphere
             return pv_sphere
 
-    def save_stl(self, destination: pathlib.Path):
+    def save_stl(self, destination: pathlib.Path, binary: bool = False):
         if self.stl is not None:
             pv_sphere = self.stl
         else:
@@ -87,7 +87,7 @@ class Sphere(Shape):
             )
 
         try:
-            pv_sphere.save(destination)
+            pv_sphere.save(destination, binary=binary)
         except ValueError:
             print("ERROR!: Specified path does not exist!"
                   f"         I was trying to save {self}.")
@@ -157,7 +157,7 @@ class Cube(Shape):
             self.stl = pv_cube
             return pv_cube
 
-    def save_stl(self, destination: pathlib.Path):
+    def save_stl(self, destination: pathlib.Path, binary: bool = False):
         if self.stl is not None:
             pv_cube = self.stl
         else:
@@ -171,7 +171,7 @@ class Cube(Shape):
             )
 
         try:
-            pv_cube.save(destination)
+            pv_cube.save(destination, binary=binary)
         except ValueError:
             print("ERROR!: Specified path does not exist!"
                   f"         I was trying to save {self}.")
@@ -243,7 +243,7 @@ class Plane(Shape):
 
             return pv_plane
 
-    def save_stl(self, destination: pathlib.Path):
+    def save_stl(self, destination: pathlib.Path, binary: bool = False):
         if self.stl is not None:
             pv_plane = self.stl
         else:
@@ -276,7 +276,7 @@ class Plane(Shape):
             )
 
         try:
-            pv_plane.save(destination)
+            pv_plane.save(destination, binary=binary)
         except ValueError:
             print("ERROR!: Specified path does not exist!"
                   f"         I was trying to save {self}.")
@@ -352,7 +352,7 @@ class RoundedCube(Shape):
             self.stl = rounded_cube
             return rounded_cube
 
-    def save_stl(self, destination: pathlib.Path) -> None:
+    def save_stl(self, destination: pathlib.Path, binary: bool = False) -> None:
         if self.stl is not None:
             rounded_cube = self.stl
         else:
@@ -378,7 +378,7 @@ class RoundedCube(Shape):
             rounded_cube = pv_sphere.boolean_intersection(pv_cube)
 
         try:
-            rounded_cube.save(destination)
+            rounded_cube.save(destination, binary=binary)
         except ValueError:
             print("ERROR!: Specified path does not exist!"
                   f"         I was trying to save {self}.")
@@ -440,7 +440,7 @@ class Cylinder(Shape):
             self.stl = pv_cylinder
             return pv_cylinder
 
-    def save_stl(self, destination: pathlib.Path):
+    def save_stl(self, destination: pathlib.Path, binary: bool = False):
         if self.stl is not None:
             pv_cylinder = self.stl
         else:
@@ -451,7 +451,7 @@ class Cylinder(Shape):
                 height=self.height,
             )
         try:
-            pv_cylinder.save(destination)
+            pv_cylinder.save(destination, binary=binary)
         except ValueError:
             print("ERROR!: Specified path does not exist!"
                   f"         I was trying to save {self}.")

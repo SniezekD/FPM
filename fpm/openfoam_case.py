@@ -3,6 +3,8 @@ import pathlib
 import jinja2
 import numpy as np
 
+import fpm.geometry.shapes as shapes
+
 
 class openFoamCase():
     def __init__(
@@ -48,6 +50,7 @@ class openFoamCase():
         self.turbulence_model = turbulence_model
         self.decompose_method = decompose_method
         self.transport_model = transport_model
+        self.boundary_walls = self.create_boundary_walls()
 
     def create_of_dir(self):
         of_dir = self.working_direcory / 'OF_case'
@@ -274,3 +277,106 @@ class openFoamCase():
             with open(template['path'], mode="w", encoding="utf-8") as file:
                 file.write(template['content'])
             print(f"... created {template['path']}")
+
+    def create_boundary_walls(self):
+        """Create walls that will be used as geometrical
+        boundaries to the model.
+        """
+        upper_wall = shapes.Plane(
+            position=[
+                self.bounding_box_coords['x_min'],
+                self.bounding_box_coords['y_max'],
+                self.bounding_box_coords['z_min']
+            ],
+            size=[
+                self.bounding_box_coords['x_max'] - self.bounding_box_coords['x_min'],
+                0,
+                self.bounding_box_coords['z_max'] - self.bounding_box_coords['z_min']
+            ]
+        )
+
+        lower_wall = shapes.Plane(
+            position=[
+                self.bounding_box_coords['x_min'],
+                self.bounding_box_coords['y_min'],
+                self.bounding_box_coords['z_min']
+            ],
+            size=[
+                self.bounding_box_coords['x_max'] - self.bounding_box_coords['x_min'],
+                0,
+                self.bounding_box_coords['z_max'] - self.bounding_box_coords['z_min']
+            ]
+        )
+
+        right_wall = shapes.Plane(
+            position=[
+                self.bounding_box_coords['x_max'],
+                self.bounding_box_coords['y_min'],
+                self.bounding_box_coords['z_min']
+            ],
+            size=[
+                0,
+                self.bounding_box_coords['y_max'] - self.bounding_box_coords['y_min'],
+                self.bounding_box_coords['z_max'] - self.bounding_box_coords['z_min']
+            ]
+        )
+
+        left_wall = shapes.Plane(
+            position=[
+                self.bounding_box_coords['x_min'],
+                self.bounding_box_coords['y_min'],
+                self.bounding_box_coords['z_min']
+            ],
+            size=[
+                0,
+                self.bounding_box_coords['y_max'] - self.bounding_box_coords['y_min'],
+                self.bounding_box_coords['z_max'] - self.bounding_box_coords['z_min']
+            ]
+        )
+
+        front_wall = shapes.Plane(
+            position=[
+                self.bounding_box_coords['x_min'],
+                self.bounding_box_coords['y_min'],
+                self.bounding_box_coords['z_max']
+            ],
+            size=[
+                self.bounding_box_coords['x_max'] - self.bounding_box_coords['x_min'],
+                self.bounding_box_coords['y_max'] - self.bounding_box_coords['y_min'],
+                0
+            ]
+        )
+
+        back_wall = shapes.Plane(
+            position=[
+                self.bounding_box_coords['x_min'],
+                self.bounding_box_coords['y_min'],
+                self.bounding_box_coords['z_min']
+            ],
+            size=[
+                self.bounding_box_coords['x_max'] - self.bounding_box_coords['x_min'],
+                self.bounding_box_coords['y_max'] - self.bounding_box_coords['y_min'],
+                0
+            ]
+        )
+
+        walls = {
+            "wall_up": upper_wall,
+            "wall_down": lower_wall,
+            "wall_right": right_wall,
+            "wall_left": left_wall,
+            "wall_front": front_wall,
+            "wall_back": back_wall,
+        }
+
+        return walls
+
+    def save_walls_stls(self, savepath: pathlib.Path):
+        savepath.mkdir(parents=True, exist_ok=True)
+
+        if self.boundary_walls is None:
+            self.create_boundary_walls()
+
+        for name, o in self.boundary_walls.items():
+            dest = savepath / f"{name}.stl"
+            o.save_stl(destination=dest, binary=False)

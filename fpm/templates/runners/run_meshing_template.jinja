@@ -16,7 +16,7 @@ mpirun -np {{ number_of_procs }} snappyHexMesh -parallel -overwrite &> snappyHex
 echo "         Done"
 
 echo "        Reconstructing the mesh into 1 domain"
-reconstructParMesh -mergeTol 1e-06 -constant &> reconstructParMesh.log
+reconstructPar -constant &> reconstructPar.log
 echo "         Done"
 
 echo "        Checking the mesh"

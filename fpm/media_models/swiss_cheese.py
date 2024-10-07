@@ -103,12 +103,12 @@ class SwissCheese(porousMedium):
         )
 
         walls = {
-            "wall_up": upper_wall,
-            "wall_down": lower_wall,
-            "wall_right": right_wall,
-            "wall_left": left_wall,
-            "wall_front": front_wall,
-            "wall_back": back_wall,
+            "porous_medium_wall_up": upper_wall,
+            "porous_medium_wall_down": lower_wall,
+            "porous_medium_wall_right": right_wall,
+            "porous_medium_wall_left": left_wall,
+            "porous_medium_wall_front": front_wall,
+            "porous_medium_wall_back": back_wall,
         }
 
         return walls
@@ -385,9 +385,9 @@ class SwissCheese(porousMedium):
         if self.walls is not None:
             for name, o in self.walls.items():
                 dest = savepath / f"{name}.stl"
-                o.save_stl(destination=dest)
+                o.save_stl(destination=dest, binary=False)
 
         if self.obstacles is not None:
             dest = savepath / "obstacles.stl"
             all_obstacles = pv.merge([o.to_stl() for o in self.obstacles])
-            all_obstacles.save(dest)
+            all_obstacles.save(dest, binary=False)
