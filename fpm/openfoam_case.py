@@ -61,7 +61,7 @@ class openFoamCase():
         constant_dir = of_dir / 'constant'
 
         jinja_env = jinja2.Environment(
-            loader=jinja2.FileSystemLoader("/home/repos/fpm/fpm/templates/openfoam_files/")
+            loader=jinja2.FileSystemLoader("fpm/templates/openfoam_files/")
         )
         all_templates = {}
 
