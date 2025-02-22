@@ -278,6 +278,10 @@ class openFoamCase():
                 file.write(template['content'])
             print(f"... created {template['path']}")
 
+    def change_velocity_boundary_types(self, new_u_boundary_types):
+        self.u_boundary_types = new_u_boundary_types
+        self.create_of_dir()
+
     def create_boundary_walls(self):
         """Create walls that will be used as geometrical
         boundaries to the model.
