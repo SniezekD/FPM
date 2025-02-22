@@ -1,0 +1,22 @@
+#!/bin/bash
+
+check_return_code () {
+if [ $1 -eq 0 ]; then
+    echo "     Done"
+else
+    echo "     Error with code $1, exiting."
+    exit 1
+fi
+}
+
+source /opt/openfoam12/etc/bashrc
+
+cd {{ working_directory }}
+
+echo "    Converting foam to VTK"
+foamToVTK -latestTime -ascii  &> foamToVTK.log
+check_return_code $?
+
+echo "    Removing all processors' directories"
+rm -r processor*
+check_return_code $?
