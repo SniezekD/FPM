@@ -2,6 +2,7 @@ import pathlib
 
 import jinja2
 import numpy as np
+import pandas as pd
 
 import fpm.geometry.shapes as shapes
 
@@ -276,7 +277,7 @@ class openFoamCase():
             template['path'].parent.mkdir(exist_ok=True, parents=True)
             with open(template['path'], mode="w", encoding="utf-8") as file:
                 file.write(template['content'])
-            print(f"... created {template['path']}")
+            print(f"  ... created {template['path']}")
 
     def change_velocity_boundary_types(self, new_u_boundary_types):
         self.u_boundary_types = new_u_boundary_types
@@ -384,3 +385,25 @@ class openFoamCase():
         for name, o in self.boundary_walls.items():
             dest = savepath / f"{name}.stl"
             o.save_stl(destination=dest, binary=False)
+
+    def save_spec_to_file(
+        self,
+        savepath: pathlib.Path,
+        inlet_wall: str = 'left'
+    ):
+        data_dict = {
+            'inlet_u_type': self.u_boundary_types[f'{inlet_wall}_field_type'],
+            'inlet_u_value': self.u_boundary_types[f'{inlet_wall}_field_value'],
+            'x_min': self.bounding_box_coords['x_min'],
+            'x_max': self.bounding_box_coords['x_max'],
+            'y_min': self.bounding_box_coords['y_min'],
+            'y_max': self.bounding_box_coords['y_max'],
+            'z_min': self.bounding_box_coords['z_min'],
+            'z_max': self.bounding_box_coords['z_max'],
+            'number_of_procs': self.number_of_procs,
+
+        }
+
+        df = pd.DataFrame(data_dict)
+        df.to_csv(savepath, index=False)
+        print(f"  ... saved OF spec to {savepath}")
