@@ -1,12 +1,14 @@
 import pathlib
+
 import pyvista as pv
 import numpy as np
+import pandas as pd
+
 import fpm.geometry.shapes as shapes
-from fpm.media_models.porous_medium import porousMedium
+from fpm.media_models.porous_medium import PorousMedium
 from fpm.utilities.calculate_porosity import calculate_porosity
 
-
-class SwissCheese(porousMedium):
+class SwissCheese(PorousMedium):
     GEOMETRY_BOUNDARY_CONDITIONS = [
         'periodic_xyz',
         'periodic_xy',
@@ -23,7 +25,8 @@ class SwissCheese(porousMedium):
         porosity: float,
         bounds: list,
         min_radius: float,
-        max_radius: float
+        max_radius: float,
+        geometry_bounds_type: str
     ) -> None:
         """Crate a swissCheese porous medium object.
         The obstacles are modelled as spheres with random radii that are 
@@ -37,12 +40,17 @@ class SwissCheese(porousMedium):
             min_radius (float): Minimal obstacle radius.
             max_radius (float): Maximal obstacle radius.
         """
+        if geometry_bounds_type not in self.GEOMETRY_BOUNDARY_CONDITIONS:
+            raise ValueError("Possible types of geometry boundary conditions "
+                             f"are: {self.GEOMETRY_BOUNDARY_CONDITIONS}")
+
         self.porosity = porosity
         self.bounds = bounds
         self.min_radius = min_radius
         self.max_radius = max_radius
         self.walls = None
         self.obstacles = None
+        self.geometry_bounds_type = geometry_bounds_type
 
     def create_boundary_walls(self):
         """Create walls that will be used as geometrical
@@ -113,7 +121,7 @@ class SwissCheese(porousMedium):
 
         return walls
 
-    def create_obstacles(self, geometry_bounds_type: str):
+    def create_obstacles(self):
         """Create set of obstacles inside boundaries.
         The obstacles are spheres with random radii placed in
         random positions. If geometr boundary conditions are
@@ -121,9 +129,6 @@ class SwissCheese(porousMedium):
         collides with a wall then a copy of it would be created
         to reflect those geometrical boundary condition.
         """
-        if geometry_bounds_type not in self.GEOMETRY_BOUNDARY_CONDITIONS:
-            raise ValueError("Possible types of geometry boundary conditions "
-                             f"are: {self.GEOMETRY_BOUNDARY_CONDITIONS}")
 
         if self.walls is None:
             self.walls = self.create_boundary_walls()
@@ -159,11 +164,11 @@ class SwissCheese(porousMedium):
                 position=[x_pos, y_pos, z_pos],
                 radius=radius
             )
-            if geometry_bounds_type == 'non_periodic':
+            if self.geometry_bounds_type == 'non_periodic':
                 # print(f"sphere volume {tmp_sphere.to_stl().volume}")
                 obstacles.append(tmp_sphere)
 
-            elif geometry_bounds_type == 'periodic_x':
+            elif self.geometry_bounds_type == 'periodic_x':
                 walls_of_interest = [self.walls['right'], self.walls['left']]
                 translation_vectors = [
                     [-(self.bounds[1] - self.bounds[0]), 0, 0],
@@ -179,7 +184,7 @@ class SwissCheese(porousMedium):
                         )
                         obstacles.append(translated_tmp_sphere)
 
-            elif geometry_bounds_type == 'periodic_y':
+            elif self.geometry_bounds_type == 'periodic_y':
                 walls_of_interest = [self.walls['upper'], self.walls['lower']]
                 translation_vectors = [
                     [0, -(self.bounds[3] - self.bounds[2]), 0],
@@ -195,7 +200,7 @@ class SwissCheese(porousMedium):
                         )
                         obstacles.append(translated_tmp_sphere)
 
-            elif geometry_bounds_type == 'periodic_z':
+            elif self.geometry_bounds_type == 'periodic_z':
                 walls_of_interest = [self.walls['front'], self.walls['back']]
                 translation_vectors = [
                     [0, 0, -(self.bounds[5] - self.bounds[4])],
@@ -211,7 +216,7 @@ class SwissCheese(porousMedium):
                         )
                         obstacles.append(translated_tmp_sphere)
 
-            elif geometry_bounds_type == 'periodic_xy':
+            elif self.geometry_bounds_type == 'periodic_xy':
                 walls_of_interest = [
                     self.walls['right'], self.walls['left'],
                     self.walls['upper'], self.walls['lower']
@@ -244,7 +249,7 @@ class SwissCheese(porousMedium):
                                 )
                                 obstacles.append(translated_tmp_sphere)
 
-            elif geometry_bounds_type == 'periodic_xz':
+            elif self.geometry_bounds_type == 'periodic_xz':
                 walls_of_interest = [
                     self.walls['right'], self.walls['left'],
                     self.walls['front'], self.walls['back']
@@ -277,7 +282,7 @@ class SwissCheese(porousMedium):
                                 )
                                 obstacles.append(translated_tmp_sphere)
 
-            elif geometry_bounds_type == 'periodic_yz':
+            elif self.geometry_bounds_type == 'periodic_yz':
                 walls_of_interest = [
                     self.walls['upper'], self.walls['lower'],
                     self.walls['front'], self.walls['back']
@@ -310,7 +315,7 @@ class SwissCheese(porousMedium):
                                 )
                                 obstacles.append(translated_tmp_sphere)
 
-            elif geometry_bounds_type == 'periodic_xyz':
+            elif self.geometry_bounds_type == 'periodic_xyz':
                 walls_of_interest = [
                     self.walls['upper'], self.walls['lower'],
                     self.walls['upper'], self.walls['lower'],
@@ -391,3 +396,23 @@ class SwissCheese(porousMedium):
             dest = savepath / "obstacles.stl"
             all_obstacles = pv.merge([o.to_stl() for o in self.obstacles])
             all_obstacles.save(dest, binary=False)
+
+    def save_spec_to_file(
+        self,
+        savepath: pathlib.Path,
+    ) -> None:
+        data_dict = {
+            'porosity': [self.porosity],
+            'x_min': [self.bounds[0]],
+            'x_max': [self.bounds[1]],
+            'y_min': [self.bounds[2]],
+            'y_max': [self.bounds[3]],
+            'z_min': [self.bounds[4]],
+            'z_max': [self.bounds[5]],
+            'min_radius': [self.min_radius],
+            'max_radius': [self.max_radius],
+            'geometry_bounds_type': [self.geometry_bounds_type]
+        }
+
+        df = pd.DataFrame.from_dict(data_dict)
+        df.to_csv(savepath, index=False)
