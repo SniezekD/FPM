@@ -204,6 +204,10 @@ class Plane(Shape):
     def stl(self) -> pv.PolyData:
         return self._stl
 
+    @property
+    def area(self) -> float:
+        return self.to_stl().area
+
     @stl.setter
     def stl(self, obj: pv.PolyData) -> None:
         self._stl = obj
