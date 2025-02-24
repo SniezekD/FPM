@@ -392,18 +392,20 @@ class openFoamCase():
         inlet_wall: str = 'left'
     ):
         data_dict = {
-            'inlet_u_type': self.u_boundary_types[f'{inlet_wall}_field_type'],
-            'inlet_u_value': self.u_boundary_types[f'{inlet_wall}_field_value'],
-            'x_min': self.bounding_box_coords['x_min'],
-            'x_max': self.bounding_box_coords['x_max'],
-            'y_min': self.bounding_box_coords['y_min'],
-            'y_max': self.bounding_box_coords['y_max'],
-            'z_min': self.bounding_box_coords['z_min'],
-            'z_max': self.bounding_box_coords['z_max'],
-            'number_of_procs': self.number_of_procs,
+            'inlet_wall': [inlet_wall],
+            'inlet_u_type': [self.u_boundary_types[f'{inlet_wall}_field_type']],
+            'inlet_u_value': [self.u_boundary_types[f'{inlet_wall}_field_value']],
+            'inlet_area': [self.boundary_walls[f'wall_{inlet_wall}'].area],
+            'x_min': [self.bounding_box_coords['x_min']],
+            'x_max': [self.bounding_box_coords['x_max']],
+            'y_min': [self.bounding_box_coords['y_min']],
+            'y_max': [self.bounding_box_coords['y_max']],
+            'z_min': [self.bounding_box_coords['z_min']],
+            'z_max': [self.bounding_box_coords['z_max']],
+            'number_of_procs': [self.number_of_procs],
 
         }
 
-        df = pd.DataFrame(data_dict)
+        df = pd.DataFrame.from_dict(data_dict)
         df.to_csv(savepath, index=False)
         print(f"  ... saved OF spec to {savepath}")
