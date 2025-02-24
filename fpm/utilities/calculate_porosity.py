@@ -1,6 +1,6 @@
 import numpy as np
 import pyvista as pv
-from fpm.media_models.porous_medium import porousMedium
+from fpm.media_models.porous_medium import PorousMedium
 
 
 def map_distance_to_index_difference(
@@ -144,7 +144,7 @@ def map_index_to_coordinate(
 
 
 def calculate_porosity(
-    porous_medium: porousMedium,
+    porous_medium: PorousMedium,
     obstacles: list = None,
     discretization: tuple = (100, 100, 100),
     saved_state: np.ndarray = None
