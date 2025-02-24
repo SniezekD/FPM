@@ -28,7 +28,7 @@ def read_vtk(
     u_z = vtk['U'][:, 2]
     u_norm = np.sqrt(u_x**2 + u_y**2 + u_z**2)
 
-    volumes = vtk['volume']
+    volumes = vtk['Volume']
     cell_ids = vtk['cellID']
 
     cells_points = {}
@@ -43,15 +43,15 @@ def read_vtk(
     y_pos = vtk.points[:, 1]
     z_pos = vtk.points[:, 2]
 
-    cells_positions_x = [
+    cells_positions_x = np.array([
         np.mean(x_pos[points_list]) for k, points_list in cells_points.items()
-    ]
-    cells_positions_y = [
+    ])
+    cells_positions_y = np.array([
         np.mean(y_pos[points_list]) for k, points_list in cells_points.items()
-    ]
-    cells_positions_z = [
+    ])
+    cells_positions_z = np.array([
         np.mean(z_pos[points_list]) for k, points_list in cells_points.items()
-    ]
+    ])
 
     if interest_b_box is not None:
         x_mask = (cells_positions_x >= interest_b_box[0]) & (cells_positions_x <= interest_b_box[1])
