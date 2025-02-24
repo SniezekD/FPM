@@ -23,7 +23,7 @@ def compute_tortuosity(
     """
     u_norm = vtk_df['u_norm']
     u_streamwise = vtk_df[f'u_{streamwise_direction}']
-    rho = vtk_df['rho']
+    rho = vtk_df['mass_density']
 
     volumes = vtk_df['volume']
 
