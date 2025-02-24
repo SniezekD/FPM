@@ -1,15 +1,15 @@
 from abc import ABC, abstractmethod
 
 
-class porousMedium(ABC):
+class PorousMedium(ABC):
     @abstractmethod
     def create_boundary_walls():
         pass
 
-    @abstractmethods
+    @abstractmethod
     def create_obstacles():
         pass
 
-    @abstractmethods
+    @abstractmethod
     def save_spec_to_file():
         pass
