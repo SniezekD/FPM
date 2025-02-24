@@ -1,9 +1,11 @@
 import sys
 import pathlib
 import subprocess
+import re
+
 import numpy as np
 import jinja2
-
+import pandas as pd
 
 def run_cmd(args: list, shell: bool = True):
     status = subprocess.run(
@@ -52,10 +54,39 @@ def create_runner_file(
 
     with open(file_path, mode="w", encoding="utf-8") as file:
         file.write(content)
-    print(f"... created {file_path}")
+    print(f"  ... created {file_path}")
 
     run_cmd(
         ["chmod", "u+x", f"{file_path}"]
     )
 
     return file_path
+
+
+def calculate_inlet_flow_rate(of_spec: pd.DataFrame) -> float:
+    """Calculates the inlet flowrate from the OpenFOAM spec file
+
+    Args:
+        of_spec (pd.DateFrame): OpenFOAM spec file.
+
+    Returns:
+        float: Inlet flowrate [m^3 / s].
+    """
+
+    inlet_area = of_spec['inlet_area'].values[0]
+    inlet_wall = of_spec['inlet_wall'].values[0]
+    print(inlet_wall)
+    if inlet_wall in ['left', 'right']:
+        streamline_velocity_id = 0
+    elif inlet_wall in ['up', 'down']:
+        streamline_velocity_id = 1
+    elif inlet_wall in ['front', 'back']:
+        streamline_velocity_id = 2
+
+    inlet_velocity_str = of_spec['inlet_u_value'].values[0]
+    start_idx = inlet_velocity_str.index('(') + 1
+    end_idx = inlet_velocity_str.index(')')
+    inlet_velocity = float(
+        inlet_velocity_str[start_idx:end_idx].split()[streamline_velocity_id]
+    )
+    return inlet_velocity * inlet_area
