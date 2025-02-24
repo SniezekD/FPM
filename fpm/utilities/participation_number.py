@@ -25,7 +25,7 @@ def compute_participation_number(
         norm_const = np.sum(vtk_df['volume'])**2 / np.sum(vtk_df['volume']**2)
 
     u_norm = vtk_df['u_norm']
-    rho = vtk_df['rho']
+    rho = vtk_df['mass_density']
 
     volumes = vtk_df['volume']
 
