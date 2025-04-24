@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
 
 
 def compute_tortuosity(
@@ -33,3 +34,37 @@ def compute_tortuosity(
     tortuosity = np.sum(total_momentum_arr) / np.sum(streamwise_momentum_arr)
 
     return tortuosity
+
+
+def plot_tortuosity_on_polar_plot(
+        vtk_df: pd.DataFrame,
+        streamwise_direction_vector: np.ndarray,
+        plot_save_path: str = None,
+        angle_accuracy: float = 0.001,
+):
+    rho = vtk_df['mass_density']
+    volumes = vtk_df['volume']
+    masses = rho * volumes
+    u_norm = vtk_df['u_norm']
+    momentum = masses * u_norm
+    momentum_direction = np.arccos(
+        np.dot(streamwise_direction_vector, vtk_df[['u_x', 'u_y', 'u_z']].T)
+        / (np.linalg.norm(streamwise_direction_vector)* u_norm)
+    )
+    angle_bin_edges = np.arange(0, 2 * np.pi, angle_accuracy)
+    angle_bin_middle = (angle_bin_edges[:-1] + angle_bin_edges[1:]) / 2
+    angle_momentum = [np.sum(momentum[(momentum_direction >= bin_start) & (momentum_direction < bin_end)])
+                      for bin_start, bin_end in zip(angle_bin_edges[: -1], angle_bin_edges[1:])]
+    angle_momentum = np.array(angle_momentum)
+    
+    # Create a polar plot
+    fig, ax = plt.subplots(subplot_kw={'projection': 'polar'})
+    ax.scatter(angle_bin_middle, angle_momentum, c='r', s=1)
+    ax.set_title('Tortuosity on Polar Plot')
+    ax.set_xlabel('Angle (radians)')
+    ax.set_ylabel('Momentum')
+    # Save the plot
+    if plot_save_path is None:
+        fig.savefig(plot_save_path)
+    # Close the plot
+    plt.close(fig)
