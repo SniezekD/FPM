@@ -8,6 +8,7 @@ import fpm.geometry.shapes as shapes
 from fpm.media_models.porous_medium import PorousMedium
 from fpm.utilities.calculate_porosity import calculate_porosity
 
+
 class SwissCheese(PorousMedium):
     GEOMETRY_BOUNDARY_CONDITIONS = [
         'periodic_xyz',
@@ -237,7 +238,7 @@ class SwissCheese(PorousMedium):
                         )
                         obstacles.append(translated_tmp_sphere)
                         for j, n_coll_j in enumerate(n_collision_cells):
-                            if j ==i:
+                            if j == i:
                                 continue
                             if n_coll_j != 0:
                                 trans_vec = (
@@ -322,8 +323,8 @@ class SwissCheese(PorousMedium):
                     self.walls['front'], self.walls['back']
                 ]
                 translation_vectors = [
-                    [-(self.bounds[1] - self.bounds[0]),0, 0],
-                    [(self.bounds[1] - self.bounds[0]),0, 0],
+                    [-(self.bounds[1] - self.bounds[0]), 0, 0],
+                    [(self.bounds[1] - self.bounds[0]), 0, 0],
                     [0, -(self.bounds[3] - self.bounds[2]), 0],
                     [0, (self.bounds[3] - self.bounds[2]), 0],
                     [0, 0, -(self.bounds[5] - self.bounds[4])],
@@ -367,21 +368,12 @@ class SwissCheese(PorousMedium):
                                             )
                                         obstacles.append(translated_tmp_sphere)
 
-            # Update porosity
-            # tmp_stls = [o.to_stl() for o in obstacles]
-            # print(f"number of obstacles: {len(obstacles)}")
-            # tmp_collective_obstacles = pv.MultiBlock(tmp_stls).combine(
-            #     merge_points=True
-            # )
-            # print(f"tmp_collective_obstacles volume {tmp_collective_obstacles.volume}")
-
             tmp_porosity, saved_state_for_porosity = calculate_porosity(
                 porous_medium=self,
                 obstacles=obstacles,
                 discretization=(100, 100, 100),
                 saved_state=saved_state_for_porosity
             )
-            # print(f"Current porosity is {tmp_porosity}")
         return obstacles
 
     def save_stls(self, savepath: pathlib.Path) -> None:
