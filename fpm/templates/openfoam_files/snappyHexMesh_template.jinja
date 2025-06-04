@@ -1,0 +1,189 @@
+/*--------------------------------*- C++ -*----------------------------------*\\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  12                                    |
+|   \\  /    A nd           | Website:  www.openfoam.org                      |
+|    \\/     M anipulation  |                                                 |
+\\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      snappyHexMeshDict;
+}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+castellatedMesh true;
+snap            true;
+addLayers       false;
+
+geometry
+{
+    obstacles
+    {
+        type triSurfaceMesh;
+        name obstacles;
+        file "obstacles.stl";
+    }
+    wall_left
+    {
+        type triSurfaceMesh;
+        name wall_left;
+        file "wall_left.stl";
+    }
+    wall_right
+    {
+        type triSurfaceMesh;
+        name wall_right;
+        file "wall_right.stl";
+    }
+    wall_up
+    {
+        type triSurfaceMesh;
+        name wall_up;
+        file "wall_up.stl";
+    }
+    wall_down
+    {
+        type triSurfaceMesh;
+        name wall_down;
+        file "wall_down.stl";
+    }
+    wall_front
+    {
+        type triSurfaceMesh;
+        name wall_fron;
+        file "wall_front.stl";
+    }
+    wall_back
+    {
+        type triSurfaceMesh;
+        name wall_back;
+        file "wall_back.stl";
+    }
+}
+
+castellatedMeshControls
+{
+    maxLocalCells {{ max_local_cells }};
+    maxGlobalCells {{ max_global_cells }};
+    minRefinementCells 1;
+    nCellsBetweenLevels 1;
+
+    features
+    (
+    );
+
+    refinementSurfaces
+    {
+        obstacles{
+            level ({{ min_surface_refinement_lvl }} {{ max_surface_refinement_lvl }});
+            {% if obstacles_patch_info is not none %}   
+                patchInfo         { type {{ obstacles_patch_info }}; }
+            {% endif %}
+        }
+        wall_front{
+            level ({{ min_surface_refinement_lvl }} {{ max_surface_refinement_lvl }});
+            {% if front_patch_info is not none %}   
+                patchInfo         { type {{ front_patch_info }}; }
+            {% endif %}
+        }
+        wall_back{
+            level ({{ min_surface_refinement_lvl }} {{ max_surface_refinement_lvl }});
+            {% if back_patch_info is not none %}   
+                patchInfo         { type {{ back_patch_info }}; }
+            {% endif %}
+        }
+        wall_down{
+            level ({{ min_surface_refinement_lvl }} {{ max_surface_refinement_lvl }});
+            {% if down_patch_info is not none %}   
+                patchInfo         { type {{ down_patch_info }}; }
+            {% endif %}
+        }
+        wall_up{
+            level ({{ min_surface_refinement_lvl }} {{ max_surface_refinement_lvl }});
+            {% if up_patch_info is not none %}   
+                patchInfo         { type {{ up_patch_info }}; }
+            {% endif %}
+        }
+        wall_left{
+            level ({{ min_surface_refinement_lvl }} {{ max_surface_refinement_lvl }});
+            {% if left_patch_info is not none %}   
+                patchInfo         { type {{ left_patch_info }}; }
+            {% endif %}
+        }
+        wall_right{
+            level ({{ min_surface_refinement_lvl }} {{ max_surface_refinement_lvl }});
+            {% if right_patch_info is not none %}   
+                patchInfo         { type {{ right_patch_info }}; }
+            {% endif %} 
+        }
+    }
+
+    resolveFeatureAngle 30;
+    refinementRegions { }
+    locationInMesh ({{ location_in_mesh_x }} {{ location_in_mesh_y }} {{ location_in_mesh_z }});
+    allowFreeStandingZoneFaces true;
+}
+
+snapControls
+{
+    nSmoothPatch 3;
+    tolerance 1.0;
+    nSolveIter 300;
+    nRelaxIter 5;
+    nFeatureSnapIter 10;
+    implicitFeatureSnap false;
+    explicitFeatureSnap true;
+    multiRegionFeatureSnap true;
+}
+
+addLayersControls
+{
+    relativeSizes true;
+    layers
+    {
+    }
+    expansionRatio 1.0;
+    finalLayerThickness 0.3;
+    minThickness 0.25;
+    nGrow 0;
+    featureAngle 30;
+    nRelaxIter 5;
+    nSmoothSurfaceNormals 1;
+    nSmoothNormals 3;
+    nSmoothThickness 10;
+    maxFaceThicknessRatio 0.5;
+    maxThicknessToMedialRatio 0.3;
+    minMedialAxisAngle 90;
+    nBufferCellsNoExtrude 0;
+    nLayerIter 50;
+    nRelaxedIter 20;
+}
+
+meshQualityControls
+{
+    #include "meshQualityDict"
+
+    relaxed
+    {
+        maxNonOrtho 75;
+    }
+    nSmoothScale 4;
+    errorReduction 0.75;
+}
+
+
+writeFlags
+(
+    scalarLevels    // write volScalarField with cellLevel for postprocessing
+    layerSets       // write cellSets, faceSets of faces in layer
+    layerFields     // write volScalarField for layer coverage
+);
+
+mergeTolerance 1E-6;
+
+
+// ************************************************************************* //

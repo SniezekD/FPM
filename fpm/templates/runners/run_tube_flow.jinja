@@ -1,0 +1,26 @@
+#!/bin/bash
+
+source /opt/openfoam12/etc/bashrc
+
+cd {{ working_directory }}
+
+echo "    Running blockMesh..."
+blockMesh > blockMesh.log
+
+echo "    Running decomposePar..."
+decomposePar > decomposeParMesh.log
+
+echo "    Running snappyHexMesh..."
+mpirun -np {{ number_of_procs }} snappyHexMesh -overwrite -parallel > snappyHexMesh.log
+
+echo "    Running reconstructPar..."
+reconstructPar > reconstructParMesh.log
+
+echo "    Running decomposePar..."
+decomposePar > decomposeParSim.log
+
+echo "    Running simpleFoam..."
+mpirun -np {{ number_of_procs }} simpleFoam -parallel > simpleFoam.log
+
+echo "    Running reconstructPar..."
+reconstructPar -latestTime > reconstructParSim.log

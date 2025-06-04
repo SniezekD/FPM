@@ -1,0 +1,28 @@
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  12                                    |
+|   \\  /    A nd           | Web:      www.openfoam.org                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+ 
+FoamFile
+{
+    version         2.0;
+    format          ascii;
+    location  "system";
+    class           dictionary;
+    object          decomposeParDict;
+}
+ 
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+ 
+ numberOfSubdomains {{ number_of_procs }};
+ 
+{% if decompose_method is not none %}   
+    method          {{ decompose_method }};
+{% else %}
+    method          scotch;
+{% endif %}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

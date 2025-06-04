@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "fpm"
+version = "0.1.0"
+description = "Toolchain for simulating fluid flow through porous media."
+authors = ["Damian Śnieżek"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+numpy = "^2.0.0"
+matplotlib = "^3.9.1"
+pandas = "^2.2.2"
+pyvista = "^0.44.0"
+scipy = "^1.14.0"
+ipython = "^8.26.0"
+h5py = "^3.11.0"
+jinja2 = "^3.1.4"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

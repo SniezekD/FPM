@@ -1,0 +1,65 @@
+/*--------------------------------*- C++ -*----------------------------------*\\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  12                                    |
+|   \\  /    A nd           | Website:  www.openfoam.org                      |
+|    \\/     M anipulation  |                                                 |
+\\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volScalarField;
+    object      p;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [0 2 -2 0 0 0 0];
+
+internalField   uniform 0;
+
+boundaryField
+{
+    wall_left
+    {
+        type            {{ left_bc_type }};
+        {{ left_field_type }}   {{ left_field_value }};
+    }
+
+    wall_right
+    {
+        type            {{ right_bc_type }};
+        {{ right_field_type }}   {{ right_field_value }};
+    }
+
+    wall_up
+    {
+        type            {{ up_bc_type }};
+        {{ up_field_type }}   {{ up_field_value }};
+    }
+
+    wall_down
+    {
+        type            {{ down_bc_type }};
+        {{ down_field_type }}   {{ down_field_value }};
+    }
+
+    wall_front
+    {
+        type            {{ front_bc_type }};
+        {{ front_field_type }}   {{ front_field_value }};
+    }
+
+    wall_back
+    {
+        type            {{ back_bc_type }};
+        {{ back_field_type }}   {{ back_field_value }};
+    }
+
+    obstacles
+    {
+        type            {{ obstacles_bc_type }};
+        {{ obstacles_field_type }}   {{ obstacles_field_value }};
+    }
+}
+

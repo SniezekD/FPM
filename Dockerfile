@@ -1,4 +1,4 @@
-FROM ubuntu:20.04
+FROM ubuntu:22.04
 
 USER root
 
@@ -19,56 +19,39 @@ RUN apt-get install mpi -y
 RUN apt-get install nano -y
 RUN apt-get install wget -y
 RUN apt-get install curl -y
+RUN apt-get install gnuplot -y
+RUN apt-get install dos2unix -y
 
-#install OF2006
+#install OpenFOAM12
+RUN sh -c "wget -O - https://dl.openfoam.org/gpg.key > /etc/apt/trusted.gpg.d/openfoam.asc"
+RUN add-apt-repository http://dl.openfoam.org/ubuntu
+RUN apt-get update -y
+RUN apt -y install openfoam12
+RUN echo "alias of12='source /opt/openfoam12/etc/bashrc'" >> $HOME/.bashrc
+
+#install OF2306
 RUN curl -s https://dl.openfoam.com/add-debian-repo.sh | sudo bash
 RUN wget -q -O - https://dl.openfoam.com/add-debian-repo.sh | sudo bash
 RUN apt-get update -y
-RUN apt-get install openfoam2006-default -y --fix-missing
+RUN apt-get install openfoam2306-default -y --fix-missing
 
-#install python3.10
+#install python3.11
 RUN add-apt-repository ppa:deadsnakes/ppa
-RUN apt install python3.10 -y
+RUN apt install python3.11 -y
 #instal pip
 RUN apt-get update -y
 RUN apt install python3-pip -y
-
-RUN pip3 install numpy==1.23.4 matplotlib pandas numpy-stl h5py scipy pyvista==0.37.0
-RUN pip3 install ipython
-
 RUN apt install python-is-python3 -y
-#install swak4Foam
-WORKDIR /home/user/openfoam2206
-RUN hg clone http://hg.code.sf.net/p/openfoam-extend/swak4Foam swak4Foam
-# ADD swak4foam /home/user/openfoam2206/
-WORKDIR /home/user/openfoam2206/swak4Foam
-RUN . /usr/lib/openfoam/openfoam2006/etc/bashrc && ./Allwmake
-
-RUN apt-get install gnuplot -y
-
-RUN apt-get install dos2unix -y
-
-WORKDIR /home/user/MGR/ifpm
-ADD ifpm /home/user/MGR/ifpm
-# RUN ls -l
-# RUN sed -i 's/\r$//' run_simpleFoam.sh 
-# RUN dos2unix run_simpleFoam.sh
-# RUN dos2unix run_meshing2D.sh
-# RUN dos2unix run_meshing.sh
-# RUN dos2unix prep_model.sh
-
-# ADD IFPM /home/user/MGR/IFPM
-ADD OF_Model /home/user/MGR/wd/OF_Model
-
-RUN useradd user
-RUN echo "user:userpass" | chpasswd
-
-RUN chown user /home/user -R
-RUN usermod -a -G sudo user
-
 
 ENV OMPI_ALLOW_RUN_AS_ROOT=1
 ENV OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1
 ENV OMPI_MCA_btl_vader_single_copy_mechanism="none"
 
-ENTRYPOINT ["tail", "-f", "/dev/null"]
+# Add poetry environment for python
+RUN pip install poetry
+WORKDIR /home/repos/FPM/
+ADD poetry.lock /home/repos/FPM/poetry.lock
+ADD pyproject.toml /home/repos/FPM/pyproject.toml
+COPY . /home/repos/FPM/
+
+WORKDIR /home/
