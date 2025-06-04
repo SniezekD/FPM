@@ -1,10 +1,8 @@
 name: Docker Image CI
 
 on:
-  push:
-    branches: [ "rework" ]
   pull_request:
-    branches: [ "rework" ]
+    branches: [ "master" ]
 
 jobs:
 
