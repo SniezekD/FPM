@@ -3,7 +3,7 @@ import numpy as np
 
 
 def compute_participation_number(
-    vtk_df: pd.DataFrame, 
+    vtk_df: pd.DataFrame,
     norm_const_type: str = 'n_cells'
 ) -> float:
     """Computes the participation number for a given VTK file.
@@ -35,6 +35,5 @@ def compute_participation_number(
 
     q_squared = q_arr**2
     participation_number = 1 / (norm_const * np.sum(q_squared))
-
 
     return participation_number

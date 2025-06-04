@@ -1,4 +1,3 @@
-import os
 import pathlib
 from abc import ABC, abstractmethod
 
@@ -31,7 +30,11 @@ class Shape(ABC):
         return self._type
 
     @abstractmethod
-    def save_stl(self, destination: pathlib.Path, binary: bool = False) -> None:
+    def save_stl(
+        self,
+        destination: pathlib.Path,
+        binary: bool = False
+    ) -> None:
         pass
 
 
@@ -356,7 +359,11 @@ class RoundedCube(Shape):
             self.stl = rounded_cube
             return rounded_cube
 
-    def save_stl(self, destination: pathlib.Path, binary: bool = False) -> None:
+    def save_stl(
+        self,
+        destination: pathlib.Path,
+        binary: bool = False
+    ) -> None:
         if self.stl is not None:
             rounded_cube = self.stl
         else:

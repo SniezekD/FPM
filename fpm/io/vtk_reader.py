@@ -54,9 +54,18 @@ def read_vtk(
     ])
 
     if interest_b_box is not None:
-        x_mask = (cells_positions_x >= interest_b_box[0]) & (cells_positions_x <= interest_b_box[1])
-        y_mask = (cells_positions_y >= interest_b_box[2]) & (cells_positions_y <= interest_b_box[3])
-        z_mask = (cells_positions_z >= interest_b_box[4]) & (cells_positions_z <= interest_b_box[5])
+        x_mask = (
+            (cells_positions_x >= interest_b_box[0])
+            & (cells_positions_x <= interest_b_box[1])
+        )
+        y_mask = (
+            (cells_positions_y >= interest_b_box[2])
+            & (cells_positions_y <= interest_b_box[3])
+        )
+        z_mask = (
+            (cells_positions_z >= interest_b_box[4])
+            & (cells_positions_z <= interest_b_box[5])
+        )
 
         mask = x_mask & y_mask & z_mask
 
@@ -140,9 +149,18 @@ def read_vtm(
     ]
 
     if interest_b_box is not None:
-        x_mask = (cells_positions_x >= interest_b_box[0]) & (cells_positions_x <= interest_b_box[1])
-        y_mask = (cells_positions_y >= interest_b_box[2]) & (cells_positions_y <= interest_b_box[3])
-        z_mask = (cells_positions_z >= interest_b_box[4]) & (cells_positions_z <= interest_b_box[5])
+        x_mask = (
+            (cells_positions_x >= interest_b_box[0])
+            & (cells_positions_x <= interest_b_box[1])
+        )
+        y_mask = (
+            (cells_positions_y >= interest_b_box[2])
+            & (cells_positions_y <= interest_b_box[3])
+        )
+        z_mask = (
+            (cells_positions_z >= interest_b_box[4])
+            & (cells_positions_z <= interest_b_box[5])
+        )
 
         mask = x_mask & y_mask & z_mask
 

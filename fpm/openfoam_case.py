@@ -89,7 +89,9 @@ class openFoamCase():
             back_field_value=self.u_boundary_types['back_field_value'],
             obstacles_bc_type=self.u_boundary_types['obstacles_bc_type'],
             obstacles_field_type=self.u_boundary_types['obstacles_field_type'],
-            obstacles_field_value=self.u_boundary_types['obstacles_field_value'],
+            obstacles_field_value=self.u_boundary_types[
+                'obstacles_field_value'
+            ],
         )
         all_templates['zero_u'] = {
             'path': zero_u_path,
@@ -119,7 +121,9 @@ class openFoamCase():
             back_field_value=self.p_boundary_types['back_field_value'],
             obstacles_bc_type=self.p_boundary_types['obstacles_bc_type'],
             obstacles_field_type=self.p_boundary_types['obstacles_field_type'],
-            obstacles_field_value=self.p_boundary_types['obstacles_field_value'],
+            obstacles_field_value=self.p_boundary_types[
+                'obstacles_field_value'
+            ],
         )
         all_templates['zero_p'] = {
             'path': zero_p_path,
@@ -294,9 +298,11 @@ class openFoamCase():
                 self.bounding_box_coords['z_min']
             ],
             size=[
-                self.bounding_box_coords['x_max'] - self.bounding_box_coords['x_min'],
+                self.bounding_box_coords['x_max']
+                - self.bounding_box_coords['x_min'],
                 0,
-                self.bounding_box_coords['z_max'] - self.bounding_box_coords['z_min']
+                self.bounding_box_coords['z_max']
+                - self.bounding_box_coords['z_min']
             ]
         )
 
@@ -307,9 +313,11 @@ class openFoamCase():
                 self.bounding_box_coords['z_min']
             ],
             size=[
-                self.bounding_box_coords['x_max'] - self.bounding_box_coords['x_min'],
+                self.bounding_box_coords['x_max']
+                - self.bounding_box_coords['x_min'],
                 0,
-                self.bounding_box_coords['z_max'] - self.bounding_box_coords['z_min']
+                self.bounding_box_coords['z_max']
+                - self.bounding_box_coords['z_min']
             ]
         )
 
@@ -321,8 +329,10 @@ class openFoamCase():
             ],
             size=[
                 0,
-                self.bounding_box_coords['y_max'] - self.bounding_box_coords['y_min'],
-                self.bounding_box_coords['z_max'] - self.bounding_box_coords['z_min']
+                self.bounding_box_coords['y_max']
+                - self.bounding_box_coords['y_min'],
+                self.bounding_box_coords['z_max']
+                - self.bounding_box_coords['z_min']
             ]
         )
 
@@ -334,8 +344,10 @@ class openFoamCase():
             ],
             size=[
                 0,
-                self.bounding_box_coords['y_max'] - self.bounding_box_coords['y_min'],
-                self.bounding_box_coords['z_max'] - self.bounding_box_coords['z_min']
+                self.bounding_box_coords['y_max']
+                - self.bounding_box_coords['y_min'],
+                self.bounding_box_coords['z_max']
+                - self.bounding_box_coords['z_min']
             ]
         )
 
@@ -346,8 +358,10 @@ class openFoamCase():
                 self.bounding_box_coords['z_max']
             ],
             size=[
-                self.bounding_box_coords['x_max'] - self.bounding_box_coords['x_min'],
-                self.bounding_box_coords['y_max'] - self.bounding_box_coords['y_min'],
+                self.bounding_box_coords['x_max']
+                - self.bounding_box_coords['x_min'],
+                self.bounding_box_coords['y_max']
+                - self.bounding_box_coords['y_min'],
                 0
             ]
         )
@@ -359,8 +373,10 @@ class openFoamCase():
                 self.bounding_box_coords['z_min']
             ],
             size=[
-                self.bounding_box_coords['x_max'] - self.bounding_box_coords['x_min'],
-                self.bounding_box_coords['y_max'] - self.bounding_box_coords['y_min'],
+                self.bounding_box_coords['x_max']
+                - self.bounding_box_coords['x_min'],
+                self.bounding_box_coords['y_max']
+                - self.bounding_box_coords['y_min'],
                 0
             ]
         )
@@ -393,8 +409,12 @@ class openFoamCase():
     ):
         data_dict = {
             'inlet_wall': [inlet_wall],
-            'inlet_u_type': [self.u_boundary_types[f'{inlet_wall}_field_type']],
-            'inlet_u_value': [self.u_boundary_types[f'{inlet_wall}_field_value']],
+            'inlet_u_type': [
+                self.u_boundary_types[f'{inlet_wall}_field_type']
+            ],
+            'inlet_u_value': [
+                self.u_boundary_types[f'{inlet_wall}_field_value']
+            ],
             'inlet_area': [self.boundary_walls[f'wall_{inlet_wall}'].area],
             'x_min': [self.bounding_box_coords['x_min']],
             'x_max': [self.bounding_box_coords['x_max']],

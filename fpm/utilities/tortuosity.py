@@ -49,14 +49,24 @@ def plot_tortuosity_on_polar_plot(
     momentum = masses * u_norm
     momentum_direction = np.arccos(
         np.dot(streamwise_direction_vector, vtk_df[['u_x', 'u_y', 'u_z']].T)
-        / (np.linalg.norm(streamwise_direction_vector)* u_norm)
+        / (np.linalg.norm(streamwise_direction_vector) * u_norm)
     )
     angle_bin_edges = np.arange(0, 2 * np.pi, angle_accuracy)
     angle_bin_middle = (angle_bin_edges[:-1] + angle_bin_edges[1:]) / 2
-    angle_momentum = [np.sum(momentum[(momentum_direction >= bin_start) & (momentum_direction < bin_end)])
-                      for bin_start, bin_end in zip(angle_bin_edges[: -1], angle_bin_edges[1:])]
+    angle_momentum = [
+        np.sum(
+            momentum[
+                (momentum_direction >= bin_start)
+                & (momentum_direction < bin_end)
+            ]
+        )
+        for bin_start, bin_end in zip(
+            angle_bin_edges[: -1],
+            angle_bin_edges[1:]
+        )
+    ]
     angle_momentum = np.array(angle_momentum)
-    
+
     # Create a polar plot
     fig, ax = plt.subplots(subplot_kw={'projection': 'polar'})
     ax.scatter(angle_bin_middle, angle_momentum, c='r', s=1)

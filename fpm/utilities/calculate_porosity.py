@@ -177,7 +177,6 @@ def calculate_porosity(
         print("There are no obstacles")
         return 1.0
 
-
     # discretized porous medium
     if saved_state is None:
         discretized_pm = np.ones(
@@ -218,7 +217,7 @@ def calculate_porosity(
             mask = dist_arr <= obstacle.radius
             discretized_pm[mask] = 0
 
-        elif obstacle.type in ["Cube", "RoundedCube", "Cylinder"] :
+        elif obstacle.type in ["Cube", "RoundedCube", "Cylinder"]:
             mesh_model = obstacle.to_stl()
             points = np.array([nx.flatten(), ny.flatten(), nz.flatten()]).T
             points_poly = pv.PolyData(points)

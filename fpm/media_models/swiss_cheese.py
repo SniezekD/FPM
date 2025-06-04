@@ -30,13 +30,13 @@ class SwissCheese(PorousMedium):
         geometry_bounds_type: str
     ) -> None:
         """Crate a swissCheese porous medium object.
-        The obstacles are modelled as spheres with random radii that are 
-        choosen from uniform distribution between given minimum and maximum 
+        The obstacles are modelled as spheres with random radii that are
+        choosen from uniform distribution between given minimum and maximum
         values.
 
         Args:
             porosity (float): Desired porosity of the medium.
-            bounds (list): bounding box coordinates 
+            bounds (list): bounding box coordinates
                     [x_min, x_max, y_min, y_max, z_min, z_max].
             min_radius (float): Minimal obstacle radius.
             max_radius (float): Maximal obstacle radius.

@@ -1,11 +1,11 @@
 import sys
 import pathlib
 import subprocess
-import re
 
 import numpy as np
 import jinja2
 import pandas as pd
+
 
 def run_cmd(args: list, shell: bool = True):
     status = subprocess.run(

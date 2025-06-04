@@ -26,7 +26,7 @@ def read_porous_medium_spec(
     if len(constant_archive) > 1:
         print(
             Warning('More than one constant archive found. '
-            f'Choosing the first one {constant_archive[0]}.')
+                    f'Choosing the first one {constant_archive[0]}.')
         )
     elif len(constant_archive) == 0:
         print(f"No constant archive found in the directory {working_dir}.")
@@ -41,7 +41,7 @@ def read_porous_medium_spec(
     if len(constant_dirs) > 1:
         print(
             Warning('More than one constant directory found. '
-            f'Choosing the first one {constant_dirs[0]}.')
+                    f'Choosing the first one {constant_dirs[0]}.')
         )
         constant_dir = constant_dirs[0]
     elif len(constant_dirs) == 0:
@@ -91,7 +91,9 @@ def read_openfoam_spec(
         of_spec_path = of_spec_paths[0]
 
     elif len(of_spec_paths) == 0:
-        raise FileNotFoundError(f"No {spec_name} files found in the directory {search_dir}.")
+        raise FileNotFoundError(
+            f"No {spec_name} files found in the directory {search_dir}."
+        )
 
     of_spec = pd.read_csv(of_spec_path)
 
