@@ -1,5 +1,4 @@
 import pathlib
-import numpy
 import fpm.openfoam_case as oc
 from fpm.media_models.swiss_cheese import SwissCheese
 

@@ -1,6 +1,5 @@
 import fpm.openfoam_case as oc
 import pathlib
-import numpy
 
 c = oc.openFoamCase(
     working_direcory=pathlib.Path('/home/user/tests'),
