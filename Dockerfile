@@ -29,11 +29,11 @@ RUN apt-get update -y
 RUN apt -y install openfoam12
 RUN echo "alias of12='source /opt/openfoam12/etc/bashrc'" >> $HOME/.bashrc
 
-#install OF2006
-# RUN curl -s https://dl.openfoam.com/add-debian-repo.sh | sudo bash
-# RUN wget -q -O - https://dl.openfoam.com/add-debian-repo.sh | sudo bash
-# RUN apt-get update -y
-# RUN apt-get install openfoam2006-default -y --fix-missing
+#install OF2306
+RUN curl -s https://dl.openfoam.com/add-debian-repo.sh | sudo bash
+RUN wget -q -O - https://dl.openfoam.com/add-debian-repo.sh | sudo bash
+RUN apt-get update -y
+RUN apt-get install openfoam2306-default -y --fix-missing
 
 #install python3.11
 RUN add-apt-repository ppa:deadsnakes/ppa
@@ -52,6 +52,6 @@ RUN pip install poetry
 WORKDIR /home/repos/FPM/
 ADD poetry.lock /home/repos/FPM/poetry.lock
 ADD pyproject.toml /home/repos/FPM/pyproject.toml
-RUN poetry install
+COPY . /home/repos/FPM/
 
 WORKDIR /home/
