@@ -19,21 +19,16 @@ def compute_participation_number(
     Returns:
         float: Participation number.
     """
-    if norm_const_type == 'n_cells':
-        norm_const = len(vtk_df)
-    elif norm_const_type == 'volume':
-        norm_const = np.sum(vtk_df['volume'])**2 / np.sum(vtk_df['volume']**2)
-
     u_norm = vtk_df['u_norm']
     rho = vtk_df['mass_density']
-
     volumes = vtk_df['volume']
+    total_volume = np.sum(volumes)
 
     e_kin_arr = 0.5 * rho * volumes * u_norm**2
     e_kin_tot = np.sum(e_kin_arr)
     q_arr = e_kin_arr / e_kin_tot
 
     q_squared = q_arr**2
-    participation_number = 1 / (norm_const * np.sum(q_squared))
+    participation_number = 1 / (total_volume * np.sum(q_squared * volumes))
 
     return participation_number
