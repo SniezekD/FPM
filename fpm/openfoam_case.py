@@ -285,7 +285,42 @@ class openFoamCase():
 
     def change_velocity_boundary_types(self, new_u_boundary_types):
         self.u_boundary_types = new_u_boundary_types
-        self.create_of_dir()
+        jinja_env = jinja2.Environment(
+            loader=jinja2.FileSystemLoader("fpm/templates/openfoam_files/")
+        )
+        of_dir = self.working_direcory / 'OF_case'
+        zero_dir = of_dir / '0'
+        zero_u_path = zero_dir / 'U'
+        zero_u_template = jinja_env.get_template("U_template.jinja")
+        zero_u_content = zero_u_template.render(
+            left_bc_type=self.u_boundary_types['left_bc_type'],
+            left_field_type=self.u_boundary_types['left_field_type'],
+            left_field_value=self.u_boundary_types['left_field_value'],
+            right_bc_type=self.u_boundary_types['right_bc_type'],
+            right_field_type=self.u_boundary_types['right_field_type'],
+            right_field_value=self.u_boundary_types['right_field_value'],
+            up_bc_type=self.u_boundary_types['up_bc_type'],
+            up_field_type=self.u_boundary_types['up_field_type'],
+            up_field_value=self.u_boundary_types['up_field_value'],
+            down_bc_type=self.u_boundary_types['down_bc_type'],
+            down_field_type=self.u_boundary_types['down_field_type'],
+            down_field_value=self.u_boundary_types['down_field_value'],
+            front_bc_type=self.u_boundary_types['front_bc_type'],
+            front_field_type=self.u_boundary_types['front_field_type'],
+            front_field_value=self.u_boundary_types['front_field_value'],
+            back_bc_type=self.u_boundary_types['back_bc_type'],
+            back_field_type=self.u_boundary_types['back_field_type'],
+            back_field_value=self.u_boundary_types['back_field_value'],
+            obstacles_bc_type=self.u_boundary_types['obstacles_bc_type'],
+            obstacles_field_type=self.u_boundary_types['obstacles_field_type'],
+            obstacles_field_value=self.u_boundary_types[
+                'obstacles_field_value'
+            ],
+        )
+        zero_u_path.parent.mkdir(exist_ok=True, parents=True)
+        with open(zero_u_path, mode="w", encoding="utf-8") as file:
+            file.write(zero_u_content)
+        print(f"  ... changed {zero_u_path}")
 
     def create_boundary_walls(self):
         """Create walls that will be used as geometrical
