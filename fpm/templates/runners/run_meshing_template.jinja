@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source /opt/openfoam12/etc/bashrc
+source /lib/openfoam/openfoam2306/etc/bashrc
 
 cd {{ working_directory }} 
 
@@ -15,7 +15,7 @@ echo "    Running snappyHexMesh..."
 mpirun -np {{ number_of_procs }} snappyHexMesh -overwrite -parallel > snappyHexMesh.log
 
 echo "    Running reconstructPar..."
-reconstructPar > reconstructParMesh.log
+reconstructParMesh -constant > reconstructParMesh.log
 
 echo "        Checking the mesh"
 checkMesh > checkMesh.log
