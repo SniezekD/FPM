@@ -47,11 +47,20 @@ ENV OMPI_ALLOW_RUN_AS_ROOT=1
 ENV OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1
 ENV OMPI_MCA_btl_vader_single_copy_mechanism="none"
 
+RUN useradd -ms /bin/bash defaultuser
+RUN chown -R defaultuser /home/*
+RUN chgrp -R defaultuser /home/*
+RUN echo "defaultuser:pass" | chpasswd
+RUN usermod -aG sudo defaultuser
 # Add poetry environment for python
 RUN pip install poetry
+USER defaultuser
 WORKDIR /home/repos/FPM/
-ADD poetry.lock /home/repos/FPM/poetry.lock
-ADD pyproject.toml /home/repos/FPM/pyproject.toml
-COPY . /home/repos/FPM/
+COPY poetry.lock /home/repos/FPM/poetry.lock
+COPY pyproject.toml /home/repos/FPM/pyproject.toml
+COPY README.md /home/repos/FPM/README.md
+COPY fpm /home/repos/FPM/fpm
+COPY scripts /home/repos/FPM/scripts
+RUN poetry install --no-root
 
 WORKDIR /home/
