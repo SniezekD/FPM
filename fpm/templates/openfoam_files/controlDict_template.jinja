@@ -51,7 +51,30 @@ runTimeModifiable true;
 
 functions
 {
-   
+    strainRateMag
+    {
+        type coded;
+        name strainRateMag;
+        libs ("libutilityFunctionObjects.so");
+        writeInterval 50;
+        writeControl timeStep;
+        executeControl timeStep;
+        executeInterval 50;
+        codeExecute
+        #{
+            const volVectorField U = mesh().lookupObject<volVectorField>("U");
+            const volTensorField gradU = fvc::grad(U);
+            const volSymmTensorField strainRateTensor = symm(gradU);
+            const volScalarField strainRateMag = mag(strainRateTensor);
+            // const volScalarField minStrainRate = min(strainRateMag);
+            // const volScalarField maxStrainRate = max(strainRateMag);
+            Info << "Min strain rate magnitude " << min(strainRateMag) << ", ";
+            Info << "Max strain rate magnitude " << max(strainRateMag) << endl;
+            strainRateMag.write();
+        #};
+    }
+
 }
+
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
