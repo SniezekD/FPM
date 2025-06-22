@@ -1,0 +1,24 @@
+#!/bin/bash
+
+check_return_code () {
+if [ $1 -eq 0 ]; then
+    echo "     Done"
+else
+    echo "     Error with code $1, exiting."
+    exit 1
+fi
+}
+
+source /lib/openfoam/openfoam2306/etc/bashrc
+
+cd {{ working_directory }}
+echo "    Running decomposePar..."
+decomposePar -force > decomposeParSim.log
+check_return_code $?
+
+echo "    Running simpleFoam..."
+mpirun -np {{ number_of_procs }} simpleFoam -parallel > simpleFoam.log
+check_return_code $?
+
+echo "    Running reconstructPar..."
+reconstructPar -latestTime > reconstructParSim.log
