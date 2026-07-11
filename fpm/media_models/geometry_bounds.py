@@ -2,7 +2,7 @@
 from enum import StrEnum
 
 
-class GeometryBoundsType(StrEnum):
+class GeometryPeriodicityType(StrEnum):
     NON_PERIODIC = "non_periodic"
     PERIODIC_X = "periodic_x"
     PERIODIC_Y = "periodic_y"
