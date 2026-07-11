@@ -7,7 +7,7 @@ import pandas as pd
 import fpm.geometry.shapes as shapes
 
 
-class openFoamCase():
+class OpenFoamCase():
     def __init__(
         self,
         working_direcory: pathlib.Path,
