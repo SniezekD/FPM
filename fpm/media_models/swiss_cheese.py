@@ -8,19 +8,10 @@ import fpm.geometry.shapes as shapes
 from fpm.media_models.porous_medium import PorousMedium
 from fpm.utilities.calculate_porosity import calculate_porosity
 
+from fpm.media_models.geometry_bounds import GeometryBoundsType
+
 
 class SwissCheese(PorousMedium):
-    GEOMETRY_BOUNDARY_CONDITIONS = [
-        'periodic_xyz',
-        'periodic_xy',
-        'periodic_xz',
-        'periodic_yz',
-        'periodic_x',
-        'periodic_y',
-        'periodic_z',
-        'non_periodic'
-    ]
-
     def __init__(
         self,
         porosity: float,
@@ -41,9 +32,9 @@ class SwissCheese(PorousMedium):
             min_radius (float): Minimal obstacle radius.
             max_radius (float): Maximal obstacle radius.
         """
-        if geometry_bounds_type not in self.GEOMETRY_BOUNDARY_CONDITIONS:
+        if geometry_bounds_type not in GeometryBoundsType:
             raise ValueError("Possible types of geometry boundary conditions "
-                             f"are: {self.GEOMETRY_BOUNDARY_CONDITIONS}")
+                             f"are: {GeometryBoundsType}")
 
         self.porosity = porosity
         self.bounds = bounds
