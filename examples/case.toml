@@ -1,0 +1,83 @@
+# case.toml — defines one porous-media flow experiment
+[run.sweepParams]
+working_directory = "./runs/valve"  # Specifies the main working directory for the simulation runs. The script will create subdirectories for each porosity and velocity combination within this directory.
+porosities = [0.7, 0.6]             # List of porosity values.
+number_of_geometries = 2            # Number of different geometries to generate per porosity value.
+velocities = [1e-9, 1e-6]           # Velocity values [m/s] to define boundary condition at the inlet. For each geometry, there will be as many simulations as there are velocities.
+
+
+[run.parallelism]
+number_of_procs = 6                 # Number of processors to use for parallel simulation runs. The script will distribute the simulations across the specified number of processors.
+decompose_method = "none"  # Decomposition method to use for parallel simulation runs. See OpenFOAM documentation for details and allowed values. If set to none or not provided, scotch decomposition method is used.
+
+
+[case.controlDict]
+end_time = 501                              # Number of time steps to run the simulation. The simulation will stop after this many time steps.
+time_step = 1                               # Time step size for the simulation. The simulation will advance in increments of this time step size.
+solver_name = "simpleFoam"                  # Name of the OpenFOAM solver to use for the simulation. In this case, "simpleFoam" is specified, which is a steady-state solver for incompressible, turbulent flow.
+write_interval = 50                         # Interval at which simulation results will be written to disk. The simulation will save results every 'write_interval' time steps.
+
+
+[case.physicalProperties.medium]  # Parameters used in the process of creating random porous media geometries. The parameters define the characteristics of the porous medium, such as the size of the obstacles and the spatial extent of the medium.
+min_radius = 0.1                        # Minimum radius of the obstacles [m]
+max_radius = 1.0                        # Maximum radius of the obstacles [m]
+geometry_bounds_type = "non_periodic"   # Type of geometry bounds. Allowed values are 'periodic_xyz', 'periodic_xy', 'periodic_xz', 'periodic_yz', 'periodic_x', 'periodic_y', 'periodic_z', 'non_periodic'. 'periodic_xyz' means the geometry is periodic in all three dimensions, while 'non_periodic' means the geometry is not periodic in any dimension. The choice of geometry bounds type affects how the obstacles are generated and how they interact with the boundaries of the simulation domain.
+
+
+[case.physicalProperties.fluid] 
+fluid_kinematic_viscosity = 1e-6            # Viscosity of the simulated fluid [m^2/s]
+turbulence_model = "none" # Turbulence model to use in the simulation. See OpenFOAM documentation for details and allowed values. If set to none or not provided, laminar model is used.  
+transport_model = "none"  # Transport model to use in the simulation. See OpenFOAM documentation for details and allowed values. If set to none or not provided, Newtonian model is used.  
+
+
+[case.boundaryConditions.u]  # Parameters for velocity boundary conditions. The boundary conditions define how the fluid behaves at the boundaries of the simulation domain. The left boundary is set to a fixed value (inlet), the right boundary is set to zero gradient (outlet), and the upper boundary is set to no-slip (no slip wall).
+left_bc_type = "fixedValue"     # Type of velocity boundary condition at the wall at the x_min boundary (inlet in this setup). 
+right_bc_type = "zeroGradient"  # Type of velocity boundary condition at the wall at the x_max boundary (outlet in this setup).
+up_bc_type = "noSlip"           # Type of velocity boundary condition at the wall at the y_max boundary. 
+down_bc_type = "noSlip"         # Type of velocity boundary condition at the wall at the y_min boundary. 
+front_bc_type = "noSlip"        # Type of velocity boundary condition at the wall at the z_max boundary. 
+back_bc_type = "noSlip"         # Type of velocity boundary condition at the wall at the z_min boundary. 
+obstacles_bc_type = "noSlip"    # Type of velocity boundary condition at the wall at the obstacles boundary.
+
+
+[case.boundaryConditions.p]  # Parameters for pressure boundary conditions. The boundary conditions define how the fluid behaves at the boundaries of the simulation domain. The left boundary (inlet) is set to a zero gradient, the right boundary (outlet) is set to fixed value, and the remaining boundaries are set to zeroGradient (no slip wall). For list of allowed values, see the OpenFOAM documentation.
+left_bc_type = "zeroGradient"       # Type of pressure boundary condition at the wall at the x_min boundary (inlet in this setup).
+right_bc_type = "fixedValue"        # Type of pressure boundary condition at the wall at the x_max boundary (outlet in this setup).
+up_bc_type = "zeroGradient"         # Type of pressure boundary condition at the wall at the y_max boundary.
+down_bc_type = "zeroGradient"       # Type of pressure boundary condition at the wall at the y_min boundary.
+front_bc_type = "zeroGradient"      # Type of pressure boundary condition at the wall at the z_max boundary.
+back_bc_type = "zeroGradient"       # Type of pressure boundary condition at the wall at the z_min boundary.
+obstacles_bc_type = "zeroGradient"  # Type of pressure boundary condition at the obstacles surface.
+
+
+[mesh.snappyHexMesh]  # See OpenFOAM documentation for details on the parameters. The parameters define how the mesh is generated using the snappyHexMesh utility.
+seed_location_in_mesh = [-0.5, 0.5, 0.5]    # Location that defines insides of the mesh [m]. Used in SnappyHexMesh to determine which cells are inside the mesh and which are outside. The coordinates are given in the format [x, y, z].
+max_local_cells = 2000000 
+max_global_cells = 400000
+min_surface_refinement_lvl = 2
+max_surface_refinement_lvl = 3
+
+
+[mesh.blockMesh.boundingBox]  # The porous zone starts at x=0, and the bounding box is defined in the format [x_min, x_max, y_min, y_max, z_min, z_max]. The bounding box defines the spatial extent of the simulation domain. To reduce the influence of boundary conditions, the bounding box is extended beyond the porous zone in the x-direction. The y and z dimensions are set to match the porous zone dimensions to simulate flow through a tunnel with porous material inside it.
+x_min = -20  # Minimum x-coordinate of the bounding box [m]. This is the flow direction.
+x_max = 46   # Maximum x-coordinate of the bounding box [m]. This is the flow direction.
+y_min = 0    # Minimum y-coordinate of the bounding box [m]. This is the cross-flow direction.
+y_max = 16   # Maximum y-coordinate of the bounding box [m]. This is the cross-flow direction.
+z_min = 0    # Minimum z-coordinate of the bounding box [m]. This is the cross-flow direction.
+z_max = 16   # Maximum z-coordinate of the bounding box [m]. This is the cross-flow direction.
+
+
+[mesh.blockMesh.discretization]  # Discretization parameters for blockMesh intial mesh. Defines into how many discrete cells the model will be divided in each direction.
+dx = 264  # 66 * 4 
+dy = 64
+dz = 64
+
+
+[mesh.blockMesh.boundaryTypes]  # Types of boundaty conditions for the blockMesh initial mesh. It is imporatnt to denote inlet and outlet as patches.
+obstacles = "wall"
+front = "wall"
+back = "wall"
+up = "wall"
+down = "wall"
+left = "patch"
+right = "patch"
