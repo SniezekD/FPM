@@ -8,23 +8,14 @@ import fpm.geometry.shapes as shapes
 from fpm.media_models.porous_medium import PorousMedium
 from fpm.utilities.calculate_porosity import calculate_porosity
 
+from fpm.media_models.geometry_bounds import GeometryPeriodicityType
+
 
 class SwissCheese(PorousMedium):
-    GEOMETRY_BOUNDARY_CONDITIONS = [
-        'periodic_xyz',
-        'periodic_xy',
-        'periodic_xz',
-        'periodic_yz',
-        'periodic_x',
-        'periodic_y',
-        'periodic_z',
-        'non_periodic'
-    ]
-
     def __init__(
         self,
         porosity: float,
-        bounds: list,
+        bounds: dict,
         min_radius: float,
         max_radius: float,
         geometry_bounds_type: str
@@ -36,14 +27,14 @@ class SwissCheese(PorousMedium):
 
         Args:
             porosity (float): Desired porosity of the medium.
-            bounds (list): bounding box coordinates
-                    [x_min, x_max, y_min, y_max, z_min, z_max].
+            bounds (dict): bounding box coordinates with keys
+                    {x_min, x_max, y_min, y_max, z_min, z_max}.
             min_radius (float): Minimal obstacle radius.
             max_radius (float): Maximal obstacle radius.
         """
-        if geometry_bounds_type not in self.GEOMETRY_BOUNDARY_CONDITIONS:
+        if geometry_bounds_type not in GeometryPeriodicityType:
             raise ValueError("Possible types of geometry boundary conditions "
-                             f"are: {self.GEOMETRY_BOUNDARY_CONDITIONS}")
+                             f"are: {GeometryPeriodicityType}")
 
         self.porosity = porosity
         self.bounds = bounds
@@ -58,55 +49,55 @@ class SwissCheese(PorousMedium):
         boundaries to the model.
         """
         upper_wall = shapes.Plane(
-            position=[self.bounds[0], self.bounds[3], self.bounds[4]],
+            position=[self.bounds["x_min"], self.bounds["y_max"], self.bounds["z_min"]],
             size=[
-                self.bounds[1] - self.bounds[0],
+                self.bounds["x_max"] - self.bounds["x_min"],
                 0,
-                self.bounds[5] - self.bounds[4]
+                self.bounds["z_max"] - self.bounds["z_min"]
             ]
         )
 
         lower_wall = shapes.Plane(
-            position=[self.bounds[0], self.bounds[2], self.bounds[4]],
+            position=[self.bounds["x_min"], self.bounds["y_min"], self.bounds["z_min"]],
             size=[
-                self.bounds[1] - self.bounds[0],
+                self.bounds["x_max"] - self.bounds["x_min"],
                 0,
-                self.bounds[5] - self.bounds[4]
+                self.bounds["z_max"] - self.bounds["z_min"]
             ]
         )
 
         right_wall = shapes.Plane(
-            position=[self.bounds[1], self.bounds[2], self.bounds[4]],
+            position=[self.bounds["x_max"], self.bounds["y_min"], self.bounds["z_min"]],
             size=[
                 0,
-                self.bounds[3] - self.bounds[2],
-                self.bounds[5] - self.bounds[4]
+                self.bounds["y_max"] - self.bounds["y_min"],
+                self.bounds["z_max"] - self.bounds["z_min"]
             ]
         )
 
         left_wall = shapes.Plane(
-            position=[self.bounds[0], self.bounds[2], self.bounds[4]],
+            position=[self.bounds["x_min"], self.bounds["y_min"], self.bounds["z_min"]],
             size=[
                 0,
-                self.bounds[3] - self.bounds[2],
-                self.bounds[5] - self.bounds[4]
+                self.bounds["y_max"] - self.bounds["y_min"],
+                self.bounds["z_max"] - self.bounds["z_min"]
             ]
         )
 
         front_wall = shapes.Plane(
-            position=[self.bounds[0], self.bounds[2], self.bounds[5]],
+            position=[self.bounds["x_min"], self.bounds["y_min"], self.bounds["z_max"]],
             size=[
-                self.bounds[1] - self.bounds[0],
-                self.bounds[3] - self.bounds[2],
+                self.bounds["x_max"] - self.bounds["x_min"],
+                self.bounds["y_max"] - self.bounds["y_min"],
                 0
             ]
         )
 
         back_wall = shapes.Plane(
-            position=[self.bounds[0], self.bounds[2], self.bounds[4]],
+            position=[self.bounds["x_min"], self.bounds["y_min"], self.bounds["z_min"]],
             size=[
-                self.bounds[1] - self.bounds[0],
-                self.bounds[3] - self.bounds[2],
+                self.bounds["x_max"] - self.bounds["x_min"],
+                self.bounds["y_max"] - self.bounds["y_min"],
                 0
             ]
         )
@@ -136,25 +127,25 @@ class SwissCheese(PorousMedium):
 
         obstacles = []
         bounds_volume = (
-            (self.bounds[1] - self.bounds[0])
-            * (self.bounds[3] - self.bounds[2])
-            * (self.bounds[5] - self.bounds[4])
+            (self.bounds["x_max"] - self.bounds["x_min"])
+            * (self.bounds["y_max"] - self.bounds["y_min"])
+            * (self.bounds["z_max"] - self.bounds["z_min"])
         )
         print(bounds_volume)
         tmp_porosity = 1.0
         saved_state_for_porosity = None
         while tmp_porosity > self.porosity:
             x_pos = np.random.uniform(
-                low=self.bounds[0],
-                high=self.bounds[1]
+                low=self.bounds["x_min"],
+                high=self.bounds["x_max"]
             )
             y_pos = np.random.uniform(
-                low=self.bounds[2],
-                high=self.bounds[3]
+                low=self.bounds["y_min"],
+                high=self.bounds["y_max"]
             )
             z_pos = np.random.uniform(
-                low=self.bounds[4],
-                high=self.bounds[5]
+                low=self.bounds["z_min"],
+                high=self.bounds["z_max"]
             )
             radius = np.random.uniform(
                 low=self.min_radius,
@@ -172,8 +163,8 @@ class SwissCheese(PorousMedium):
             elif self.geometry_bounds_type == 'periodic_x':
                 walls_of_interest = [self.walls['right'], self.walls['left']]
                 translation_vectors = [
-                    [-(self.bounds[1] - self.bounds[0]), 0, 0],
-                    [(self.bounds[1] - self.bounds[0]), 0, 0]
+                    [-(self.bounds["x_max"] - self.bounds["x_min"]), 0, 0],
+                    [(self.bounds["x_max"] - self.bounds["x_min"]), 0, 0]
                 ]
                 n_collision_cells = [
                     tmp_sphere.stl.collision(w)[1] for w in walls_of_interest
@@ -188,8 +179,8 @@ class SwissCheese(PorousMedium):
             elif self.geometry_bounds_type == 'periodic_y':
                 walls_of_interest = [self.walls['upper'], self.walls['lower']]
                 translation_vectors = [
-                    [0, -(self.bounds[3] - self.bounds[2]), 0],
-                    [0, (self.bounds[3] - self.bounds[2]), 0]
+                    [0, -(self.bounds["y_max"] - self.bounds["y_min"]), 0],
+                    [0, (self.bounds["y_max"] - self.bounds["y_min"]), 0]
                 ]
                 n_collision_cells = [
                     tmp_sphere.stl.collision(w)[1] for w in walls_of_interest
@@ -204,8 +195,8 @@ class SwissCheese(PorousMedium):
             elif self.geometry_bounds_type == 'periodic_z':
                 walls_of_interest = [self.walls['front'], self.walls['back']]
                 translation_vectors = [
-                    [0, 0, -(self.bounds[5] - self.bounds[4])],
-                    [0, 0, (self.bounds[5] - self.bounds[4])]
+                    [0, 0, -(self.bounds["z_max"] - self.bounds["z_min"])],
+                    [0, 0, (self.bounds["z_max"] - self.bounds["z_min"])]
                 ]
                 n_collision_cells = [
                     tmp_sphere.stl.collision(w)[1] for w in walls_of_interest
@@ -223,10 +214,10 @@ class SwissCheese(PorousMedium):
                     self.walls['upper'], self.walls['lower']
                 ]
                 translation_vectors = [
-                    [-(self.bounds[1] - self.bounds[0]), 0, 0],
-                    [(self.bounds[1] - self.bounds[0]), 0, 0],
-                    [0, -(self.bounds[3] - self.bounds[2]), 0],
-                    [0, (self.bounds[3] - self.bounds[2]), 0]
+                    [-(self.bounds["x_max"] - self.bounds["x_min"]), 0, 0],
+                    [(self.bounds["x_max"] - self.bounds["x_min"]), 0, 0],
+                    [0, -(self.bounds["y_max"] - self.bounds["y_min"]), 0],
+                    [0, (self.bounds["y_max"] - self.bounds["y_min"]), 0]
                 ]
                 n_collision_cells = [
                     tmp_sphere.stl.collision(w)[1] for w in walls_of_interest
@@ -256,10 +247,10 @@ class SwissCheese(PorousMedium):
                     self.walls['front'], self.walls['back']
                 ]
                 translation_vectors = [
-                    [-(self.bounds[1] - self.bounds[0]), 0, 0],
-                    [(self.bounds[1] - self.bounds[0]), 0, 0],
-                    [0, 0, -(self.bounds[5] - self.bounds[4])],
-                    [0, 0, (self.bounds[5] - self.bounds[4])]
+                    [-(self.bounds["x_max"] - self.bounds["x_min"]), 0, 0],
+                    [(self.bounds["x_max"] - self.bounds["x_min"]), 0, 0],
+                    [0, 0, -(self.bounds["z_max"] - self.bounds["z_min"])],
+                    [0, 0, (self.bounds["z_max"] - self.bounds["z_min"])]
                 ]
                 n_collision_cells = [
                     tmp_sphere.stl.collision(w)[1] for w in walls_of_interest
@@ -289,10 +280,10 @@ class SwissCheese(PorousMedium):
                     self.walls['front'], self.walls['back']
                 ]
                 translation_vectors = [
-                    [0, -(self.bounds[3] - self.bounds[2]), 0],
-                    [0, (self.bounds[3] - self.bounds[2]), 0],
-                    [0, 0, -(self.bounds[5] - self.bounds[4])],
-                    [0, 0, (self.bounds[5] - self.bounds[4])]
+                    [0, -(self.bounds["y_max"] - self.bounds["y_min"]), 0],
+                    [0, (self.bounds["y_max"] - self.bounds["y_min"]), 0],
+                    [0, 0, -(self.bounds["z_max"] - self.bounds["z_min"])],
+                    [0, 0, (self.bounds["z_max"] - self.bounds["z_min"])]
                 ]
                 n_collision_cells = [
                     tmp_sphere.stl.collision(w)[1] for w in walls_of_interest
@@ -323,12 +314,12 @@ class SwissCheese(PorousMedium):
                     self.walls['front'], self.walls['back']
                 ]
                 translation_vectors = [
-                    [-(self.bounds[1] - self.bounds[0]), 0, 0],
-                    [(self.bounds[1] - self.bounds[0]), 0, 0],
-                    [0, -(self.bounds[3] - self.bounds[2]), 0],
-                    [0, (self.bounds[3] - self.bounds[2]), 0],
-                    [0, 0, -(self.bounds[5] - self.bounds[4])],
-                    [0, 0, (self.bounds[5] - self.bounds[4])]
+                    [-(self.bounds["x_max"] - self.bounds["x_min"]), 0, 0],
+                    [(self.bounds["x_max"] - self.bounds["x_min"]), 0, 0],
+                    [0, -(self.bounds["y_max"] - self.bounds["y_min"]), 0],
+                    [0, (self.bounds["y_max"] - self.bounds["y_min"]), 0],
+                    [0, 0, -(self.bounds["z_max"] - self.bounds["z_min"])],
+                    [0, 0, (self.bounds["z_max"] - self.bounds["z_min"])]
                 ]
                 n_collision_cells = [
                     tmp_sphere.stl.collision(w)[1] for w in walls_of_interest
@@ -395,12 +386,12 @@ class SwissCheese(PorousMedium):
     ) -> None:
         data_dict = {
             'porosity': [self.porosity],
-            'x_min': [self.bounds[0]],
-            'x_max': [self.bounds[1]],
-            'y_min': [self.bounds[2]],
-            'y_max': [self.bounds[3]],
-            'z_min': [self.bounds[4]],
-            'z_max': [self.bounds[5]],
+            'x_min': [self.bounds["x_min"]],
+            'x_max': [self.bounds["x_max"]],
+            'y_min': [self.bounds["y_min"]],
+            'y_max': [self.bounds["y_max"]],
+            'z_min': [self.bounds["z_min"]],
+            'z_max': [self.bounds["z_max"]],
             'min_radius': [self.min_radius],
             'max_radius': [self.max_radius],
             'geometry_bounds_type': [self.geometry_bounds_type]

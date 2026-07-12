@@ -6,7 +6,7 @@ authors = ["Damian Śnieżek"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = "^3.12"
 numpy = "^2.0.0"
 matplotlib = "^3.9.1"
 pandas = "^2.2.2"
@@ -15,6 +15,9 @@ scipy = "^1.14.0"
 ipython = "^8.26.0"
 h5py = "^3.11.0"
 jinja2 = "^3.1.4"
+
+[tool.poetry.group.dev.dependencies]
+flake8 = "^7.3.0"
 
 [build-system]
 requires = ["poetry-core"]
