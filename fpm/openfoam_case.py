@@ -1,10 +1,12 @@
 import pathlib
+from typing import Self
 
 import jinja2
 import numpy as np
 import pandas as pd
 
 import fpm.geometry.shapes as shapes
+from fpm.io.config_reader import ConfigReader
 
 
 class OpenFoamCase():
@@ -27,9 +29,9 @@ class OpenFoamCase():
         p_boundary_types: dict,
         bounding_box_coords: dict,
         bounding_box_discretization: dict,
-        turbulence_model: str = None,
-        decompose_method: str = None,
-        transport_model: str = None,
+        turbulence_model: str | None = None,
+        decompose_method: str | None = None,
+        transport_model: str | None = None,
     ) -> None:
         self.working_direcory = working_direcory
         self.end_time = end_time
@@ -52,6 +54,11 @@ class OpenFoamCase():
         self.decompose_method = decompose_method
         self.transport_model = transport_model
         self.boundary_walls = self.create_boundary_walls()
+
+    @classmethod
+    def from_config(cls, config_path: pathlib.Path) -> Self:
+        cfg_reader = ConfigReader(config_path)
+        return cls(**cfg_reader.unpack_foam_case_config())
 
     def create_of_dir(self):
         of_dir = self.working_direcory / 'OF_case'

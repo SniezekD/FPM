@@ -23,6 +23,13 @@ min_radius = 0.1                        # Minimum radius of the obstacles [m]
 max_radius = 1.0                        # Maximum radius of the obstacles [m]
 geometry_bounds_type = "non_periodic"   # Type of geometry bounds. Allowed values are 'periodic_xyz', 'periodic_xy', 'periodic_xz', 'periodic_yz', 'periodic_x', 'periodic_y', 'periodic_z', 'non_periodic'. 'periodic_xyz' means the geometry is periodic in all three dimensions, while 'non_periodic' means the geometry is not periodic in any dimension. The choice of geometry bounds type affects how the obstacles are generated and how they interact with the boundaries of the simulation domain.
 
+[case.physicalProperties.medium.boundingBox]  # The porous zone bounding box is defined in the format [x_min, x_max, y_min, y_max, z_min, z_max].
+x_min = 0  # Minimum x-coordinate of the bounding box [m]. This is the flow direction in this experiment.
+x_max = 16   # Maximum x-coordinate of the bounding box [m]. This is the flow direction in this experiment.
+y_min = 0    # Minimum y-coordinate of the bounding box [m]. This is the cross-flow direction in this experiment.
+y_max = 16   # Maximum y-coordinate of the bounding box [m]. This is the cross-flow direction in this experiment.
+z_min = 0    # Minimum z-coordinate of the bounding box [m]. This is the cross-flow direction in this experiment.
+z_max = 16   # Maximum z-coordinate of the bounding box [m]. This is the cross-flow direction in this experiment.
 
 [case.physicalProperties.fluid] 
 fluid_kinematic_viscosity = 1e-6            # Viscosity of the simulated fluid [m^2/s]
@@ -58,7 +65,7 @@ min_surface_refinement_lvl = 2
 max_surface_refinement_lvl = 3
 
 
-[mesh.blockMesh.boundingBox]  # The porous zone starts at x=0, and the bounding box is defined in the format [x_min, x_max, y_min, y_max, z_min, z_max]. The bounding box defines the spatial extent of the simulation domain. To reduce the influence of boundary conditions, the bounding box is extended beyond the porous zone in the x-direction. The y and z dimensions are set to match the porous zone dimensions to simulate flow through a tunnel with porous material inside it.
+[mesh.blockMesh.boundingBox]  # The porous zone bounds are defined above in [case.physicalProperties.medium.boundingBox], and the bounding box is defined in the format [x_min, x_max, y_min, y_max, z_min, z_max]. The bounding box defines the spatial extent of the simulation domain. To reduce the influence of boundary conditions, the bounding box is extended beyond the porous zone in the x-direction. The y and z dimensions are set to match the porous zone dimensions to simulate flow through a tunnel with porous material inside it.
 x_min = -20  # Minimum x-coordinate of the bounding box [m]. This is the flow direction.
 x_max = 46   # Maximum x-coordinate of the bounding box [m]. This is the flow direction.
 y_min = 0    # Minimum y-coordinate of the bounding box [m]. This is the cross-flow direction.
