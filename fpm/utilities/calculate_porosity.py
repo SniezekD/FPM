@@ -169,7 +169,10 @@ def calculate_porosity(
             Defaults to (100, 100, 100).
 
     Returns:
-        Tuple[float, np.ndarray]: [Porosity of the porous medium, discretized porous medium]
+        Tuple[float, np.ndarray]: (
+            Porosity of the porous medium,
+            discretized porous medium
+        )
     """
 
     if obstacles is None:

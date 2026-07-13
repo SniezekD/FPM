@@ -11,7 +11,7 @@ def compute_participation_number(
         - mass_density: Mass density.
         - volume: Volume of the cell
 
-        see https://arxiv.org/abs/2504.11287 for details 
+        see https://arxiv.org/abs/2504.11287 for details
 
     Args:
         vtk_df (pd.DataFrame): DataFrame containing the VTK data.

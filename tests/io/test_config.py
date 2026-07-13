@@ -20,7 +20,7 @@ def test_valid_config_parses(valid_config):
     assert cfg.control.time_step == 1
     assert cfg.control.write_interval == 50
     assert cfg.control.solver_name == "simpleFoam"
-    
+
     assert cfg.medium.min_radius == 0.1
     assert cfg.medium.max_radius == 1.0
     assert cfg.medium.geometry_bounds_type == "non_periodic"
@@ -57,7 +57,7 @@ def test_valid_config_parses(valid_config):
     assert cfg.snappy.max_global_cells == 400000
     assert cfg.snappy.min_surface_refinement_lvl == 2
     assert cfg.snappy.max_surface_refinement_lvl == 3
-    
+
     assert cfg.block_mesh.bounding_box.x_min == -20
     assert cfg.block_mesh.bounding_box.x_max == 46
     assert cfg.block_mesh.bounding_box.y_min == 0
@@ -82,7 +82,9 @@ def test_valid_config_parses(valid_config):
     "find, replace, expected_message",
     [
         ("porosities = [0.7, 0.6]",     "porosities = [5.0]",          "open interval"),
-        ('left_bc_type = "fixedValue"', 'left_bc_type = "fixedvalue"', "unknown boundary type"),
+        ('left_bc_type = "fixedValue"',
+         'left_bc_type = "fixedvalue"',
+         "unknown boundary type"),
         ("end_time = 501",              "",                            "wrong keys"),
         ("x_min = -20",                 "x_min = 999",                 "must be <"),
     ],
@@ -147,8 +149,8 @@ def test_unpack_maps_scalar_fields(valid_config):
         "left_field_type": None,
         "left_field_value": None,
         "right_bc_type": "fixedValue",
-        "right_field_type":"value",
-        "right_field_value":"uniform 0",
+        "right_field_type": "value",
+        "right_field_value": "uniform 0",
         "up_bc_type": "zeroGradient",
         "up_field_type": None,
         "up_field_value": None,
@@ -178,9 +180,9 @@ def test_unpack_maps_scalar_fields(valid_config):
         "dy": 64,
         "dz": 64
     }
-    assert kwargs["turbulence_model"] == None
+    assert kwargs["turbulence_model"] is None
     assert kwargs["decompose_method"] == "scotch"
-    assert kwargs["transport_model"] == None
+    assert kwargs["transport_model"] is None
 
 
 def test_velocity_inlet_is_expanded(valid_config):
@@ -195,7 +197,6 @@ def test_velocity_wall_has_no_field_type_and_value(valid_config):
     assert u["up_bc_type"] == "noSlip"
     assert u["up_field_type"] is None
     assert u["up_field_value"] is None
-
 
 
 def test_pressure_outlet_is_expanded(valid_config):
@@ -232,7 +233,14 @@ def test_pressure_wall_has_no_field_type_and_value(valid_config):
         ("p_boundary_types", "obstacles",  "zeroGradient", None,    None),
     ],
 )
-def test_boundary_expansion(valid_config, field, face, bc_type, field_type, field_value):
+def test_boundary_expansion(
+    valid_config,
+    field,
+    face,
+    bc_type,
+    field_type,
+    field_value
+):
     d = ConfigReader(valid_config).unpack_foam_case_config()[field]
     assert d[f"{face}_bc_type"] == bc_type
     assert d[f"{face}_field_type"] == field_type

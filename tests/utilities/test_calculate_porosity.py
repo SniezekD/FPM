@@ -40,8 +40,10 @@ def test_index_zero_maps_to_box_origin():
 
 
 @pytest.mark.parametrize("bounds", [
-    {"x_min": 0, "x_max": 10, "y_min": 0, "y_max": 10, "z_min": 0, "z_max": 10},  # zero origin
-    {"x_min": -20, "x_max": 46, "y_min": 0, "y_max": 16, "z_min": 0, "z_max": 16},  # nonzero origin
+    # zero origin
+    {"x_min": 0, "x_max": 10, "y_min": 0, "y_max": 10, "z_min": 0, "z_max": 10},
+    # nonzero origin
+    {"x_min": -20, "x_max": 46, "y_min": 0, "y_max": 16, "z_min": 0, "z_max": 16},
 ])
 def test_index_coordinate_roundtrip(bounds):
     discretization = (
@@ -68,6 +70,7 @@ def test_index_difference_to_distance_known_value():
 
 UNIT_BOX = {"x_min": 0, "x_max": 1, "y_min": 0, "y_max": 1, "z_min": 0, "z_max": 1}
 
+
 def unit_medium():
     return SwissCheese(porosity=0.9, bounds=UNIT_BOX, min_radius=0.1,
                        max_radius=0.1, geometry_bounds_type="non_periodic")
@@ -77,6 +80,7 @@ def test_porosity_of_empty_medium_is_one():
     pm = unit_medium()  # constructor leaves obstacles = None
     porosity, _ = calculate_porosity(pm)
     assert porosity == 1.0
+
 
 @pytest.mark.parametrize("radius", [
     0.01,
@@ -89,7 +93,11 @@ def test_porosity_of_single_sphere_matches_analytic(radius):
     pm = unit_medium()
     sphere = shapes.Sphere(position=[0.5, 0.5, 0.5], radius=radius)
     expected = 1 - (4 / 3) * np.pi * radius ** 3       # void fraction in a unit box
-    porosity, _ = calculate_porosity(pm, obstacles=[sphere], discretization=(200, 200, 200))
+    porosity, _ = calculate_porosity(
+        pm,
+        obstacles=[sphere],
+        discretization=(200, 200, 200)
+    )
     assert porosity == pytest.approx(expected, abs=0.01)
 
 
@@ -107,5 +115,9 @@ def test_finer_discretization_increases_accuracy(discretization, accuracy):
     radius = 0.5
     sphere = shapes.Sphere(position=[0.5, 0.5, 0.5], radius=radius)
     expected = 1 - (4 / 3) * np.pi * radius ** 3       # void fraction in a unit box
-    porosity, _ = calculate_porosity(pm, obstacles=[sphere], discretization=discretization)
+    porosity, _ = calculate_porosity(
+        pm,
+        obstacles=[sphere],
+        discretization=discretization
+    )
     assert porosity == pytest.approx(expected, abs=accuracy)

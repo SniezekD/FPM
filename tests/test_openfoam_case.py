@@ -10,8 +10,8 @@ def foam_case(valid_config, tmp_path):
     kwargs["working_direcory"] = tmp_path
     return OpenFoamCase(**kwargs)
 
-@pytest.mark.parametrize("subdir, filename",
-    [
+
+@pytest.mark.parametrize("subdir, filename", [
         ("0", "U"),
         ("0", "p"),
         ("system", "blockMeshDict"),
@@ -21,7 +21,6 @@ def foam_case(valid_config, tmp_path):
         ("system", "fvSchemes"),
         ("system", "fvSolution"),
         ("system", "decomposeParDict"),
-        # ("constant", "transportProperties"),
         ("constant", "turbulenceProperties"),
         ("constant", "physicalProperties"),
     ]
