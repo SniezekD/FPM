@@ -1,5 +1,8 @@
+from typing import Tuple
+
 import numpy as np
 import pyvista as pv
+
 from fpm.media_models.porous_medium import PorousMedium
 
 
@@ -148,9 +151,14 @@ def calculate_porosity(
     obstacles: list = None,
     discretization: tuple = (100, 100, 100),
     saved_state: np.ndarray = None
-) -> float:
+) -> Tuple[float, np.ndarray]:
     """Calculate porosity of given porpus medium.
-    The larger the discretization, the better the precision
+    The larger the discretization, the better the precision.
+
+    Discretized porous medium is a np.ndarray with shape = discreatization.
+    There are two possible states: 1 and 0.
+    1 -> free space
+    0 -> space occupied by an obstacle
 
     Args:
         porous_medium (porousMedium): Porous medium
@@ -161,7 +169,7 @@ def calculate_porosity(
             Defaults to (100, 100, 100).
 
     Returns:
-        float: Porosity of the porous medium
+        Tuple[float, np.ndarray]: [Porosity of the porous medium, discretized porous medium]
     """
 
     if obstacles is None:
@@ -175,7 +183,7 @@ def calculate_porosity(
 
     if obstacles_list is None:
         print("There are no obstacles")
-        return 1.0
+        return 1.0, np.ones((discretization[0], discretization[1], discretization[2]))
 
     # discretized porous medium
     if saved_state is None:
