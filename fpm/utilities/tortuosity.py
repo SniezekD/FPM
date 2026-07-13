@@ -11,7 +11,7 @@ def compute_tortuosity(
     Necessary columns in the VTK DataFrame are:
     - u_norm: Norm of the velocity vector.
     - u_{streamwise_direction}: Streamwise velocity component.
-    - rho: Mass density.
+    - mass_density: Mass density.
     - volume: Volume of the cell
 
     Args:
@@ -24,12 +24,12 @@ def compute_tortuosity(
     """
     u_norm = vtk_df['u_norm']
     u_streamwise = vtk_df[f'u_{streamwise_direction}']
-    rho = vtk_df['mass_density']
+    mass_density = vtk_df['mass_density']
 
     volumes = vtk_df['volume']
 
-    total_momentum_arr = rho * volumes * u_norm
-    streamwise_momentum_arr = rho * volumes * u_streamwise
+    total_momentum_arr = mass_density * volumes * u_norm
+    streamwise_momentum_arr = mass_density * volumes * u_streamwise
 
     tortuosity = np.sum(total_momentum_arr) / np.sum(streamwise_momentum_arr)
 
@@ -42,9 +42,9 @@ def plot_tortuosity_on_polar_plot(
         plot_save_path: str = None,
         angle_accuracy: float = 0.001,
 ):
-    rho = vtk_df['mass_density']
+    mass_density = vtk_df['mass_density']
     volumes = vtk_df['volume']
-    masses = rho * volumes
+    masses = mass_density * volumes
     u_norm = vtk_df['u_norm']
     momentum = masses * u_norm
     momentum_direction = np.arccos(

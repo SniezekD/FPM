@@ -1,0 +1,90 @@
+# case.toml — defines one porous-media flow experiment
+[run.sweepParams]
+working_directory = "runs/test"
+porosities = [0.7, 0.6]
+number_of_geometries = 2
+velocities = [1e-9, 1e-6]
+
+
+[run.parallelism]
+number_of_procs = 6
+decompose_method = "scotch"
+
+
+[case.controlDict]
+end_time = 501
+time_step = 1
+solver_name = "simpleFoam"
+write_interval = 50
+
+
+[case.physicalProperties.medium]
+min_radius = 0.1
+max_radius = 1.0
+geometry_bounds_type = "non_periodic"
+
+[case.physicalProperties.medium.boundingBox]
+x_min = 0
+x_max = 16
+y_min = 0
+y_max = 16
+z_min = 0
+z_max = 16
+
+[case.physicalProperties.fluid] 
+fluid_kinematic_viscosity = 1e-6
+turbulence_model = "none"
+transport_model = "none"
+
+
+[case.boundaryConditions.u]
+left_bc_type = "fixedValue"
+right_bc_type = "zeroGradient"
+up_bc_type = "noSlip"
+down_bc_type = "noSlip"
+front_bc_type = "noSlip"
+back_bc_type = "noSlip"
+obstacles_bc_type = "noSlip"
+
+
+[case.boundaryConditions.p]
+left_bc_type = "zeroGradient"
+right_bc_type = "fixedValue"
+up_bc_type = "zeroGradient"
+down_bc_type = "zeroGradient"
+front_bc_type = "zeroGradient"
+back_bc_type = "zeroGradient"
+obstacles_bc_type = "zeroGradient"
+
+
+[mesh.snappyHexMesh]
+seed_location_in_mesh = [-0.5, 0.5, 0.5]
+max_local_cells = 2000000 
+max_global_cells = 400000
+min_surface_refinement_lvl = 2
+max_surface_refinement_lvl = 3
+
+
+[mesh.blockMesh.boundingBox]
+x_min = -20
+x_max = 46
+y_min = 0
+y_max = 16
+z_min = 0
+z_max = 16
+
+
+[mesh.blockMesh.discretization]
+dx = 264
+dy = 64
+dz = 64
+
+
+[mesh.blockMesh.boundaryTypes]
+obstacles = "wall"
+front = "wall"
+back = "wall"
+up = "wall"
+down = "wall"
+left = "patch"
+right = "patch"
