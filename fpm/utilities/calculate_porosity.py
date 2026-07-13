@@ -11,7 +11,7 @@ def map_distance_to_index_difference(
     dy: float,
     dz: float,
     discretization: tuple,
-    bounds: tuple
+    bounds: dict
 ):
     """Maps cartesian distance to diference in indices of discretized matrix
     representing the porous medium.
@@ -22,15 +22,15 @@ def map_distance_to_index_difference(
         z (float): z Cartesian distance
         discretization (tuple): Tuple containing discretization parameters for
         x, y and z coordinates.
-        bounds (tuple): bounding box of the porous medium in the following
-            format: (x_min, x_max, y_min, y_max, z_min, z_max)
+        bounds (dict): bounding box of the porous medium in the following
+            format: {x_min, x_max, y_min, y_max, z_min, z_max}
 
     Returns:
         tuple: number of indexes in each direction of discretized porous medium
     """
-    d_x = (bounds[1] - bounds[0]) / discretization[0]
-    d_y = (bounds[3] - bounds[2]) / discretization[1]
-    d_z = (bounds[5] - bounds[4]) / discretization[2]
+    d_x = (bounds["x_max"] - bounds["x_min"]) / discretization[0]
+    d_y = (bounds["y_max"] - bounds["y_min"]) / discretization[1]
+    d_z = (bounds["z_max"] - bounds["z_min"]) / discretization[2]
 
     index_diff_x = np.floor(dx / d_x)
     index_diff_y = np.floor(dy / d_y)
@@ -50,7 +50,7 @@ def map_index_difference_to_distance(
     d_j: int,
     d_k: int,
     discretization: tuple,
-    bounds: tuple
+    bounds: dict
 ) -> float:
     """Maps cartesian distance to diference in indices of discretized matrix
     representing the porous medium.
@@ -61,15 +61,15 @@ def map_index_difference_to_distance(
         d_k (int): index difference in 2nd axis
         discretization (tuple): Tuple containing discretization parameters for
         x, y and z coordinates.
-        bounds (tuple): bounding box of the porous medium in the following
-            format: (x_min, x_max, y_min, y_max, z_min, z_max)
+        bounds (dict): bounding box of the porous medium in the following
+            format: {x_min, x_max, y_min, y_max, z_min, z_max}
 
     Returns:
         float: Cartesian distance
     """
-    d_x = (bounds[1] - bounds[0]) / discretization[0]
-    d_y = (bounds[3] - bounds[2]) / discretization[1]
-    d_z = (bounds[5] - bounds[4]) / discretization[2]
+    d_x = (bounds["x_max"] - bounds["x_min"]) / discretization[0]
+    d_y = (bounds["y_max"] - bounds["y_min"]) / discretization[1]
+    d_z = (bounds["z_max"] - bounds["z_min"]) / discretization[2]
 
     dx = d_i * d_x
     dy = d_j * d_y
@@ -85,7 +85,7 @@ def map_coordinate_to_index(
     y: float,
     z: float,
     discretization: tuple,
-    bounds: tuple
+    bounds: dict
 ):
     """Maps cartesian coordinates to indices of discretized matrix
     representing the porous medium.
@@ -96,19 +96,19 @@ def map_coordinate_to_index(
         z (float): z Cartesian coordinate
         discretization (tuple): Tuple containing discretization parameters for
         x, y and z coordinates.
-        bounds (tuple): bounding box of the porous medium in the following
-            format: (x_min, x_max, y_min, y_max, z_min, z_max)
+        bounds (dict): bounding box of the porous medium in the following
+            format: {x_min, x_max, y_min, y_max, z_min, z_max}
 
     Returns:
         tuple: indexes in discretized porous medium
     """
-    d_x = (bounds[1] - bounds[0]) / discretization[0]
-    d_y = (bounds[3] - bounds[2]) / discretization[1]
-    d_z = (bounds[5] - bounds[4]) / discretization[2]
+    d_x = (bounds["x_max"] - bounds["x_min"]) / discretization[0]
+    d_y = (bounds["y_max"] - bounds["y_min"]) / discretization[1]
+    d_z = (bounds["z_max"] - bounds["z_min"]) / discretization[2]
 
-    index_x = np.floor((x - bounds[0]) / d_x)
-    index_y = np.floor((y - bounds[2]) / d_y)
-    index_z = np.floor((z - bounds[4]) / d_z)
+    index_x = np.floor((x - bounds["x_min"]) / d_x)
+    index_y = np.floor((y - bounds["y_min"]) / d_y)
+    index_z = np.floor((z - bounds["z_min"]) / d_z)
 
     return index_x, index_y, index_z
 
@@ -118,7 +118,7 @@ def map_index_to_coordinate(
     j: int,
     k: int,
     discretization: tuple,
-    bounds: tuple
+    bounds: dict
 ):
     """Maps indices of discretized matrix
     representing the porous medium to cartesian coordinates.
@@ -129,19 +129,19 @@ def map_index_to_coordinate(
         k (int): index in 2nd axis
         discretization (tuple): Tuple containing discretization parameters for
         x, y and z coordinates.
-        bounds (tuple): bounding box of the porous medium in the following
-            format: (x_min, x_max, y_min, y_max, z_min, z_max)
+        bounds (dict): bounding box of the porous medium in the following
+            format: {x_min, x_max, y_min, y_max, z_min, z_max}
 
     Returns:
         tuple: Cartesian coordinates in (x, y, z) format.
     """
-    d_x = (bounds[1] - bounds[0]) / discretization[0]
-    d_y = (bounds[3] - bounds[2]) / discretization[1]
-    d_z = (bounds[5] - bounds[4]) / discretization[2]
+    d_x = (bounds["x_max"] - bounds["x_min"]) / discretization[0]
+    d_y = (bounds["y_max"] - bounds["y_min"]) / discretization[1]
+    d_z = (bounds["z_max"] - bounds["z_min"]) / discretization[2]
 
-    x = bounds[0] + i * d_x
-    y = bounds[2] + j * d_y
-    z = bounds[4] + k * d_z
+    x = bounds["x_min"] + i * d_x
+    y = bounds["y_min"] + j * d_y
+    z = bounds["z_min"] + k * d_z
 
     return x, y, z
 
@@ -194,18 +194,18 @@ def calculate_porosity(
         discretized_pm = saved_state
 
     nx = np.linspace(
-        porous_medium.bounds[0],
-        porous_medium.bounds[1],
+        porous_medium.bounds["x_min"],
+        porous_medium.bounds["x_max"],
         discretization[0]
     )
     ny = np.linspace(
-        porous_medium.bounds[2],
-        porous_medium.bounds[3],
+        porous_medium.bounds["y_min"],
+        porous_medium.bounds["y_max"],
         discretization[1]
     )
     nz = np.linspace(
-        porous_medium.bounds[4],
-        porous_medium.bounds[5],
+        porous_medium.bounds["z_min"],
+        porous_medium.bounds["z_max"],
         discretization[2]
     )
 
