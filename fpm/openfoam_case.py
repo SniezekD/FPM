@@ -234,7 +234,7 @@ class OpenFoamCase():
         turbulence_properties_content = turbulence_properties_template.render(
             turbulence_model=self.turbulence_model
         )
-        all_templates['transportproperties'] = {
+        all_templates['turbulenceProperties'] = {
             'path': turbulence_properties_path,
             'content': turbulence_properties_content
         }

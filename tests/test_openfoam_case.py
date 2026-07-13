@@ -22,6 +22,7 @@ def foam_case(valid_config, tmp_path):
         ("system", "fvSolution"),
         ("system", "decomposeParDict"),
         ("constant", "turbulenceProperties"),
+        ("constant", "transportProperties"),
         ("constant", "physicalProperties"),
     ]
 )
