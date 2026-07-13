@@ -1,4 +1,4 @@
-# FPM
+# FPM - Flow through Porous Media
 
 A toolchain for automating OpenFOAM simulations of fluid flow through
 randomly generated porous media
