@@ -89,9 +89,9 @@ def compute_case(
 
 def prepare_runner_files(work_dir: pathlib.Path, n_proc: int):
     simple_foam_runner_path = utils.create_runner_file(
-        runner_name='run_foamRun.sh',
+        runner_name='run_simpleFoam.sh',
         runner_path=work_dir / 'OF_case',
-        template_name="run_foamRun_template.jinja",
+        template_name="run_simpleFoam_template.jinja",
         templates_dir_path="fpm/templates/runners/",
         var_dict={
             'number_of_procs': '6',
@@ -135,6 +135,7 @@ def main():
     config = ConfigReader(config_path)
 
     work_dir = config.case_cfg.run.working_directory
+    work_dir.mkdir(parents=True, exist_ok=True)
     porosity_list = config.case_cfg.run.porosities
     velocity_list = config.case_cfg.run.velocities
     geometries_per_porosity = config.case_cfg.run.number_of_geometries
