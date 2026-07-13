@@ -136,9 +136,9 @@ def map_index_to_coordinate(
     d_y = (bounds[3] - bounds[2]) / discretization[1]
     d_z = (bounds[5] - bounds[4]) / discretization[2]
 
-    x = i * d_x
-    y = j * d_y
-    z = k * d_z
+    x = bounds[0] + i * d_x
+    y = bounds[2] + j * d_y
+    z = bounds[4] + k * d_z
 
     return x, y, z
 

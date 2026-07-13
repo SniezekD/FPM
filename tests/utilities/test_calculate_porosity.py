@@ -19,7 +19,7 @@ def test_index_zero_maps_to_box_origin():
 
 
 @pytest.mark.parametrize("bounds", [
-    # (0, 10, 0, 10, 0, 10),        # zero origin
+    (0, 10, 0, 10, 0, 10),        # zero origin
     (-20, 46, 0, 16, 0, 16),      # nonzero origin
 ])
 def test_index_coordinate_roundtrip(bounds):
