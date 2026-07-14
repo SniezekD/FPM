@@ -232,23 +232,11 @@ class OpenFoamCase():
             "turbulenceProperties_template.jinja"
         )
         turbulence_properties_content = turbulence_properties_template.render(
-            turbulence_model=self.turbulence_model
+            turbulence_model=self.turbulence_model,
         )
         all_templates['turbulenceProperties'] = {
             'path': turbulence_properties_path,
             'content': turbulence_properties_content
-        }
-
-        physical_properties_path = constant_dir / 'physicalProperties'
-        physical_properties_template = jinja_env.get_template(
-            "physicalProperties_template.jinja"
-        )
-        physical_properties_content = physical_properties_template.render(
-            kin_viscosity=self.fluid_kinematic_viscosity
-        )
-        all_templates['physicalproperties'] = {
-            'path': physical_properties_path,
-            'content': physical_properties_content
         }
 
         fv_schemes_path = system_dir / 'fvSchemes'

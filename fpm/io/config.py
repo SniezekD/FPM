@@ -224,6 +224,7 @@ class Medium:
 @dataclass(frozen=True)
 class Run:
     working_directory: pathlib.Path
+    results_directory: pathlib.Path
     porosities: tuple[float, ...]
     velocities: tuple[float, ...]
     number_of_geometries: int
@@ -270,6 +271,9 @@ class CaseConfig:
         run = Run(
             working_directory=pathlib.Path(
                 req("run.sweepParams.working_directory", str)
+            ),
+            results_directory=pathlib.Path(
+                req("run.sweepParams.results_directory", str)
             ),
             porosities=tuple(req("run.sweepParams.porosities", list)),
             velocities=tuple(req("run.sweepParams.velocities", list)),

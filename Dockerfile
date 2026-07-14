@@ -1,66 +1,55 @@
-FROM ubuntu:22.04
-
-USER root
+FROM ubuntu:24.04
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-RUN apt-get update -y
-RUN apt install software-properties-common -y
-RUN apt install unzip -y
-RUN apt install zip -y
-RUN apt-get install mercurial -y
-RUN apt-get install bison -y
-RUN apt-get update -y
-RUN apt-get install flex -y
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        ca-certificates \
+        curl \
+        wget \
+        gnupg \
+        software-properties-common \
+        sudo \
+        gnuplot \
+        dos2unix \
+        openmpi-bin \
+        python3 \
+        python3-venv \
+        python3-pip \
+        pipx \
+    && rm -rf /var/lib/apt/lists/*
 
-RUN apt-get update -y
-RUN apt install sudo -y
-RUN apt-get install mpi -y
-RUN apt-get install nano -y
-RUN apt-get install wget -y
-RUN apt-get install curl -y
-RUN apt-get install gnuplot -y
-RUN apt-get install dos2unix -y
-
-#install OpenFOAM12
-RUN sh -c "wget -O - https://dl.openfoam.org/gpg.key > /etc/apt/trusted.gpg.d/openfoam.asc"
-RUN add-apt-repository http://dl.openfoam.org/ubuntu
-RUN apt-get update -y
-RUN apt -y install openfoam12
-RUN echo "alias of12='source /opt/openfoam12/etc/bashrc'" >> $HOME/.bashrc
-
-#install OF2306
-RUN curl -s https://dl.openfoam.com/add-debian-repo.sh | sudo bash
-RUN wget -q -O - https://dl.openfoam.com/add-debian-repo.sh | sudo bash
-RUN apt-get update -y
-RUN apt-get install openfoam2306-default -y --fix-missing
-
-#install python3.11
-RUN add-apt-repository ppa:deadsnakes/ppa
-RUN apt install python3.11 -y
-#instal pip
-RUN apt-get update -y
-RUN apt install python3-pip -y
-RUN apt install python-is-python3 -y
+RUN curl -s https://dl.openfoam.com/add-debian-repo.sh | bash \
+    && apt-get update \
+    && apt-get install -y --no-install-recommends openfoam2306-default \
+    && rm -rf /var/lib/apt/lists/*
+RUN echo "alias of2306='source /usr/lib/openfoam/openfoam2306/etc/bashrc'" \
+        >> /etc/bash.bashrc
 
 ENV OMPI_ALLOW_RUN_AS_ROOT=1
 ENV OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1
-ENV OMPI_MCA_btl_vader_single_copy_mechanism="none"
+ENV OMPI_MCA_btl_vader_single_copy_mechanism=none
 
-RUN useradd -ms /bin/bash defaultuser
-RUN chown -R defaultuser /home/*
-RUN chgrp -R defaultuser /home/*
-RUN echo "defaultuser:pass" | chpasswd
-RUN usermod -aG sudo defaultuser
-# Add poetry environment for python
-RUN pip install poetry
+ARG UID=1000
+ARG GID=1000
+
+# ubuntu:24.04 ships a default 'ubuntu' user at UID/GID 1000. Remove it so we can
+# create our user at the HOST's UID/GID (--build-arg) for clean bind-mount ownership.
+RUN userdel -r ubuntu 2>/dev/null || true; \
+    getent group ${GID} >/dev/null || groupadd -g ${GID} defaultuser; \
+    useradd -u ${UID} -g ${GID} -ms /bin/bash defaultuser && \
+    usermod -aG sudo defaultuser && \
+    mkdir -p /home/repos/FPM && \
+    chown -R ${UID}:${GID} /home/repos
+
 USER defaultuser
-WORKDIR /home/repos/FPM/
-COPY poetry.lock /home/repos/FPM/poetry.lock
-COPY pyproject.toml /home/repos/FPM/pyproject.toml
-COPY README.md /home/repos/FPM/README.md
-COPY fpm /home/repos/FPM/fpm
-COPY scripts /home/repos/FPM/scripts
-RUN poetry install --no-root
+ENV PATH="/home/defaultuser/.local/bin:${PATH}"
+RUN pipx install poetry
 
-WORKDIR /home/
+WORKDIR /home/repos/FPM
+
+COPY --chown=defaultuser:defaultuser pyproject.toml poetry.lock README.md ./
+RUN poetry env use python3.12 && poetry install --no-root
+
+COPY --chown=defaultuser:defaultuser fpm ./fpm
+COPY --chown=defaultuser:defaultuser scripts ./scripts
+RUN poetry install

@@ -23,7 +23,6 @@ def foam_case(valid_config, tmp_path):
         ("system", "decomposeParDict"),
         ("constant", "turbulenceProperties"),
         ("constant", "transportProperties"),
-        ("constant", "physicalProperties"),
     ]
 )
 def test_create_of_dir_writes_case_files(foam_case, tmp_path, subdir, filename):
