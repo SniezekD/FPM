@@ -214,7 +214,8 @@ def main():
         with tarfile.open(f"{constant_dir}.tar.gz", "w:gz") as tar:
             tar.add(constant_dir, arcname=constant_dir.name)
 
-        tar_path = results_dir / f"FOAM_case_geom_no_{geom_num}_porosity{porosity}.tar.gz"
+        tar_name = f"FOAM_case_geom_no_{geom_num}_porosity{porosity}.tar.gz"
+        tar_path = results_dir / tar_name
         print(f"Saving the tarball to {tar_path}")
         with tarfile.open(tar_path, "w:gz") as tar:
             files_to_tar = [
@@ -224,9 +225,8 @@ def main():
                 ]
             for file in files_to_tar:
                 tar.add(work_dir / 'OF_case' / file, arcname=file)
-        
+
         shutil.rmtree(work_dir / 'OF_case')
-        
 
 
 if __name__ == "__main__":
