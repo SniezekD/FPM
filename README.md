@@ -32,3 +32,24 @@ A fully commented reference is provided at
 
 > **Installation and usage** guides are being finalized alongside the run
 > workflow and will be added shortly.
+
+## Running an experiment 
+
+In order to run the experiment, first build docker image. Run from the repo root:
+
+`docker build --build-arg UID=$(id -u) --build-arg GID=$(id -g) -t fpm .`
+
+Next, run the container. Remember to specify paths to results directory.  
+```
+mkdir -p <results_dir>
+docker run -it \
+    -v "<results_dir>":/results \
+    -v "<path_to_experiment_config.toml>":/work/config.toml:ro \
+    fpm \
+    bash -c \
+    "source /usr/lib/openfoam/openfoam2306/etc/bashrc && \
+    cd /home/repos/FPM && \
+    poetry run python scripts/automatic_runner.py --config-path /work/config.toml"
+```
+
+This is only temporary. In the future a single runner script will be provided.
