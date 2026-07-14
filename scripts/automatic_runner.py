@@ -57,25 +57,27 @@ def compute_case(
     velocity_dir = working_dir / 'OF_case' / f"U_{velocity}"
     velocity_dir.mkdir(exist_ok=True, parents=True)
 
+
+    # TODO: add a way to distinct the outputs by gometry number and porosity, not only velocity
     utils.run_cmd(
         args=[
             'mv',
-            f"/home/user/tests/OF_case/{latest_time}",
+            working_dir / "OF_case" / latest_time,
             velocity_dir / latest_time
         ]
     )
     utils.run_cmd(
         args=[
             'mv',
-            "/home/user/tests/OF_case/foamRun.log",
-            velocity_dir / 'foamRun.log'
+            working_dir / "OF_case" / "simpleFoam.log",
+            velocity_dir / 'simpleFoam.log'
         ]
     )
     utils.run_cmd(
         args=[
             'mv',
-            f"/home/user/tests/OF_case/VTK/OF_case_{latest_time}.vtk",
-            f"{velocity_dir / f'OF_case_{latest_time}.vtk'}"
+            working_dir / "OF_case" / f"VTK/OF_case_{latest_time}.vtm",
+            f"{velocity_dir / f'OF_case_{latest_time}.vtm'}"
         ]
     )
 
@@ -136,6 +138,7 @@ def main():
 
     work_dir = config.case_cfg.run.working_directory
     work_dir.mkdir(parents=True, exist_ok=True)
+    results_dir = config.case_cfg.run.results_directory
     porosity_list = config.case_cfg.run.porosities
     velocity_list = config.case_cfg.run.velocities
     geometries_per_porosity = config.case_cfg.run.number_of_geometries
@@ -193,7 +196,7 @@ def main():
                   f"     Velocity: {velocity} [{velocity_i + 1} / {len(velocity_list)}]"
                   f"     Geometry: [{geom_num + 1} / {geometries_per_porosity}]"
                   f"     Total progress: "
-                  f"{total_cases_processed / cases_in_experiment:0.2f}%\n")
+                  f"{100 * total_cases_processed / cases_in_experiment:0.2f}%\n")
 
             compute_case(
                 foam_case=foam_case,
@@ -213,7 +216,9 @@ def main():
         with tarfile.open(f"{constant_dir}.tar.gz", "w:gz") as tar:
             tar.add(constant_dir, arcname=constant_dir.name)
 
-        with tarfile.open(f"OF_case_porosity{porosity}.tar.gz", "w:gz") as tar:
+        tar_path = results_dir / f"FOAM_case_geom_no_{geom_num}_porosity{porosity}.tar.gz"
+        print(f"Saving the tarball to {tar_path}")
+        with tarfile.open(tar_path, "w:gz") as tar:
             files_to_tar = [
                 file
                 for file in os.listdir(work_dir / 'OF_case')
@@ -221,6 +226,9 @@ def main():
                 ]
             for file in files_to_tar:
                 tar.add(work_dir / 'OF_case' / file, arcname=file)
+        
+        shutil.rmtree(work_dir / 'OF_case')
+        
 
 
 if __name__ == "__main__":
