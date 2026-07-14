@@ -75,7 +75,7 @@ def calculate_inlet_flow_rate(of_spec: pd.DataFrame) -> float:
 
     inlet_area = of_spec['inlet_area'].values[0]
     inlet_wall = of_spec['inlet_wall'].values[0]
-    print(inlet_wall)
+
     if inlet_wall in ['left', 'right']:
         streamline_velocity_id = 0
     elif inlet_wall in ['up', 'down']:
