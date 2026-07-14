@@ -10,6 +10,7 @@ def test_valid_config_parses(valid_config):
     cfg = CaseConfig.from_toml(valid_config)
     assert cfg.run.number_of_geometries == 2
     assert cfg.run.working_directory == pathlib.Path("./runs/test")
+    assert cfg.run.results_directory == pathlib.Path("/results")
     assert cfg.run.porosities == (0.7, 0.6)
     assert cfg.run.velocities == (1e-9, 1e-6)
 
