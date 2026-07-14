@@ -57,8 +57,6 @@ def compute_case(
     velocity_dir = working_dir / 'OF_case' / f"U_{velocity}"
     velocity_dir.mkdir(exist_ok=True, parents=True)
 
-
-    # TODO: add a way to distinct the outputs by gometry number and porosity, not only velocity
     utils.run_cmd(
         args=[
             'mv',
