@@ -130,3 +130,7 @@ def test_change_velocity_rewrites_u_file(foam_case, tmp_path):
     foam_case.change_velocity_boundary_types(new_u)
     u = (tmp_path / "OF_case" / "0" / "U").read_text()
     assert "uniform (0.5 0 0)" in u
+
+
+def test_streamwise_axis_is_determined(foam_case):
+    assert foam_case.streamwise_axis == "x"
