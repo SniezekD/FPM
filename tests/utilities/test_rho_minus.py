@@ -17,5 +17,5 @@ def test_rho_minus_is_zero_without_backflow():
 
 def test_raises_value_error():
     df = pd.DataFrame({"u_x": [1, 2, 3], "volume": [1, 1, 1]})
-    with pytest.raises(FileNotFoundError):
+    with pytest.raises(ValueError):
         compute_rho_minus(df, streamwise_axis=None)

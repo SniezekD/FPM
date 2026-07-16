@@ -18,5 +18,5 @@ def test_raises_value_error():
         "u_norm": [2, 2], "u_x": [1, 1],
         "mass_density": [1, 1], "volume": [1, 1],
     })
-    with pytest.raises(FileNotFoundError):
+    with pytest.raises(ValueError):
         compute_tortuosity(df, streamwise_axis=None)
