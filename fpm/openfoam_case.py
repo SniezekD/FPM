@@ -64,39 +64,38 @@ class OpenFoamCase():
 
     def determine_streamwise_axis(self):
         if self.blockmesh_boundary_types['left'] == "patch" and \
-           self.blockmesh_boundary_types['right'] == "patch":
+                self.blockmesh_boundary_types['right'] == "patch":
             streamwise = "x"
         elif self.blockmesh_boundary_types['up'] == "patch" and \
-            self.blockmesh_boundary_types['down'] == "patch":
+                self.blockmesh_boundary_types['down'] == "patch":
             streamwise = "y"
         elif self.blockmesh_boundary_types['front'] == "patch" and \
-            self.blockmesh_boundary_types['back'] == "patch":
+                self.blockmesh_boundary_types['back'] == "patch":
             streamwise = "z"
         else:
             streamwise = None
 
         return streamwise
-    
+
     def calculate_inlet_area(self):
         bounds = self.bounding_box_coords
         if self.streamwise_axis == "x":
             return (
                 (bounds["y_max"] - bounds["y_min"])
                 * (bounds["z_max"] - bounds["z_min"])
-            ) 
+            )
         elif self.streamwise_axis == "y":
             return (
                 (bounds["z_max"] - bounds["z_min"])
                 * (bounds["x_max"] - bounds["x_min"])
-            ) 
+            )
         elif self.streamwise_axis == "z":
             return (
                 (bounds["x_max"] - bounds["x_min"])
                 * (bounds["y_max"] - bounds["y_min"])
-            ) 
+            )
         else:
             return None
-        
 
     def create_of_dir(self):
         of_dir = self.working_direcory / 'OF_case'
