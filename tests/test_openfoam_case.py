@@ -134,3 +134,7 @@ def test_change_velocity_rewrites_u_file(foam_case, tmp_path):
 
 def test_streamwise_axis_is_determined(foam_case):
     assert foam_case.streamwise_axis == "x"
+
+
+def test_calculate_inlet_area(foam_case):
+    assert foam_case.inlet_area == 16 * 16
