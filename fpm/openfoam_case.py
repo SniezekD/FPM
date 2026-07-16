@@ -53,13 +53,29 @@ class OpenFoamCase():
         self.turbulence_model = turbulence_model
         self.decompose_method = decompose_method
         self.transport_model = transport_model
+        self.streamwise_axis: str | None = self.determine_streamwise_axis()
         self.boundary_walls = self.create_boundary_walls()
 
     @classmethod
     def from_config(cls, config_path: pathlib.Path) -> Self:
         cfg_reader = ConfigReader(config_path)
         return cls(**cfg_reader.unpack_foam_case_config())
+    
+    def determine_streamwise_axis(self):
+        if self.blockmesh_boundary_types['left'] == "patch" and \
+           self.blockmesh_boundary_types['right'] == "patch":
+            streamwise = "x"
+        elif self.blockmesh_boundary_types['up'] == "patch" and \
+             self.blockmesh_boundary_types['down'] == "patch":
+            streamwise = "y"
+        elif self.blockmesh_boundary_types['front'] == "patch" and \
+             self.blockmesh_boundary_types['back'] == "patch":
+            streamwise = "z"
+        else: 
+            streamwise = None
 
+        return streamwise
+    
     def create_of_dir(self):
         of_dir = self.working_direcory / 'OF_case'
         of_dir.mkdir(parents=True, exist_ok=True)
