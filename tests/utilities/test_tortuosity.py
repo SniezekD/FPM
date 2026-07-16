@@ -11,3 +11,12 @@ def test_tortuosity_ratio_of_total_to_streamwise_momentum():
         "mass_density": [1, 1], "volume": [1, 1],
     })
     assert compute_tortuosity(df) == pytest.approx(2.0)
+
+
+def test_raises_value_error():
+    df = pd.DataFrame({
+        "u_norm": [2, 2], "u_x": [1, 1],
+        "mass_density": [1, 1], "volume": [1, 1],
+    })
+    with pytest.raises(FileNotFoundError):
+        compute_tortuosity(df, streamwise_axis=None)
