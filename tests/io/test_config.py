@@ -101,7 +101,7 @@ def test_bad_config_raises(tmp_path, valid_config, find, replace, expected_messa
 
 def test_unpack_maps_scalar_fields(valid_config):
     kwargs = ConfigReader(valid_config).unpack_foam_case_config()
-    assert kwargs["working_direcory"] == pathlib.Path("./runs/test")
+    assert kwargs["working_directory"] == pathlib.Path("./runs/test")
     assert kwargs["end_time"] == 501
     assert kwargs["time_step"] == 1
     assert kwargs["solver_name"] == "simpleFoam"

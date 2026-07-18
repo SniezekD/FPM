@@ -20,9 +20,9 @@ class SwissCheese(PorousMedium):
         max_radius: float,
         geometry_bounds_type: str
     ) -> None:
-        """Crate a swissCheese porous medium object.
+        """Create a swissCheese porous medium object.
         The obstacles are modelled as spheres with random radii that are
-        choosen from uniform distribution between given minimum and maximum
+        chosen from uniform distribution between given minimum and maximum
         values.
 
         Args:

@@ -13,7 +13,7 @@ def map_distance_to_index_difference(
     discretization: tuple,
     bounds: dict
 ):
-    """Maps cartesian distance to diference in indices of discretized matrix
+    """Maps cartesian distance to difference in indices of discretized matrix
     representing the porous medium.
 
     Args:
@@ -52,7 +52,7 @@ def map_index_difference_to_distance(
     discretization: tuple,
     bounds: dict
 ) -> float:
-    """Maps cartesian distance to diference in indices of discretized matrix
+    """Maps cartesian distance to difference in indices of discretized matrix
     representing the porous medium.
 
     Args:
@@ -152,10 +152,10 @@ def calculate_porosity(
     discretization: tuple = (100, 100, 100),
     saved_state: np.ndarray = None
 ) -> Tuple[float, np.ndarray]:
-    """Calculate porosity of given porpus medium.
+    """Calculate porosity of given porous medium.
     The larger the discretization, the better the precision.
 
-    Discretized porous medium is a np.ndarray with shape = discreatization.
+    Discretized porous medium is a np.ndarray with shape = discretization.
     There are two possible states: 1 and 0.
     1 -> free space
     0 -> space occupied by an obstacle
