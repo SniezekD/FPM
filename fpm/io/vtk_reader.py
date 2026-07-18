@@ -33,7 +33,10 @@ def read_vtk(
     u_norm = np.sqrt(u_x**2 + u_y**2 + u_z**2)
 
     volumes = vtk['Volume']
-    cell_ids = vtk['cellID']
+    if "cellID" in vtk.array_names:
+        cell_ids = vtk["cellID"]
+    else:
+        cell_ids = np.arange(vtk.n_cells)
 
     cells_points = {}
     vtk_cells = vtk.cells
