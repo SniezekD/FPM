@@ -91,7 +91,7 @@ def test_valid_config_parses(valid_config):
     ],
 )
 def test_bad_config_raises(tmp_path, valid_config, find, replace, expected_message):
-    good_text = valid_config.path.read_text(encoding="utf-8")
+    good_text = valid_config.read_text(encoding="utf-8")
     assert find in good_text
     bad_config = tmp_path / "bad.toml"
     bad_config.write_text(good_text.replace(find, replace))
