@@ -4,6 +4,7 @@ version = "0.1.0"
 description = "Toolchain for simulating fluid flow through porous media."
 authors = ["Damian Śnieżek"]
 readme = "README.md"
+license = "MIT"
 
 [tool.poetry.dependencies]
 python = "^3.12"
