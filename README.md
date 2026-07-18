@@ -37,7 +37,8 @@ builds the OpenFOAM cases, runs them, and collects a table of transport metrics.
 ## Results
 
 <!-- TODO: replace with a real figure from a run, e.g. docs/tortuosity_vs_porosity.png -->
-![Tortuosity across the porosity/velocity sweep](docs/results_example.png)
+![Tortuosity across the flow-rate sweep](docs/tortuosity_example.png)
+
 
 Every run writes a `results.csv` to the results directory. 
 All quantities are in standard OpenFOAM units or are dimensionless:
