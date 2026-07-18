@@ -25,7 +25,7 @@ def compute_participation_number(
 
     e_kin_arr = 0.5 * mass_density * volumes * u_norm**2
     e_kin_tot = np.sum(e_kin_arr)
-    q_arr = e_kin_arr / e_kin_tot
+    q_arr = (mass_density * u_norm**2) / (2 * e_kin_tot)
 
     q_squared = q_arr**2
     participation_number = 1 / (total_volume * np.sum(q_squared * volumes))
