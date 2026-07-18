@@ -130,9 +130,6 @@ def read_vtm(
     u_norm = np.sqrt(u_x**2 + u_y**2 + u_z**2)
 
     volumes = vtm['Volume']
-    vtm['kin_e'] = volumes * u_norm**2 / 2
-    print(np.sum(volumes * u_norm**2 / 2) / np.sum(volumes))
-    vtm.save('test.vtk')
     if 'rho' in vtm.array_names:
         mass_density = vtm['rho']
     else:
