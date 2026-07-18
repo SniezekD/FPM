@@ -5,14 +5,20 @@ import argparse
 import shutil
 import itertools
 
+import pandas as pd
+import matplotlib.pyplot as plt
+
 import fpm.utilities.utils as utils
 from fpm.openfoam_case import OpenFoamCase
 from fpm.media_models.swiss_cheese import SwissCheese
 from fpm.io.config_reader import ConfigReader
+from fpm.io.vtk_reader import read_vtk
+
+from fpm.utilities.participation_number import compute_participation_number
+from fpm.utilities.tortuosity import compute_tortuosity
+from fpm.utilities.rho_minus import compute_rho_minus
 
 import time
-
-# TODO: introduce logger
 
 
 def parse_cla():
@@ -36,7 +42,8 @@ def compute_case(
     working_dir: pathlib.Path,
     simple_foam_runner_path: pathlib.Path,
     prep_postproc_runner_path: pathlib.Path,
-):
+    interest_b_box: tuple,
+) -> pd.DataFrame:
     previous_u_boundary_types = foam_case.u_boundary_types
     new_u_boundary_types = previous_u_boundary_types
     new_u_boundary_types['left_field_value'] = f'uniform ({velocity} 0 0)'
@@ -74,8 +81,8 @@ def compute_case(
     utils.run_cmd(
         args=[
             'mv',
-            working_dir / "OF_case" / f"VTK/OF_case_{latest_time}.vtm",
-            f"{velocity_dir / f'OF_case_{latest_time}.vtm'}"
+            working_dir / "OF_case" / f"VTK/OF_case_{latest_time}.vtk",
+            f"{velocity_dir / f'OF_case_{latest_time}.vtk'}"
         ]
     )
 
@@ -85,6 +92,12 @@ def compute_case(
         tar.add(velocity_dir, arcname=f"{velocity_dir.name}")
 
     print(f"Latest Time: {latest_time}")
+    vtk_df = read_vtk(
+            f"{velocity_dir / f'OF_case_{latest_time}.vtk'}",
+            interest_b_box=interest_b_box
+        )
+
+    return vtk_df
 
 
 def prepare_runner_files(work_dir: pathlib.Path, n_proc: int):
@@ -128,6 +141,92 @@ def prepare_runner_files(work_dir: pathlib.Path, n_proc: int):
     }
 
 
+def plot_results(results_df: pd.DataFrame, results_dir: pathlib.Path):
+    for porosity in results_df['porosity'].unique():
+        plot_df = results_df.loc[results_df["porosity"] == porosity]
+
+        plot_df.plot(
+            x='inlet_flow_rate',
+            y='tortuosity',
+            kind='scatter',
+            title=f'All geometries with porosity {porosity}'
+        )
+        plt.xlabel(r"Inlet Flow Rate [m$^3$/s]")
+        plt.ylabel("Tortuosity")
+        plt.grid(linestyle="--", color="gray")
+        plt.savefig(results_dir / f"tortuosity_all_porosity_{porosity}.png")
+        plt.close()
+
+        plot_df.plot(
+            x='inlet_flow_rate',
+            y='participation_number',
+            kind='scatter',
+            title=f'All geometries with porosity {porosity}'
+        )
+        plt.xlabel(r"Inlet Flow Rate [m$^3$/s]")
+        plt.ylabel("Participation Number")
+        plt.grid(linestyle="--", color="gray")
+        plt.savefig(results_dir / f"participation_number_all_porosity_{porosity}.png")
+        plt.close()
+
+        plot_df.plot(
+            x='inlet_flow_rate',
+            y='rho_minus',
+            kind='scatter',
+            title=f'All geometries with porosity {porosity}'
+        )
+        plt.xlabel(r"Inlet Flow Rate [m$^3$/s]")
+        plt.ylabel(r"\rho^-")
+        plt.grid(linestyle="--", color="gray")
+        plt.savefig(results_dir / f"rho_minus_all_porosity_{porosity}.png")
+        plt.close()
+
+        for geom_no in plot_df["geometry_number"].unique():
+            geom_plot_df = plot_df.loc[plot_df["geometry_number"] == geom_no]
+            geom_plot_df.plot(
+                x='inlet_flow_rate',
+                y='tortuosity',
+                kind='scatter',
+                title=f'Geometry {geom_no} with porosity {porosity}'
+            )
+            plt.xlabel(r"Inlet Flow Rate [m$^3$/s]")
+            plt.ylabel("Tortuosity")
+            plt.grid(linestyle="--", color="gray")
+            plt.savefig(
+                results_dir / f"tortuosity_porosity_{porosity}_geom_{geom_no}.png"
+            )
+            plt.close()
+
+            geom_plot_df.plot(
+                x='inlet_flow_rate',
+                y='participation_number',
+                kind='scatter',
+                title=f'Geometry {geom_no} with porosity {porosity}'
+            )
+            plt.xlabel(r"Inlet Flow Rate [m$^3$/s]")
+            plt.ylabel("Participation Number")
+            plt.grid(linestyle="--", color="gray")
+            plt.savefig(
+                results_dir /
+                f"participation_number_porosity_{porosity}_geom_{geom_no}.png"
+            )
+            plt.close()
+
+            geom_plot_df.plot(
+                x='inlet_flow_rate',
+                y='rho_minus',
+                kind='scatter',
+                title=f'Geometry {geom_no} with porosity {porosity}'
+            )
+            plt.xlabel(r"Inlet Flow Rate [m$^3$/s]")
+            plt.ylabel(r"\rho^-")
+            plt.grid(linestyle="--", color="gray")
+            plt.savefig(
+                results_dir / f"rho_minus_porosity_{porosity}_geom_{geom_no}.png"
+            )
+            plt.close()
+
+
 def main():
     args = parse_cla()
     start_time = time.time()
@@ -140,6 +239,8 @@ def main():
     porosity_list = config.case_cfg.run.porosities
     velocity_list = config.case_cfg.run.velocities
     geometries_per_porosity = config.case_cfg.run.number_of_geometries
+
+    results_rows = []
 
     shutil.copy(config_path, work_dir / "experiment_config.toml")
 
@@ -196,17 +297,36 @@ def main():
                   f"     Total progress: "
                   f"{100 * total_cases_processed / cases_in_experiment:0.2f}%\n")
 
-            compute_case(
+            vtk_df = compute_case(
                 foam_case=foam_case,
                 velocity=velocity,
                 working_dir=work_dir,
                 simple_foam_runner_path=simple_foam_runner_path,
                 prep_postproc_runner_path=prep_postproc_runner_path,
+                interest_b_box=tuple(
+                    config.case_cfg.medium.bounding_box.as_dict().values()
+                )
             )
             print(time.time() - new_start_time)
             new_start_time = time.time()
 
             total_cases_processed += 1
+
+            results_rows.append({
+                "porosity": porosity,
+                "velocity": velocity,
+                "tortuosity": compute_tortuosity(
+                    vtk_df,
+                    streamwise_axis=foam_case.streamwise_axis
+                ),
+                "participation_number": compute_participation_number(vtk_df),
+                "rho_minus": compute_rho_minus(
+                    vtk_df,
+                    streamwise_axis=foam_case.streamwise_axis
+                ),
+                "inlet_flow_rate": velocity * foam_case.inlet_area,
+                "geometry_number": geom_num,
+            })
 
         constant_dir = work_dir / 'OF_case' / 'constant'
         porous_medium.save_spec_to_file(constant_dir / 'porous_medium_spec.csv')
@@ -227,6 +347,12 @@ def main():
                 tar.add(work_dir / 'OF_case' / file, arcname=file)
 
         shutil.rmtree(work_dir / 'OF_case')
+
+    results_df = pd.DataFrame(results_rows)
+
+    results_df.to_csv(results_dir / "resutls.csv", index=False)
+
+    plot_results(results_df, results_dir)
 
 
 if __name__ == "__main__":

@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 
 def compute_tortuosity(
     vtk_df: pd.DataFrame,
-    streamwise_direction: str = 'x'
+    streamwise_axis: str = 'x'
 ) -> float:
     """Computes the tortuosity for a given VTK file.
     Necessary columns in the VTK DataFrame are:
@@ -22,8 +22,11 @@ def compute_tortuosity(
     Returns:
         float: tortuosity.
     """
+    if streamwise_axis is None:
+        raise ValueError("streamwise_direction must be one of ['x', 'y', 'z'], "
+                         f"not {streamwise_axis}")
     u_norm = vtk_df['u_norm']
-    u_streamwise = vtk_df[f'u_{streamwise_direction}']
+    u_streamwise = vtk_df[f'u_{streamwise_axis}']
     mass_density = vtk_df['mass_density']
 
     volumes = vtk_df['volume']

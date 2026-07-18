@@ -110,11 +110,11 @@ if __name__ == '__main__':
         )
         rho_minus = compute_rho_minus(
             vtk_df=vtk_df,
-            streamwise_direction=args.streamwise_direction
+            streamwise_axis=args.streamwise_direction
         )
         tortuosity = compute_tortuosity(
             vtk_df=vtk_df,
-            streamwise_direction=args.streamwise_direction
+            streamwise_axis=args.streamwise_direction
         )
 
         plot_tortuosity_on_polar_plot(

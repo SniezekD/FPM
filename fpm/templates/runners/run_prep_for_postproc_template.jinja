@@ -14,7 +14,7 @@ source /lib/openfoam/openfoam2306/etc/bashrc
 cd {{ working_directory }}
 
 echo "    Converting foam to VTK"
-foamToVTK -latestTime -ascii  &> foamToVTK.log
+foamToVTK -legacy -no-boundary -latestTime  &> foamToVTK.log
 check_return_code $?
 
 echo "    Removing all processors' directories"

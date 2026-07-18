@@ -16,10 +16,14 @@ def read_vtk(
     Args:
         path_to_vtk (pathlib.Path): Path to VTK file.
         interest_b_box (np.ndarray): Bounding box of interest.
+        If not specified, the whole domain will be read.
             (x_min, x_max, y_min, y_max, z_min, z_max)
 
     Returns:
-        pd.DataFrame
+        pd.DataFrame with columns=[
+        'x', 'y', 'z', 'u_x', 'u_y', 'u_z',
+        'u_norm', 'mass_density', 'volume'
+    ]
     """
     raw_vtk = pv.read(path_to_vtk)
     vtk = raw_vtk.compute_cell_sizes()
@@ -29,7 +33,10 @@ def read_vtk(
     u_norm = np.sqrt(u_x**2 + u_y**2 + u_z**2)
 
     volumes = vtk['Volume']
-    cell_ids = vtk['cellID']
+    if "cellID" in vtk.array_names:
+        cell_ids = vtk["cellID"]
+    else:
+        cell_ids = np.arange(vtk.n_cells)
 
     cells_points = {}
     vtk_cells = vtk.cells
@@ -103,40 +110,43 @@ def read_vtm(
     with velocity components, and cell sizes
 
     Args:
-        path_to_vtk (pathlib.Path): Path to VTK file.
+        path_to_vtm (pathlib.Path): Path to VTM file.
+        interest_b_box (np.ndarray): Bounding box of interest.
+        If not specified, the whole domain will be read.
+            (x_min, x_max, y_min, y_max, z_min, z_max)
 
     Returns:
-        pd.DataFrame
+        pd.DataFrame with columns=[
+        'x', 'y', 'z', 'u_x', 'u_y', 'u_z',
+        'u_norm', 'mass_density', 'volume'
+    ]
     """
     raw_vtm = pv.read(path_to_vtm)
     internal_mesh = raw_vtm['internal']
-    vtk = internal_mesh.compute_cell_sizes()
-    u_x = vtk['U'][:, 0]
-    u_y = vtk['U'][:, 1]
-    u_z = vtk['U'][:, 2]
+    vtm = internal_mesh.compute_cell_sizes()
+    u_x = vtm['U'][:, 0]
+    u_y = vtm['U'][:, 1]
+    u_z = vtm['U'][:, 2]
     u_norm = np.sqrt(u_x**2 + u_y**2 + u_z**2)
 
-    volumes = vtk['Volume']
-    vtk['kin_e'] = volumes * u_norm**2 / 2
-    print(np.sum(volumes * u_norm**2 / 2) / np.sum(volumes))
-    vtk.save('test.vtk')
-    if 'rho' in vtk.array_names:
-        mass_density = vtk['rho']
+    volumes = vtm['Volume']
+    if 'rho' in vtm.array_names:
+        mass_density = vtm['rho']
     else:
         mass_density = np.ones_like(u_x)
 
     # Compute positions of cells centers
     cells_points = {}
-    vtk_cells = vtk.cells
+    vtk_cells = vtm.cells
     i = 0
     while len(cells_points) < len(u_x):
         no_of_points = vtk_cells[i]
         cells_points[len(cells_points)] = vtk_cells[i+1:i+no_of_points+1]
         i += no_of_points + 1
 
-    x_pos = vtk.points[:, 0]
-    y_pos = vtk.points[:, 1]
-    z_pos = vtk.points[:, 2]
+    x_pos = vtm.points[:, 0]
+    y_pos = vtm.points[:, 1]
+    z_pos = vtm.points[:, 2]
 
     cells_positions_x = [
         np.mean(x_pos[points_list]) for k, points_list in cells_points.items()
