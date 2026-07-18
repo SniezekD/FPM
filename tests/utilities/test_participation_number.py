@@ -21,11 +21,11 @@ def test_participation_number_two_nonuniform_cells():
     # total volume: 11 + 1 = 12
     # q: 1 * 1**2 / (2 * 10) = 1/20, 1 * 3**2 / (2 * 10) = 9/20
     # q**2: 1/400, 81/400
-    # particiation number: 1 / (12 * (1/400 * 11 + 81/400 * 1)) = 
+    # particiation number: 1 / (12 * (1/400 * 11 + 81/400 * 1)) =
     #                    = 1 / (12 * (11/400 + 81/400))
     #                    = 1 / (12 * 92/400)
     #                    = 1 / (12 * 92/400)
     #                    = 1 / (1104/400)
-    #                    = 1 / 2.76 
+    #                    = 1 / 2.76
     #                    = 0.362318841
     assert compute_participation_number(df) == pytest.approx(0.362318841)
