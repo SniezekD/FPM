@@ -1,3 +1,20 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+*.egg-info/
+
+# Generated simulation output
+runs/
+results/
 scripts_outputs/
-*__pycache__*
-dev.py
+*.tar.gz
+*.stl
+*.vtk
+*.vtm
+
+# Editor / OS
+.DS_Store
+.idea/
+.vscode/
