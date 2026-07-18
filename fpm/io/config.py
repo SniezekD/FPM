@@ -260,7 +260,8 @@ class CaseConfig:
     @classmethod
     def from_toml(cls, path: pathlib.Path) -> "CaseConfig":
         fn = path.name
-        toml_dict = tomllib.loads(path.read_text())
+        with open(path, "rb") as f:
+            toml_dict = tomllib.load(f)
 
         def req(dotted, expected):
             return _require(toml_dict, dotted, expected, filename=fn)
