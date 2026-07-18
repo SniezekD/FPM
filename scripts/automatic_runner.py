@@ -350,7 +350,7 @@ def main():
 
     results_df = pd.DataFrame(results_rows)
 
-    results_df.to_csv(results_dir / "resutls.csv", index=False)
+    results_df.to_csv(results_dir / "results.csv", index=False)
 
     plot_results(results_df, results_dir)
 

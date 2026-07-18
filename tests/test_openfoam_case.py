@@ -7,7 +7,7 @@ from fpm.openfoam_case import OpenFoamCase
 @pytest.fixture
 def foam_case(valid_config, tmp_path):
     kwargs = ConfigReader(valid_config).unpack_foam_case_config()
-    kwargs["working_direcory"] = tmp_path
+    kwargs["working_directory"] = tmp_path
     return OpenFoamCase(**kwargs)
 
 

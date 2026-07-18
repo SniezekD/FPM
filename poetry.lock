@@ -126,6 +126,21 @@ files = [
 ]
 
 [[package]]
+name = "codespell"
+version = "2.4.3"
+description = "Fix common misspellings in text files"
+optional = false
+python-versions = ">=3.9"
+files = [
+    {file = "codespell-2.4.3-py3-none-any.whl", hash = "sha256:af2505b335e8573dbd2d384d1c4ef498f4006f4ba2d6fceca01e55b91f52628a"},
+    {file = "codespell-2.4.3.tar.gz", hash = "sha256:cbe085e331227b37bb86ef8bddd08dc768c704ee9a07ca869852c093fa2793e2"},
+]
+
+[package.extras]
+hard-encoding-detection = ["chardet"]
+toml = ["tomli"]
+
+[[package]]
 name = "colorama"
 version = "0.4.6"
 description = "Cross-platform colored terminal text."
@@ -1436,4 +1451,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.12"
-content-hash = "2d5ef977262970439a269e5699085194546a7348da0194b70b62f87eab73098a"
+content-hash = "39a71fc275a0522eb56d7fa8fb91f54a7f164fc58c70c20e9db2e47db03de37b"

@@ -18,7 +18,7 @@ def compute_rho_minus(
     Args:
         vtk_df (pd.DataFrame): DataFrame containing the VTK data.
         streamwise_axis (str, optional): Streamwise direction.
-            Shoud be one of ['x', 'y','z'].  Defaults to 'x'.
+            Should be one of ['x', 'y','z'].  Defaults to 'x'.
 
     Returns:
         float: rho_minus.

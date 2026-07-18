@@ -12,7 +12,7 @@ from fpm.io.config_reader import ConfigReader
 class OpenFoamCase():
     def __init__(
         self,
-        working_direcory: pathlib.Path,
+        working_directory: pathlib.Path,
         end_time: float,
         time_step: float,
         solver_name: str,
@@ -33,7 +33,7 @@ class OpenFoamCase():
         decompose_method: str | None = None,
         transport_model: str | None = None,
     ) -> None:
-        self.working_direcory = working_direcory
+        self.working_directory = working_directory
         self.end_time = end_time
         self.time_step = time_step
         self.solver_name = solver_name
@@ -98,7 +98,7 @@ class OpenFoamCase():
             return None
 
     def create_of_dir(self):
-        of_dir = self.working_direcory / 'OF_case'
+        of_dir = self.working_directory / 'OF_case'
         of_dir.mkdir(parents=True, exist_ok=True)
 
         zero_dir = of_dir / '0'
@@ -320,7 +320,7 @@ class OpenFoamCase():
         jinja_env = jinja2.Environment(
             loader=jinja2.FileSystemLoader("fpm/templates/openfoam_files/")
         )
-        of_dir = self.working_direcory / 'OF_case'
+        of_dir = self.working_directory / 'OF_case'
         zero_dir = of_dir / '0'
         zero_u_path = zero_dir / 'U'
         zero_u_template = jinja_env.get_template("U_template.jinja")

@@ -30,24 +30,24 @@ class ConfigReader:
         Returns:
             dict: a full dict compatible with OpenFoamCase class.
         """
-        boundaty_types = self.case_cfg.boundary.u
+        boundary_types = self.case_cfg.boundary.u
 
         out_dict = {}
         for face in FACES:
-            out_dict[f"{face}_bc_type"] = boundaty_types[f"{face}_bc_type"]
-            if boundaty_types[f"{face}_bc_type"] not in VALID_BC_TYPES:
+            out_dict[f"{face}_bc_type"] = boundary_types[f"{face}_bc_type"]
+            if boundary_types[f"{face}_bc_type"] not in VALID_BC_TYPES:
                 raise ValueError(f"Illegal value of boundary type for {face}_bc_type."
                                  f"Legal values are {VALID_BC_TYPES}")
 
-            elif boundaty_types[f"{face}_bc_type"] == "fixedValue":
+            elif boundary_types[f"{face}_bc_type"] == "fixedValue":
                 out_dict[f"{face}_field_type"] = "value"
                 out_dict[f"{face}_field_value"] = "uniform (0 0 0)"
 
-            elif boundaty_types[f"{face}_bc_type"] == "zeroGradient":
+            elif boundary_types[f"{face}_bc_type"] == "zeroGradient":
                 out_dict[f"{face}_field_type"] = None
                 out_dict[f"{face}_field_value"] = None
 
-            elif boundaty_types[f"{face}_bc_type"] == "noSlip":
+            elif boundary_types[f"{face}_bc_type"] == "noSlip":
                 out_dict[f"{face}_field_type"] = None
                 out_dict[f"{face}_field_value"] = None
 
@@ -67,24 +67,24 @@ class ConfigReader:
         Returns:
             dict: a full dict compatible with OpenFoamCase class.
         """
-        boundaty_types = self.case_cfg.boundary.p
+        boundary_types = self.case_cfg.boundary.p
 
         out_dict = {}
         for face in FACES:
-            out_dict[f"{face}_bc_type"] = boundaty_types[f"{face}_bc_type"]
-            if boundaty_types[f"{face}_bc_type"] not in VALID_BC_TYPES:
+            out_dict[f"{face}_bc_type"] = boundary_types[f"{face}_bc_type"]
+            if boundary_types[f"{face}_bc_type"] not in VALID_BC_TYPES:
                 raise ValueError(f"Illegal value of boundary type for {face}_bc_type."
                                  f"Legal values are {VALID_BC_TYPES}")
 
-            elif boundaty_types[f"{face}_bc_type"] == "fixedValue":
+            elif boundary_types[f"{face}_bc_type"] == "fixedValue":
                 out_dict[f"{face}_field_type"] = "value"
                 out_dict[f"{face}_field_value"] = "uniform 0"
 
-            elif boundaty_types[f"{face}_bc_type"] == "zeroGradient":
+            elif boundary_types[f"{face}_bc_type"] == "zeroGradient":
                 out_dict[f"{face}_field_type"] = None
                 out_dict[f"{face}_field_value"] = None
 
-            elif boundaty_types[f"{face}_bc_type"] == "noSlip":
+            elif boundary_types[f"{face}_bc_type"] == "noSlip":
                 out_dict[f"{face}_field_type"] = None
                 out_dict[f"{face}_field_value"] = None
 
@@ -95,7 +95,7 @@ class ConfigReader:
         so that it is compatible with OpenFoamCase.
         """
         return {
-            "working_direcory": self.case_cfg.run.working_directory,
+            "working_directory": self.case_cfg.run.working_directory,
             "end_time": self.case_cfg.control.end_time,
             "time_step": self.case_cfg.control.time_step,
             "solver_name": self.case_cfg.control.solver_name,

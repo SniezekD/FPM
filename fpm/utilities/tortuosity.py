@@ -17,7 +17,7 @@ def compute_tortuosity(
     Args:
         vtk_df (pd.DataFrame): DataFrame containing the VTK data.
         streamwise_direction (str, optional): Streamwise direction.
-            Shoud be one of ['x', 'y','z'].  Defaults to 'x'.
+            Should be one of ['x', 'y','z'].  Defaults to 'x'.
 
     Returns:
         float: tortuosity.
