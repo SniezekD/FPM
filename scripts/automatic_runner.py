@@ -207,7 +207,7 @@ def plot_results(results_df: pd.DataFrame, results_dir: pathlib.Path):
             plt.ylabel("Participation Number")
             plt.grid(linestyle="--", color="gray")
             plt.savefig(
-                results_dir / 
+                results_dir /
                 f"participation_number_porosity_{porosity}_geom_{geom_no}.png"
             )
             plt.close()
