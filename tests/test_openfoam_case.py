@@ -33,7 +33,7 @@ def test_create_of_dir_writes_case_files(foam_case, tmp_path, subdir, filename):
 
 def test_velocity_is_rendered(foam_case, tmp_path):
     foam_case.create_of_dir()
-    u = (tmp_path / "OF_case" / "0" / "U").read_text()
+    u = (tmp_path / "OF_case" / "0" / "U").read_text(encoding="utf-8")
     assert ("""wall_left
     {
         type            fixedValue;
@@ -79,7 +79,7 @@ def test_velocity_is_rendered(foam_case, tmp_path):
 
 def test_pressure_is_rendered(foam_case, tmp_path):
     foam_case.create_of_dir()
-    p = (tmp_path / "OF_case" / "0" / "p").read_text()
+    p = (tmp_path / "OF_case" / "0" / "p").read_text(encoding="utf-8")
     assert ("""wall_left
     {
         type            zeroGradient;
@@ -128,7 +128,7 @@ def test_change_velocity_rewrites_u_file(foam_case, tmp_path):
     new_u = foam_case.u_boundary_types
     new_u["left_field_value"] = "uniform (0.5 0 0)"
     foam_case.change_velocity_boundary_types(new_u)
-    u = (tmp_path / "OF_case" / "0" / "U").read_text()
+    u = (tmp_path / "OF_case" / "0" / "U").read_text(encoding="utf-8")
     assert "uniform (0.5 0 0)" in u
 
 

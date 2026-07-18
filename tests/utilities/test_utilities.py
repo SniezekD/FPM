@@ -41,4 +41,4 @@ def test_create_runner_file_renders_and_writes(tmp_path, monkeypatch):
         var_dict={"msg": "hello"},
     )
     assert out.name == "run.sh"
-    assert out.read_text() == "echo hello"
+    assert out.read_text(encoding="utf-8") == "echo hello"
