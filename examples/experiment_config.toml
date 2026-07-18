@@ -1,10 +1,9 @@
-# case.toml — defines one porous-media flow experiment
 [run.sweepParams]
 working_directory = "./runs/experiment"     # Specifies the main working directory for the simulation runs.
-results_directory = "/results"                   # Specifies the main results directory for the simulation runs. The script will create subdirectories for each porosity and velocity combination within this directory.
-porosities = [0.7]                          # List of porosity values.
-number_of_geometries = 1                    # Number of different geometries to generate per porosity value.
-velocities = [1e-9, 1e-6]                   # Velocity values [m/s] to define boundary condition at the inlet. For each geometry, there will be as many simulations as there are velocities.
+results_directory = "/results"              # Specifies the main results directory for the simulation runs. The script will create subdirectories for each porosity and velocity combination within this directory.
+porosities = [0.7, 0.8, 0.9]                # List of porosity values.
+number_of_geometries = 3                    # Number of different geometries to generate per porosity value.
+velocities = [1e-9, 1e-8, 7e-8, 1e-7, 2e-7, 5e-7, 7e-7, 9e-7, 1e-6]                   # Velocity values [m/s] to define boundary condition at the inlet. For each geometry, there will be as many simulations as there are velocities.
 
 
 [run.parallelism]
@@ -13,10 +12,10 @@ decompose_method = "none"   # Decomposition method to use for parallel simulatio
 
 
 [case.controlDict]
-end_time = 10  # was 500                            # Number of time steps to run the simulation. The simulation will stop after this many time steps.
-time_step = 1                               # Time step size for the simulation. The simulation will advance in increments of this time step size.
-solver_name = "simpleFoam"                  # Name of the OpenFOAM solver to use for the simulation. In this case, "simpleFoam" is specified, which is a steady-state solver for incompressible, turbulent flow.
-write_interval = 10                         # Interval at which simulation results will be written to disk. The simulation will save results every 'write_interval' time steps.
+end_time = 500              # Number of time steps to run the simulation. The simulation will stop after this many time steps.
+time_step = 1               # Time step size for the simulation. The simulation will advance in increments of this time step size.
+solver_name = "simpleFoam"  # Name of the OpenFOAM solver to use for the simulation. In this case, "simpleFoam" is specified, which is a steady-state solver for incompressible, turbulent flow.
+write_interval = 100        # Interval at which simulation results will be written to disk. The simulation will save results every 'write_interval' time steps.
 
 
 [case.physicalProperties.medium]  # Parameters used in the process of creating random porous media geometries. The parameters define the characteristics of the porous medium, such as the size of the obstacles and the spatial extent of the medium.
@@ -62,8 +61,8 @@ obstacles_bc_type = "zeroGradient"  # Type of pressure boundary condition at the
 seed_location_in_mesh = [-0.5, 0.5, 0.5]    # Location that defines insides of the mesh [m]. Used in SnappyHexMesh to determine which cells are inside the mesh and which are outside. The coordinates are given in the format [x, y, z].
 max_local_cells = 2000000 
 max_global_cells = 400000
-min_surface_refinement_lvl = 1
-max_surface_refinement_lvl = 2
+min_surface_refinement_lvl = 2
+max_surface_refinement_lvl = 3
 
 
 [mesh.blockMesh.boundingBox]  # The porous zone bounds are defined above in [case.physicalProperties.medium.boundingBox], and the bounding box is defined in the format [x_min, x_max, y_min, y_max, z_min, z_max]. The bounding box defines the spatial extent of the simulation domain. To reduce the influence of boundary conditions, the bounding box is extended beyond the porous zone in the x-direction. The y and z dimensions are set to match the porous zone dimensions to simulate flow through a tunnel with porous material inside it.
