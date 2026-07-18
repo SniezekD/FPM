@@ -1,9 +1,9 @@
 [run.sweepParams]
 working_directory = "./runs/experiment"     # Specifies the main working directory for the simulation runs.
 results_directory = "/results"              # Specifies the main results directory for the simulation runs. The script will create subdirectories for each porosity and velocity combination within this directory.
-porosities = [0.7, 0.8, 0.9]                # List of porosity values.
+porosities = [0.7, 0.8]                     # List of porosity values.
 number_of_geometries = 3                    # Number of different geometries to generate per porosity value.
-velocities = [1e-9, 1e-8, 7e-8, 1e-7, 2e-7, 5e-7, 7e-7, 9e-7, 1e-6]                   # Velocity values [m/s] to define boundary condition at the inlet. For each geometry, there will be as many simulations as there are velocities.
+velocities = [1e-9, 1e-6]                   # Velocity values [m/s] to define boundary condition at the inlet. For each geometry, there will be as many simulations as there are velocities.
 
 
 [run.parallelism]
