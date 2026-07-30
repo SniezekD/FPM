@@ -21,6 +21,37 @@ for you. You describe an experiment in one config file (the geometry, the mesh,
 the boundary conditions, and a sweep over porosities and velocities), and it
 builds the OpenFOAM cases, runs them, and collects a table of transport metrics.
 
+## Status and scope
+
+FPM is a research toolchain, built primarily as a real PhD/MSc simulation workflow
+turned into a maintainable, reproducible, tested system. It solves one problem
+well rather than many partially.
+
+**What it does:** steady-state, single-phase, incompressible flow through
+randomly generated (Swiss-cheese) porous media, swept over porosity and inlet
+velocity, reduced to transport metrics.
+
+**What it deliberately does not do (yet):**
+- Transient, multiphase, compressible, or turbulent flow — the pipeline targets
+  steady laminar `simpleFoam` and validation assumes it.
+- Real (imaged/CT) pore geometries — media are procedurally generated, not
+  imported.
+- Mesh-independence or solver-convergence studies — these are the user's
+  responsibility; FPM automates case generation and reduction, not numerical
+  verification of a given case.
+- General-purpose CFD — the OpenFOAM case structure is templated for this class
+  of problem, not arbitrary geometries or physics.
+
+Issues and questions are welcome. It isn't actively seeking outside
+contributions, but the design is meant to be readable and extendable.
+
+### Natural extensions
+
+The architecture leaves room for, but does not implement: imported pore
+geometries, additional media models beyond Swiss-cheese, and a single-command
+`run.sh` wrapper (noted in Quick start). These are intentionally out of scope
+for the current version.
+
 ## Pipeline
 
 1. **Geometry.** Generate a random porous medium at a target porosity, with
@@ -36,7 +67,6 @@ builds the OpenFOAM cases, runs them, and collects a table of transport metrics.
 
 ## Results
 
-<!-- TODO: replace with a real figure from a run, e.g. docs/tortuosity_vs_porosity.png -->
 ![Tortuosity across the flow-rate sweep](docs/tortuosity_example.png)
 
 
