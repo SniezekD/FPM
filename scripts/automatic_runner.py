@@ -21,9 +21,6 @@ from fpm.utilities.tortuosity import compute_tortuosity
 from fpm.utilities.rho_minus import compute_rho_minus
 
 
-# logger = logging.getLogger(__name__)
-
-
 def setup_logging(verbose: bool, log_file: pathlib.Path | None = None):
     tmp_logger = logging.getLogger("fpm")           # configure the FPM tree only
     tmp_logger.setLevel(logging.DEBUG if verbose else logging.INFO)
