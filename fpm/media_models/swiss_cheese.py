@@ -1,4 +1,5 @@
 import pathlib
+import logging
 
 import pyvista as pv
 import numpy as np
@@ -9,6 +10,9 @@ from fpm.media_models.porous_medium import PorousMedium
 from fpm.utilities.calculate_porosity import calculate_porosity
 
 from fpm.media_models.geometry_bounds import GeometryPeriodicityType
+
+
+logger = logging.getLogger(__name__)
 
 
 class SwissCheese(PorousMedium):
@@ -131,7 +135,7 @@ class SwissCheese(PorousMedium):
             * (self.bounds["y_max"] - self.bounds["y_min"])
             * (self.bounds["z_max"] - self.bounds["z_min"])
         )
-        print(bounds_volume)
+        logger.debug("Volume of boundary cube defining porous zone=%.2f", bounds_volume)
         tmp_porosity = 1.0
         saved_state_for_porosity = None
         while tmp_porosity > self.porosity:
@@ -157,7 +161,6 @@ class SwissCheese(PorousMedium):
                 radius=radius
             )
             if self.geometry_bounds_type == 'non_periodic':
-                # print(f"sphere volume {tmp_sphere.to_stl().volume}")
                 obstacles.append(tmp_sphere)
 
             elif self.geometry_bounds_type == 'periodic_x':

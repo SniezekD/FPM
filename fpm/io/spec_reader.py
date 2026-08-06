@@ -1,8 +1,12 @@
 import pathlib
 import tarfile
 import shutil
+import logging
 
 import pandas as pd
+
+
+logger = logging.getLogger(__name__)
 
 
 def read_porous_medium_spec(
@@ -24,12 +28,12 @@ def read_porous_medium_spec(
     """
     constant_archive = list(working_dir.glob('constant.tar.gz'))
     if len(constant_archive) > 1:
-        print(
-            Warning('More than one constant archive found. '
-                    f'Choosing the first one {constant_archive[0]}.')
+        logger.warning(
+            "More than one constant archive found. Choosing the first one %s.",
+            constant_archive[0]
         )
     elif len(constant_archive) == 0:
-        print(f"No constant archive found in the directory {working_dir}.")
+        logger.warning("No constant archive found in the directory %s.", working_dir)
     else:
         with tarfile.open(constant_archive[0], 'r') as tar:
             tar.extractall(working_dir)
@@ -39,14 +43,15 @@ def read_porous_medium_spec(
     ]
 
     if len(constant_dirs) > 1:
-        print(
-            Warning('More than one constant directory found. '
-                    f'Choosing the first one {constant_dirs[0]}.')
+        logger.warning(
+            "More than one constant directory found. Choosing the first one %s.",
+            constant_dirs[0]
         )
         constant_dir = constant_dirs[0]
     elif len(constant_dirs) == 0:
-        raise FileNotFoundError("No constant directory found in "
-                                f"the directory {working_dir}.")
+        raise FileNotFoundError(
+            f"No constant directory found in the directory {working_dir}."
+        )
     else:
         constant_dir = constant_dirs[0]
 
@@ -79,10 +84,10 @@ def read_openfoam_spec(
     """
     of_spec_paths = list(search_dir.glob(spec_name))
     if len(of_spec_paths) > 1:
-        print(
-            Warning('More than one OF_spec.csv file found in the '
-                    'directory. Choosing the first one '
-                    f'{of_spec_paths[0]}.')
+        logger.warning(
+            "More than one OF_spec.csv file found in the directory."
+            "Choosing the first one: %s",
+            of_spec_paths[0]
         )
 
         of_spec_path = of_spec_paths[0]
