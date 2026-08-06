@@ -1,5 +1,6 @@
 import pathlib
 from typing import Self
+import logging
 
 import jinja2
 import numpy as np
@@ -7,6 +8,9 @@ import pandas as pd
 
 import fpm.geometry.shapes as shapes
 from fpm.io.config_reader import ConfigReader
+
+
+logger = logging.getLogger(__name__)
 
 
 class OpenFoamCase():
@@ -313,7 +317,7 @@ class OpenFoamCase():
             template['path'].parent.mkdir(exist_ok=True, parents=True)
             with open(template['path'], mode="w", encoding="utf-8") as file:
                 file.write(template['content'])
-            print(f"  ... created {template['path']}")
+            logger.debug("Created %s", template['path'])
 
     def change_velocity_boundary_types(self, new_u_boundary_types):
         self.u_boundary_types = new_u_boundary_types
@@ -352,7 +356,7 @@ class OpenFoamCase():
         zero_u_path.parent.mkdir(exist_ok=True, parents=True)
         with open(zero_u_path, mode="w", encoding="utf-8") as file:
             file.write(zero_u_content)
-        print(f"  ... changed {zero_u_path}")
+        logger.debug("%s was changed.", zero_u_path)
 
     def create_boundary_walls(self):
         """Create walls that will be used as geometrical
@@ -495,4 +499,4 @@ class OpenFoamCase():
 
         df = pd.DataFrame.from_dict(data_dict)
         df.to_csv(savepath, index=False)
-        print(f"  ... saved OF spec to {savepath}")
+        logger.debug("Saved OF spec to %s", savepath)

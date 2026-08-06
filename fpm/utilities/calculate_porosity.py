@@ -1,9 +1,13 @@
 from typing import Tuple
+import logging
 
 import numpy as np
 import pyvista as pv
 
 from fpm.media_models.porous_medium import PorousMedium
+
+
+logger = logging.getLogger(__name__)
 
 
 def map_distance_to_index_difference(
@@ -180,12 +184,13 @@ def calculate_porosity(
     else:
         obstacles_list = obstacles
     if porous_medium.bounds is None:
-        print("Trying to calculate porosity, but"
-              "bounds are not defined. Exiting!")
+        logger.error(
+            "Trying to calculate porosity, but bounds are not defined. Exiting!"
+        )
         exit(1)
 
     if obstacles_list is None:
-        print("There are no obstacles")
+        logger.warning("There are no obstacles!")
         return 1.0, np.ones((discretization[0], discretization[1], discretization[2]))
 
     # discretized porous medium
@@ -253,8 +258,10 @@ def calculate_porosity(
             discretized_pm[discretized_pm_idxs] = 0
 
         else:
-            print(f"Obstacles of type {obstacle.type} are not "
-                  "implemented here yet.")
+            logger.error(
+                "Obstacles of type %s are not implemented here yet.",
+                obstacle.type
+            )
             exit(1)
 
     bulk_volume = discretization[0] * discretization[1] * discretization[2]

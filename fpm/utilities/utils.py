@@ -1,10 +1,14 @@
 import sys
 import pathlib
 import subprocess
+import logging
 
 import numpy as np
 import jinja2
 import pandas as pd
+
+
+logger = logging.getLogger(__name__)
 
 
 def run_cmd(args: list, shell: bool = True):
@@ -17,10 +21,10 @@ def run_cmd(args: list, shell: bool = True):
         check=True
     )
     if status.returncode == 0:
-        print("     Done")
+        logger.debug("%s, Done.", args)
         return status.stdout.strip()
     else:
-        print(f"     Error! \n{args} ended with code {status.returncode}.")
+        logger.error("%s ended with code %d.", args, status.returncode)
         sys.exit(status)
 
 
@@ -54,7 +58,7 @@ def create_runner_file(
 
     with open(file_path, mode="w", encoding="utf-8") as file:
         file.write(content)
-    print(f"  ... created {file_path}")
+    logger.debug("Created %s", file_path)
 
     run_cmd(
         ["chmod", "u+x", f"{file_path}"]

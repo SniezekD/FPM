@@ -1,6 +1,8 @@
 import pathlib
 import argparse
 import tarfile
+import logging
+
 import pandas as pd
 import numpy as np
 from fpm.io.vtk_reader import read_vtk
@@ -12,6 +14,9 @@ from fpm.utilities.tortuosity import (
 )
 from fpm.io.spec_reader import read_porous_medium_spec, read_openfoam_spec
 from fpm.utilities.utils import calculate_inlet_flow_rate
+
+
+logger = logging.getLogger(__name__)
 
 
 def parse_cla():
@@ -77,7 +82,7 @@ if __name__ == '__main__':
         tar.extractall(working_dir)
 
     porous_medium_spec = read_porous_medium_spec(working_dir)
-    print(porous_medium_spec)
+    logger.debug("Porous medium spec:\n %s", porous_medium_spec)
 
     # Unpack U archives
     u_archives = list(working_dir.glob('U_*.tar.gz'))
@@ -91,14 +96,15 @@ if __name__ == '__main__':
 
     for u_dir in u_dirs:
         vtk_paths = list(u_dir.glob('*.vtk'))
-        print(f"\n\n{vtk_paths}")
+        logger.debug(f"\n\n{vtk_paths}")
         if len(vtk_paths) > 1:
-            print(
-                Warning('More than one vtk file found in the directory. '
-                        f'Choosing the first one {vtk_paths[0]}.')
+            logger.warning(
+                'More than one vtk file found in the directory. '
+                'Choosing the first one %s.',
+                {vtk_paths[0]}
             )
         elif len(vtk_paths) == 0:
-            print(f"No vtk files found in the directory {u_dir}.")
+            logger.warning("No vtk files found in the directory %s.", u_dir)
             continue
 
         vtk_path = vtk_paths[0]
@@ -124,10 +130,8 @@ if __name__ == '__main__':
         )
 
         of_spec = read_openfoam_spec(u_dir, 'OF_spec.csv')
-        # print(of_spec)
 
         inlet_flow_rate = calculate_inlet_flow_rate(of_spec)
-        # print(inlet_flow_rate)
 
         results_df.loc[len(results_df)] = {
             'porosity': porous_medium_spec['porosity'].values[0],
@@ -137,5 +141,5 @@ if __name__ == '__main__':
             'tortuosity': tortuosity
         }
 
-    print(results_df)
+    logger.debug("Results:\n %s", results_df)
     results_df.to_csv(output_dir / 'results.csv', index=False)

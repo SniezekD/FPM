@@ -1,8 +1,12 @@
 import pathlib
+import logging
 from abc import ABC, abstractmethod
 
 import numpy as np
 import pyvista as pv
+
+
+logger = logging.getLogger(__name__)
 
 
 class Shape(ABC):
@@ -92,8 +96,10 @@ class Sphere(Shape):
         try:
             pv_sphere.save(destination, binary=binary)
         except ValueError:
-            print("ERROR!: Specified path does not exist!"
-                  f"         I was trying to save {self}.")
+            logger.error(
+                "Specified path does not exist! Trying to save %s.",
+                destination
+            )
 
 
 class Cube(Shape):
@@ -103,8 +109,7 @@ class Cube(Shape):
         size: np.ndarray,
         rotation: np.ndarray,
     ) -> None:
-        """_summary_
-
+        """
         Args:
             position (np.ndarray): point in 3D cartesian space, center of the
                 cube.
@@ -176,8 +181,10 @@ class Cube(Shape):
         try:
             pv_cube.save(destination, binary=binary)
         except ValueError:
-            print("ERROR!: Specified path does not exist!"
-                  f"         I was trying to save {self}.")
+            logger.error(
+                "Specified path does not exist! Trying to save %s.",
+                destination
+            )
 
 
 class Plane(Shape):
@@ -285,8 +292,10 @@ class Plane(Shape):
         try:
             pv_plane.save(destination, binary=binary)
         except ValueError:
-            print("ERROR!: Specified path does not exist!"
-                  f"         I was trying to save {self}.")
+            logger.error(
+                "Specified path does not exist! Trying to save %s.",
+                destination
+            )
 
 
 class RoundedCube(Shape):
@@ -391,8 +400,10 @@ class RoundedCube(Shape):
         try:
             rounded_cube.save(destination, binary=binary)
         except ValueError:
-            print("ERROR!: Specified path does not exist!"
-                  f"         I was trying to save {self}.")
+            logger.error(
+                "Specified path does not exist! Trying to save %s.",
+                destination
+            )
 
 
 class Cylinder(Shape):
@@ -464,5 +475,7 @@ class Cylinder(Shape):
         try:
             pv_cylinder.save(destination, binary=binary)
         except ValueError:
-            print("ERROR!: Specified path does not exist!"
-                  f"         I was trying to save {self}.")
+            logger.error(
+                "Specified path does not exist! Trying to save %s.",
+                destination
+            )

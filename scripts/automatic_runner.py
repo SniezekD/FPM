@@ -4,6 +4,8 @@ import tarfile
 import argparse
 import shutil
 import itertools
+import logging
+import time
 
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -18,7 +20,30 @@ from fpm.utilities.participation_number import compute_participation_number
 from fpm.utilities.tortuosity import compute_tortuosity
 from fpm.utilities.rho_minus import compute_rho_minus
 
-import time
+
+# logger = logging.getLogger(__name__)
+
+
+def setup_logging(verbose: bool, log_file: pathlib.Path | None = None):
+    tmp_logger = logging.getLogger("fpm")           # configure the FPM tree only
+    tmp_logger.setLevel(logging.DEBUG if verbose else logging.INFO)
+
+    fmt = logging.Formatter(
+        "%(asctime)s | %(name)-28s | %(levelname)-7s | %(message)s",
+        datefmt="%H:%M:%S",
+    )
+    console = logging.StreamHandler()
+    console.setLevel(logging.INFO)            # console stays readable: INFO+
+    console.setFormatter(fmt)
+    tmp_logger.addHandler(console)
+
+    if log_file:                              # file captures everything: DEBUG+
+        fh = logging.FileHandler(log_file)
+        fh.setLevel(logging.DEBUG)
+        fh.setFormatter(fmt)
+        tmp_logger.addHandler(fh)
+
+    return tmp_logger
 
 
 def parse_cla():
@@ -31,6 +56,12 @@ def parse_cla():
         required=True,
         help=("Path to config.toml path that defines necessary parameters. "
               "See ./examples/experiment_config.toml for reference.")
+    )
+
+    parser.add_argument(
+        "--verbose",
+        action="store_true",
+        help="Print debug info to console."
     )
 
     return parser.parse_args()
@@ -56,6 +87,8 @@ def compute_case(
     latest_time = utils.run_cmd(
         args=["foamListTimes", "-latestTime", "-case", f"{working_dir / 'OF_case'}"]
     )
+
+    logger.info("simpleFoam finished, latest time=%s", latest_time)
 
     utils.run_cmd(
         ["bash", f'{prep_postproc_runner_path}']
@@ -91,7 +124,6 @@ def compute_case(
     with tarfile.open(f"{velocity_dir}.tar.gz", "w:gz") as tar:
         tar.add(velocity_dir, arcname=f"{velocity_dir.name}")
 
-    print(f"Latest Time: {latest_time}")
     vtk_df = read_vtk(
             f"{velocity_dir / f'OF_case_{latest_time}.vtk'}",
             interest_b_box=interest_b_box
@@ -107,7 +139,7 @@ def prepare_runner_files(work_dir: pathlib.Path, n_proc: int):
         template_name="run_simpleFoam_template.jinja",
         templates_dir_path="fpm/templates/runners/",
         var_dict={
-            'number_of_procs': '6',
+            'number_of_procs': str(n_proc),
             'working_directory': f"{work_dir / 'OF_case'}"
         }
     )
@@ -118,7 +150,7 @@ def prepare_runner_files(work_dir: pathlib.Path, n_proc: int):
         template_name="run_prep_for_postproc_template.jinja",
         templates_dir_path="fpm/templates/runners/",
         var_dict={
-            'number_of_procs': '6',
+            'number_of_procs': str(n_proc),
             'working_directory': f"{work_dir / 'OF_case'}"
         }
     )
@@ -176,7 +208,7 @@ def plot_results(results_df: pd.DataFrame, results_dir: pathlib.Path):
             title=f'All geometries with porosity {porosity}'
         )
         plt.xlabel(r"Inlet Flow Rate [m$^3$/s]")
-        plt.ylabel(r"\rho^-")
+        plt.ylabel(r"$\rho^-$")
         plt.grid(linestyle="--", color="gray")
         plt.savefig(results_dir / f"rho_minus_all_porosity_{porosity}.png")
         plt.close()
@@ -219,12 +251,14 @@ def plot_results(results_df: pd.DataFrame, results_dir: pathlib.Path):
                 title=f'Geometry {geom_no} with porosity {porosity}'
             )
             plt.xlabel(r"Inlet Flow Rate [m$^3$/s]")
-            plt.ylabel(r"\rho^-")
+            plt.ylabel(r"$\rho^-$")
             plt.grid(linestyle="--", color="gray")
             plt.savefig(
                 results_dir / f"rho_minus_porosity_{porosity}_geom_{geom_no}.png"
             )
             plt.close()
+
+        logger.info("Graphs saved to %s", results_dir)
 
 
 def main():
@@ -239,6 +273,13 @@ def main():
     porosity_list = config.case_cfg.run.porosities
     velocity_list = config.case_cfg.run.velocities
     geometries_per_porosity = config.case_cfg.run.number_of_geometries
+
+    global logger
+    logger = setup_logging(
+        verbose=args.verbose,
+        log_file=results_dir / "experiment.log"
+    )
+    logger.info("Correctly read experiment config from %s", config_path)
 
     results_rows = []
 
@@ -259,6 +300,7 @@ def main():
 
         foam_case.save_walls_stls(work_dir / 'OF_case' / 'constant' / 'triSurface')
 
+        logger.info("Generating geometry %d with porosity %0.2f", geom_num, porosity)
         porous_medium = SwissCheese(
             porosity=porosity,
             bounds=config.case_cfg.medium.bounding_box.as_dict(),
@@ -271,7 +313,7 @@ def main():
         porous_medium.save_stls(
             savepath=work_dir / 'OF_case' / 'constant' / 'triSurface'
         )
-
+        logger.info("Preparing runner files for OpenFOAM...")
         runner_files = prepare_runner_files(
             work_dir=work_dir,
             n_proc=config.case_cfg.parallelism.number_of_procs
@@ -280,22 +322,32 @@ def main():
         prep_postproc_runner_path = runner_files["prep_postproc_runner_path"]
         mesher_file_path = runner_files["mesher_file_path"]
 
+        logger.info("Meshing the geometry...")
         utils.run_cmd(
             ["bash", f"{mesher_file_path}"]
         )
+        logger.info("Meshing completed.")
         end_time = time.time()
 
-        print(f"Meshing Elapsed time: {end_time - start_time:0.2f} seconds")
+        logger.debug("Meshing Elapsed time: %.2f seconds", end_time - start_time)
 
         new_start_time = time.time()
 
         for velocity_i, velocity in enumerate(velocity_list):
-            print(f"   Now processing for\n"
-                  f"     Porosity: {porosity} [{porosity_i + 1} / {len(porosity_list)}]"
-                  f"     Velocity: {velocity} [{velocity_i + 1} / {len(velocity_list)}]"
-                  f"     Geometry: [{geom_num + 1} / {geometries_per_porosity}]"
-                  f"     Total progress: "
-                  f"{100 * total_cases_processed / cases_in_experiment:0.2f}%\n")
+            logger.info(
+                "   Now processing for\n     Porosity: %0.3f [%d / %d]"
+                "     Velocity: %0.3f [%d / %d]     Geometry: [%d / %d]"
+                "     Total progress: %0.2f %%\n",
+                porosity,
+                porosity_i + 1,
+                len(porosity_list),
+                velocity,
+                velocity_i + 1,
+                len(velocity_list),
+                geom_num + 1,
+                geometries_per_porosity,
+                100 * total_cases_processed / cases_in_experiment
+            )
 
             vtk_df = compute_case(
                 foam_case=foam_case,
@@ -307,7 +359,10 @@ def main():
                     config.case_cfg.medium.bounding_box.as_dict().values()
                 )
             )
-            print(time.time() - new_start_time)
+            logger.debug(
+                "Computed one case in %0.2f seconds.",
+                time.time() - new_start_time
+            )
             new_start_time = time.time()
 
             total_cases_processed += 1
@@ -336,7 +391,7 @@ def main():
 
         tar_name = f"FOAM_case_geom_no_{geom_num}_porosity{porosity}.tar.gz"
         tar_path = results_dir / tar_name
-        print(f"Saving the tarball to {tar_path}")
+        logger.debug("Saving the tarball.")
         with tarfile.open(tar_path, "w:gz") as tar:
             files_to_tar = [
                 file
@@ -346,12 +401,16 @@ def main():
             for file in files_to_tar:
                 tar.add(work_dir / 'OF_case' / file, arcname=file)
 
+        logger.info("Case's tarball saved to %s", tar_path)
+
         shutil.rmtree(work_dir / 'OF_case')
 
     results_df = pd.DataFrame(results_rows)
 
     results_df.to_csv(results_dir / "results.csv", index=False)
+    logger.info("Results CSV saved to %s", results_dir / "results.csv")
 
+    logger.debug("Plotting results...")
     plot_results(results_df, results_dir)
 
 
