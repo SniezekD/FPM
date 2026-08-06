@@ -21,26 +21,44 @@ from fpm.utilities.tortuosity import compute_tortuosity
 from fpm.utilities.rho_minus import compute_rho_minus
 
 
-def setup_logging(verbose: bool, log_file: pathlib.Path | None = None):
-    tmp_logger = logging.getLogger("fpm")           # configure the FPM tree only
-    tmp_logger.setLevel(logging.DEBUG if verbose else logging.INFO)
+logger = logging.getLogger("fpm.runner")
+
+
+def setup_logging(verbose: bool, log_file: pathlib.Path | None = None) -> None:
+    """Configure the 'fpm' logger tree. Called once, at startup.
+
+    Console shows INFO and above; if a log file is given and can be opened,
+    it captures DEBUG and above. A failure to open the log file degrades to
+    console-only rather than aborting the run.
+    """
+    fpm_logger = logging.getLogger("fpm")           # configure the FPM tree only
+    fpm_logger.setLevel(logging.DEBUG if verbose else logging.INFO)
+
+    # Idempotent: clear handlers so a second call doesn't double-log.
+    fpm_logger.handlers.clear()
 
     fmt = logging.Formatter(
         "%(asctime)s | %(name)-28s | %(levelname)-7s | %(message)s",
         datefmt="%H:%M:%S",
     )
+
     console = logging.StreamHandler()
-    console.setLevel(logging.INFO)            # console stays readable: INFO+
+    console.setLevel(logging.DEBUG if verbose else logging.INFO)
     console.setFormatter(fmt)
-    tmp_logger.addHandler(console)
+    fpm_logger.addHandler(console)
 
-    if log_file:                              # file captures everything: DEBUG+
-        fh = logging.FileHandler(log_file)
-        fh.setLevel(logging.DEBUG)
-        fh.setFormatter(fmt)
-        tmp_logger.addHandler(fh)
-
-    return tmp_logger
+    if log_file:                                    # file captures DEBUG+
+        try:
+            log_file.parent.mkdir(parents=True, exist_ok=True)
+            fh = logging.FileHandler(log_file)
+            fh.setLevel(logging.DEBUG)
+            fh.setFormatter(fmt)
+            fpm_logger.addHandler(fh)
+        except OSError as exc:
+            fpm_logger.warning(
+                "Could not open log file %s: %s; logging to console only",
+                log_file, exc,
+            )
 
 
 def parse_cla():
@@ -267,15 +285,14 @@ def main():
     work_dir = config.case_cfg.run.working_directory
     work_dir.mkdir(parents=True, exist_ok=True)
     results_dir = config.case_cfg.run.results_directory
+    setup_logging(
+        verbose=args.verbose,
+        log_file=results_dir / "experiment.log"
+    )
     porosity_list = config.case_cfg.run.porosities
     velocity_list = config.case_cfg.run.velocities
     geometries_per_porosity = config.case_cfg.run.number_of_geometries
 
-    global logger
-    logger = setup_logging(
-        verbose=args.verbose,
-        log_file=results_dir / "experiment.log"
-    )
     logger.info("Correctly read experiment config from %s", config_path)
 
     results_rows = []
