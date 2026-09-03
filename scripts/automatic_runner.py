@@ -90,7 +90,7 @@ def compute_case(
     prep_postproc_runner_path: pathlib.Path,
     interest_b_box: tuple,
     dest_dir: pathlib.Path
-) -> pd.DataFrame:
+) -> tuple[pd.DataFrame, dict]:
     previous_u_boundary_types = foam_case.u_boundary_types
     new_u_boundary_types = previous_u_boundary_types
     new_u_boundary_types['left_field_value'] = f'uniform ({velocity} 0 0)'
@@ -131,7 +131,13 @@ def compute_case(
         interest_b_box=interest_b_box
     )
 
-    return vtk_df
+    manifest_data_dict = {
+        "latest_time": latest_time,
+        "vtk_file": dest_dir / f"fields_{latest_time}.vtk.gz",
+        "absolute_path": dest_dir
+    }
+
+    return vtk_df, manifest_data_dict
 
 
 def prepare_runner_files(work_dir: pathlib.Path, n_proc: int):
@@ -288,6 +294,7 @@ def main():
     logger.info("Correctly read experiment config from %s", config_path)
 
     results_rows = []
+    manifest_rows = []
 
     shutil.copy(config_path, results_dir / "experiment_config.toml")
 
@@ -299,7 +306,7 @@ def main():
     for geom_num, (porosity_i, porosity) in itertools.product(
         range(geometries_per_porosity),
         enumerate(porosity_list)
-    ):
+    ):  
         foam_case = OpenFoamCase.from_config(config_path=config_path)
 
         foam_case.create_of_dir()
@@ -366,7 +373,7 @@ def main():
                 100 * total_cases_processed / cases_in_experiment
             )
 
-            vtk_df = compute_case(
+            vtk_df, case_manifest_info = compute_case(
                 foam_case=foam_case,
                 velocity=velocity,
                 working_dir=work_dir,
@@ -401,6 +408,17 @@ def main():
                 "geometry_number": geom_num,
             })
 
+            manifest_rows.append({
+                "case_id": len(manifest_rows),
+                "aimed_porosity": porosity,
+                "geom_num": geom_num,
+                "inlet_velocity": velocity,
+                "inlet_flow_rate": velocity * foam_case.inlet_area,
+                "rel_path": case_manifest_info["absolute_path"].relative_to(results_dir),
+                "latest_time": case_manifest_info["latest_time"],
+                "vtk_archive": case_manifest_info["vtk_file"].relative_to(results_dir)
+            })
+
         logger.info("Case's saved to %s", geom_dir)
 
         shutil.rmtree(work_dir / 'OF_case')
@@ -409,6 +427,10 @@ def main():
 
     results_df.to_csv(results_dir / "results.csv", index=False)
     logger.info("Results CSV saved to %s", results_dir / "results.csv")
+
+    manifest_df = pd.DataFrame(manifest_rows)
+    manifest_df.to_csv(results_dir / "manifest.csv", index=False)
+    logger.info("Manifest CSV saved to %s", results_dir / "manifest.csv")
 
     logger.debug("Plotting results...")
     plots_dir = results_dir / "figures"
