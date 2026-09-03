@@ -96,7 +96,7 @@ if __name__ == '__main__':
 
     for u_dir in u_dirs:
         vtk_paths = list(u_dir.glob('*.vtk'))
-        logger.debug(f"\n\n{vtk_paths}")
+        logger.debug("VTK paths: %s", vtk_paths)
         if len(vtk_paths) > 1:
             logger.warning(
                 'More than one vtk file found in the directory. '
