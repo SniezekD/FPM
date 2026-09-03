@@ -1,5 +1,4 @@
 import pathlib
-import os
 import tarfile
 import argparse
 import shutil
@@ -306,7 +305,7 @@ def main():
     for geom_num, (porosity_i, porosity) in itertools.product(
         range(geometries_per_porosity),
         enumerate(porosity_list)
-    ):  
+    ):
         foam_case = OpenFoamCase.from_config(config_path=config_path)
 
         foam_case.create_of_dir()
@@ -414,7 +413,9 @@ def main():
                 "geom_num": geom_num,
                 "inlet_velocity": velocity,
                 "inlet_flow_rate": velocity * foam_case.inlet_area,
-                "rel_path": case_manifest_info["absolute_path"].relative_to(results_dir),
+                "rel_path": case_manifest_info["absolute_path"].relative_to(
+                    results_dir
+                ),
                 "latest_time": case_manifest_info["latest_time"],
                 "vtk_archive": case_manifest_info["vtk_file"].relative_to(results_dir)
             })
