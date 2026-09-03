@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 
 def compute_tortuosity(
     vtk_df: pd.DataFrame,
-    streamwise_axis: str = 'x'
+    streamwise_axis: str | None = 'x'
 ) -> float:
     """Computes the tortuosity for a given VTK file.
     Necessary columns in the VTK DataFrame are:

@@ -1,5 +1,4 @@
 import pathlib
-import os
 import tarfile
 import argparse
 import shutil
@@ -89,7 +88,8 @@ def compute_case(
     simple_foam_runner_path: pathlib.Path,
     prep_postproc_runner_path: pathlib.Path,
     interest_b_box: tuple,
-) -> pd.DataFrame:
+    dest_dir: pathlib.Path
+) -> tuple[pd.DataFrame, dict]:
     previous_u_boundary_types = foam_case.u_boundary_types
     new_u_boundary_types = previous_u_boundary_types
     new_u_boundary_types['left_field_value'] = f'uniform ({velocity} 0 0)'
@@ -109,42 +109,34 @@ def compute_case(
         ["bash", f'{prep_postproc_runner_path}']
     )
 
-    velocity_dir = working_dir / 'OF_case' / f"U_{velocity}"
-    velocity_dir.mkdir(exist_ok=True, parents=True)
+    dest_dir.mkdir(parents=True, exist_ok=True)
 
-    utils.run_cmd(
-        args=[
-            'mv',
-            working_dir / "OF_case" / latest_time,
-            velocity_dir / latest_time
-        ]
-    )
-    utils.run_cmd(
-        args=[
-            'mv',
-            working_dir / "OF_case" / "simpleFoam.log",
-            velocity_dir / 'simpleFoam.log'
-        ]
-    )
-    utils.run_cmd(
-        args=[
-            'mv',
+    with tarfile.open(dest_dir / f"fields_{latest_time}.vtk.gz", "w:gz") as tar:
+        tar.add(
             working_dir / "OF_case" / f"VTK/OF_case_{latest_time}.vtk",
-            f"{velocity_dir / f'OF_case_{latest_time}.vtk'}"
-        ]
-    )
-
-    foam_case.save_spec_to_file(velocity_dir / 'OF_spec.csv')
-
-    with tarfile.open(f"{velocity_dir}.tar.gz", "w:gz") as tar:
-        tar.add(velocity_dir, arcname=f"{velocity_dir.name}")
-
-    vtk_df = read_vtk(
-            f"{velocity_dir / f'OF_case_{latest_time}.vtk'}",
-            interest_b_box=interest_b_box
+            arcname=f"fields_{latest_time}.vtk"
         )
 
-    return vtk_df
+    with tarfile.open(dest_dir / "simpleFoam.log.gz", "w:gz") as tar:
+        tar.add(
+            working_dir / "OF_case" / "simpleFoam.log",
+            arcname="simpleFoam.log"
+        )
+
+    foam_case.save_spec_to_file(dest_dir / 'OF_spec.csv')
+
+    vtk_df = read_vtk(
+        working_dir / "OF_case" / f"VTK/OF_case_{latest_time}.vtk",
+        interest_b_box=interest_b_box
+    )
+
+    manifest_data_dict = {
+        "latest_time": latest_time,
+        "vtk_file": dest_dir / f"fields_{latest_time}.vtk.gz",
+        "absolute_path": dest_dir
+    }
+
+    return vtk_df, manifest_data_dict
 
 
 def prepare_runner_files(work_dir: pathlib.Path, n_proc: int):
@@ -152,7 +144,7 @@ def prepare_runner_files(work_dir: pathlib.Path, n_proc: int):
         runner_name='run_simpleFoam.sh',
         runner_path=work_dir / 'OF_case',
         template_name="run_simpleFoam_template.jinja",
-        templates_dir_path="fpm/templates/runners/",
+        templates_dir_path=pathlib.Path("fpm/templates/runners/"),
         var_dict={
             'number_of_procs': str(n_proc),
             'working_directory': f"{work_dir / 'OF_case'}"
@@ -163,7 +155,7 @@ def prepare_runner_files(work_dir: pathlib.Path, n_proc: int):
         runner_name='run_prep_for_postproc.sh',
         runner_path=work_dir / 'OF_case',
         template_name="run_prep_for_postproc_template.jinja",
-        templates_dir_path="fpm/templates/runners/",
+        templates_dir_path=pathlib.Path("fpm/templates/runners/"),
         var_dict={
             'number_of_procs': str(n_proc),
             'working_directory': f"{work_dir / 'OF_case'}"
@@ -174,7 +166,7 @@ def prepare_runner_files(work_dir: pathlib.Path, n_proc: int):
         runner_name='run_meshing.sh',
         runner_path=work_dir / 'OF_case',
         template_name="run_meshing_template.jinja",
-        templates_dir_path="fpm/templates/runners/",
+        templates_dir_path=pathlib.Path("fpm/templates/runners/"),
         var_dict={
             'number_of_procs': str(n_proc),
             'working_directory': f"{work_dir / 'OF_case'}"
@@ -188,7 +180,8 @@ def prepare_runner_files(work_dir: pathlib.Path, n_proc: int):
     }
 
 
-def plot_results(results_df: pd.DataFrame, results_dir: pathlib.Path):
+def plot_results(results_df: pd.DataFrame, plots_dir: pathlib.Path):
+    plots_dir.mkdir(parents=True, exist_ok=True)
     for porosity in results_df['porosity'].unique():
         plot_df = results_df.loc[results_df["porosity"] == porosity]
 
@@ -201,7 +194,7 @@ def plot_results(results_df: pd.DataFrame, results_dir: pathlib.Path):
         plt.xlabel(r"Inlet Flow Rate [m$^3$/s]")
         plt.ylabel("Tortuosity")
         plt.grid(linestyle="--", color="gray")
-        plt.savefig(results_dir / f"tortuosity_all_porosity_{porosity}.png")
+        plt.savefig(plots_dir / f"tortuosity_all_porosity_{porosity}.png")
         plt.close()
 
         plot_df.plot(
@@ -213,7 +206,7 @@ def plot_results(results_df: pd.DataFrame, results_dir: pathlib.Path):
         plt.xlabel(r"Inlet Flow Rate [m$^3$/s]")
         plt.ylabel("Participation Number")
         plt.grid(linestyle="--", color="gray")
-        plt.savefig(results_dir / f"participation_number_all_porosity_{porosity}.png")
+        plt.savefig(plots_dir / f"participation_number_all_porosity_{porosity}.png")
         plt.close()
 
         plot_df.plot(
@@ -225,7 +218,7 @@ def plot_results(results_df: pd.DataFrame, results_dir: pathlib.Path):
         plt.xlabel(r"Inlet Flow Rate [m$^3$/s]")
         plt.ylabel(r"$\rho^-$")
         plt.grid(linestyle="--", color="gray")
-        plt.savefig(results_dir / f"rho_minus_all_porosity_{porosity}.png")
+        plt.savefig(plots_dir / f"rho_minus_all_porosity_{porosity}.png")
         plt.close()
 
         for geom_no in plot_df["geometry_number"].unique():
@@ -240,7 +233,7 @@ def plot_results(results_df: pd.DataFrame, results_dir: pathlib.Path):
             plt.ylabel("Tortuosity")
             plt.grid(linestyle="--", color="gray")
             plt.savefig(
-                results_dir / f"tortuosity_porosity_{porosity}_geom_{geom_no}.png"
+                plots_dir / f"tortuosity_porosity_{porosity}_geom_{geom_no}.png"
             )
             plt.close()
 
@@ -254,7 +247,7 @@ def plot_results(results_df: pd.DataFrame, results_dir: pathlib.Path):
             plt.ylabel("Participation Number")
             plt.grid(linestyle="--", color="gray")
             plt.savefig(
-                results_dir /
+                plots_dir /
                 f"participation_number_porosity_{porosity}_geom_{geom_no}.png"
             )
             plt.close()
@@ -269,11 +262,11 @@ def plot_results(results_df: pd.DataFrame, results_dir: pathlib.Path):
             plt.ylabel(r"$\rho^-$")
             plt.grid(linestyle="--", color="gray")
             plt.savefig(
-                results_dir / f"rho_minus_porosity_{porosity}_geom_{geom_no}.png"
+                plots_dir / f"rho_minus_porosity_{porosity}_geom_{geom_no}.png"
             )
             plt.close()
 
-        logger.info("Graphs saved to %s", results_dir)
+        logger.info("Graphs saved to %s", plots_dir)
 
 
 def main():
@@ -285,10 +278,14 @@ def main():
     work_dir = config.case_cfg.run.working_directory
     work_dir.mkdir(parents=True, exist_ok=True)
     results_dir = config.case_cfg.run.results_directory
+    cases_dir = results_dir / "cases"
+    cases_dir.mkdir(parents=True, exist_ok=True)
+
     setup_logging(
         verbose=args.verbose,
         log_file=results_dir / "experiment.log"
     )
+
     porosity_list = config.case_cfg.run.porosities
     velocity_list = config.case_cfg.run.velocities
     geometries_per_porosity = config.case_cfg.run.number_of_geometries
@@ -296,8 +293,9 @@ def main():
     logger.info("Correctly read experiment config from %s", config_path)
 
     results_rows = []
+    manifest_rows = []
 
-    shutil.copy(config_path, work_dir / "experiment_config.toml")
+    shutil.copy(config_path, results_dir / "experiment_config.toml")
 
     total_cases_processed = 0
     cases_in_experiment = (len(porosity_list)
@@ -345,12 +343,23 @@ def main():
 
         logger.debug("Meshing Elapsed time: %.2f seconds", end_time - start_time)
 
+        porosity_dir = cases_dir / f"porosity_{porosity:0.5f}"
+        geom_dir = porosity_dir / f"geometry_{geom_num:03}"
+        geom_dir.mkdir(parents=True, exist_ok=True)
+
+        porous_medium.save_spec_to_file(geom_dir / 'porous_medium_spec.csv')
+        trisurface_dir = work_dir / 'OF_case' / 'constant' / 'triSurface'
+        with tarfile.open(geom_dir / "geometry.tar.gz", "w:gz") as tar:
+            for file in trisurface_dir.glob("*.stl"):
+                tar.add(file, arcname=file.name)
+
         new_start_time = time.time()
 
         for velocity_i, velocity in enumerate(velocity_list):
+            velocity_dir = geom_dir / f"velocity_{velocity:0.5e}"
             logger.info(
-                "   Now processing for\n     Porosity: %0.3f [%d / %d]"
-                "     Velocity: %0.3f [%d / %d]     Geometry: [%d / %d]"
+                "   Now processing for\n     Porosity: %0.5f [%d / %d]"
+                "     Velocity: %0.5e [%d / %d]     Geometry: [%d / %d]"
                 "     Total progress: %0.2f %%\n",
                 porosity,
                 porosity_i + 1,
@@ -363,7 +372,7 @@ def main():
                 100 * total_cases_processed / cases_in_experiment
             )
 
-            vtk_df = compute_case(
+            vtk_df, case_manifest_info = compute_case(
                 foam_case=foam_case,
                 velocity=velocity,
                 working_dir=work_dir,
@@ -371,7 +380,8 @@ def main():
                 prep_postproc_runner_path=prep_postproc_runner_path,
                 interest_b_box=tuple(
                     config.case_cfg.medium.bounding_box.as_dict().values()
-                )
+                ),
+                dest_dir=velocity_dir
             )
             logger.debug(
                 "Computed one case in %0.2f seconds.",
@@ -397,25 +407,20 @@ def main():
                 "geometry_number": geom_num,
             })
 
-        constant_dir = work_dir / 'OF_case' / 'constant'
-        porous_medium.save_spec_to_file(constant_dir / 'porous_medium_spec.csv')
+            manifest_rows.append({
+                "case_id": len(manifest_rows),
+                "aimed_porosity": porosity,
+                "geom_num": geom_num,
+                "inlet_velocity": velocity,
+                "inlet_flow_rate": velocity * foam_case.inlet_area,
+                "rel_path": case_manifest_info["absolute_path"].relative_to(
+                    results_dir
+                ),
+                "latest_time": case_manifest_info["latest_time"],
+                "vtk_archive": case_manifest_info["vtk_file"].relative_to(results_dir)
+            })
 
-        with tarfile.open(f"{constant_dir}.tar.gz", "w:gz") as tar:
-            tar.add(constant_dir, arcname=constant_dir.name)
-
-        tar_name = f"FOAM_case_geom_no_{geom_num}_porosity{porosity}.tar.gz"
-        tar_path = results_dir / tar_name
-        logger.debug("Saving the tarball.")
-        with tarfile.open(tar_path, "w:gz") as tar:
-            files_to_tar = [
-                file
-                for file in os.listdir(work_dir / 'OF_case')
-                if '.tar.gz' in file
-                ]
-            for file in files_to_tar:
-                tar.add(work_dir / 'OF_case' / file, arcname=file)
-
-        logger.info("Case's tarball saved to %s", tar_path)
+        logger.info("Case's saved to %s", geom_dir)
 
         shutil.rmtree(work_dir / 'OF_case')
 
@@ -424,8 +429,13 @@ def main():
     results_df.to_csv(results_dir / "results.csv", index=False)
     logger.info("Results CSV saved to %s", results_dir / "results.csv")
 
+    manifest_df = pd.DataFrame(manifest_rows)
+    manifest_df.to_csv(results_dir / "manifest.csv", index=False)
+    logger.info("Manifest CSV saved to %s", results_dir / "manifest.csv")
+
     logger.debug("Plotting results...")
-    plot_results(results_df, results_dir)
+    plots_dir = results_dir / "figures"
+    plot_results(results_df, plots_dir)
 
 
 if __name__ == "__main__":

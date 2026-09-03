@@ -4,7 +4,7 @@ import pandas as pd
 
 def compute_rho_minus(
     vtk_df: pd.DataFrame,
-    streamwise_axis: str = 'x'
+    streamwise_axis: str | None = 'x'
 ) -> float:
     """Computes the rho_minus for a given VTK file.
     Necessary columns in the VTK DataFrame are:
