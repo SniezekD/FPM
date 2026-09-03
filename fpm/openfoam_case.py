@@ -81,7 +81,7 @@ class OpenFoamCase():
 
         return streamwise
 
-    def calculate_inlet_area(self):
+    def calculate_inlet_area(self) -> float:
         bounds = self.bounding_box_coords
         if self.streamwise_axis == "x":
             return (
@@ -99,7 +99,8 @@ class OpenFoamCase():
                 * (bounds["y_max"] - bounds["y_min"])
             )
         else:
-            return None
+            raise ValueError("Cannot calculate inlet area. "
+                             "Streamwise axis is not defined.")
 
     def create_of_dir(self):
         of_dir = self.working_directory / 'OF_case'
