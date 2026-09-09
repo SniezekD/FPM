@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 import pathlib
 import tempfile
 import tarfile
@@ -56,35 +57,62 @@ class ExperimentPostProcessor():
 
 
 class GeometryPostProcessor():
-    def __init__(self, archive_path:pathlib.Path) -> None:
-        self.results_df = pd.DataFrame(
-            columns=[
-                'porosity',
-                'inlet_flow_rate',
-                'participation_number',
-                'rho_minus',
-                'tortuosity'
-            ]
+    """Aggregates case metrics for a single geometry directory.
+
+    A geometry directory (``geometry_<NNN>``) produced by the runner holds a
+    ``porous_medium_spec.csv`` describing the medium and one sub-directory per
+    simulated case (one per inlet velocity). This class discovers those cases,
+    runs a :class:`CasePostProcessor` for each of them and gathers their metrics
+    into a single DataFrame tagged with the geometry's id, which is parsed from
+    the directory name.
+    """
+
+    def __init__(self, geometry_dir: pathlib.Path) -> None:
+        self._geometry_dir = geometry_dir
+        self.geometry_id = self._parse_geometry_id(geometry_dir)
+        self.case_post_procs: List[CasePostProcessor] = self._discover_cases()
+        self.results_df: pd.DataFrame | None = None
+
+    @staticmethod
+    def _parse_geometry_id(geometry_dir: pathlib.Path) -> int:
+        """Extract the geometry number from a ``geometry_<NNN>`` directory name."""
+        match = re.search(r"(\d+)$", geometry_dir.name)
+        if match is None:
+            raise ValueError(
+                "Cannot parse geometry id from directory name "
+                f"'{geometry_dir.name}'; expected a trailing integer."
+            )
+        return int(match.group(1))
+
+    def _discover_cases(self) -> List[CasePostProcessor]:
+        """Find every case sub-directory in the geometry directory.
+
+        A case is any sub-directory that contains an ``OF_spec.csv`` file, which
+        keeps discovery independent of the runner's ``velocity_*`` naming.
+        """
+        case_dirs = sorted(
+            d for d in self._geometry_dir.iterdir()
+            if d.is_dir() and (d / "OF_spec.csv").exists()
         )
-        self._archive_path: pathlib.Path = archive_path
+        if not case_dirs:
+            logger.warning(
+                "No cases found in geometry directory %s", self._geometry_dir
+            )
+        return [CasePostProcessor(case_dir) for case_dir in case_dirs]
 
-        self._porous_medium_spec = self.read_spec_from_archive()
-        self._porous_medium_b_box = self.read_prous_medium_b_box()
+    def compute_metrics(self) -> pd.DataFrame:
+        """Compute the metrics of every case and gather them in one DataFrame.
 
-
-    def read_cases(self) -> List[CasePostProcessor]:
-        """Find all cases inside the archive"""
-        with tempfile.TemporaryDirectory() as tmp:
-            tmp = pathlib.Path(tmp)
-            with tarfile.open(self._archive_path, "r:gz") as tar:
-                tar.extractall(tmp)
-            
-            case_archives = [f for f in tmp.glob("U_*.tar.gz")]
-
-        return list(
-            CasePostProcessor(f, interest_b_box=self._porous_medium_b_box)
-                for f in case_archives
-        )
+        The resulting frame has one row per case, one column per key in
+        :attr:`CasePostProcessor.metrics`, plus a ``geometry_id`` column. It is
+        also stored on :attr:`results_df`.
+        """
+        rows = [
+            {"geometry_id": self.geometry_id, **case.metrics}
+            for case in self.case_post_procs
+        ]
+        self.results_df = pd.DataFrame(rows)
+        return self.results_df
 
 
 class CasePostProcessor():
@@ -105,6 +133,9 @@ class CasePostProcessor():
         self._metrics: dict | None = None
 
     def _get_pm_bbox(self) -> tuple:
+        """Read bounding box coordinates from porous medium spec CSV file
+           and return them as a tuple.
+        """
         return (
             self._pm_spec['x_min'].values[0],
             self._pm_spec['x_max'].values[0],
