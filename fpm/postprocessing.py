@@ -38,8 +38,13 @@ class ExperimentPostProcessor():
     }
     _FLOW_RATE_LABEL = r"Inlet Flow Rate [m$^3$/s]"
 
-    def __init__(self, results_dir: pathlib.Path) -> None:
+    def __init__(
+        self,
+        results_dir: pathlib.Path,
+        overwrite: bool = False,
+    ) -> None:
         self.results_dir: pathlib.Path = results_dir
+        self._overwrite = overwrite
         self.geometry_post_procs: List[GeometryPostProcessor] = (
             self.read_geometries()
         )
@@ -60,7 +65,10 @@ class ExperimentPostProcessor():
             logger.warning(
                 "No geometries found under %s", self.results_dir
             )
-        return [GeometryPostProcessor(d) for d in geometry_dirs]
+        return [
+            GeometryPostProcessor(d, overwrite=self._overwrite)
+            for d in geometry_dirs
+        ]
 
     def compute_metrics(self) -> pd.DataFrame:
         """Compute metrics for every case in every geometry, in a cascade.
@@ -90,9 +98,15 @@ class ExperimentPostProcessor():
         """Save the merged experiment metrics to a CSV file.
 
         Defaults to ``experiment_flow_params.csv`` in the results directory.
-        Metrics are computed on demand if needed. Returns the written path.
+        Writing cascades: every geometry's ``geom_<NNN>_flow_params.csv`` and
+        each case's ``case_flow_params.csv`` are (re)written first, so the
+        case-level caches are populated for later runs. Metrics are computed on
+        demand if needed. Returns the written path.
         """
         self._ensure_metrics()
+        # Cascade: persist every geometry (and its cases), then the aggregate.
+        for geom in self.geometry_post_procs:
+            geom.to_csv()
         if save_path is None:
             save_path = self.results_dir / "experiment_flow_params.csv"
         self.results_df.to_csv(save_path, index=False)
@@ -276,8 +290,13 @@ class GeometryPostProcessor():
     the directory name.
     """
 
-    def __init__(self, geometry_dir: pathlib.Path) -> None:
+    def __init__(
+        self,
+        geometry_dir: pathlib.Path,
+        overwrite: bool = False,
+    ) -> None:
         self._geometry_dir = geometry_dir
+        self._overwrite = overwrite
         self.geometry_id = self._parse_geometry_id(geometry_dir)
         self.case_post_procs: List[CasePostProcessor] = self._discover_cases()
         self.results_df: pd.DataFrame | None = None
@@ -307,7 +326,10 @@ class GeometryPostProcessor():
             logger.warning(
                 "No cases found in geometry directory %s", self._geometry_dir
             )
-        return [CasePostProcessor(case_dir) for case_dir in case_dirs]
+        return [
+            CasePostProcessor(case_dir, overwrite=self._overwrite)
+            for case_dir in case_dirs
+        ]
 
     def compute_metrics(self) -> pd.DataFrame:
         """Compute the metrics of every case and gather them in one DataFrame.
@@ -327,8 +349,10 @@ class GeometryPostProcessor():
         """Save the aggregated metrics to a CSV inside the geometry directory.
 
         The file is named ``geom_<NNN>_flow_params.csv``, where ``<NNN>`` is the
-        zero-padded geometry id. Metrics are computed on demand if they have not
-        been already. Returns the path of the written file.
+        zero-padded geometry id. Writing cascades: each case's
+        ``case_flow_params.csv`` is (re)written first, populating the case-level
+        caches. Metrics are computed on demand if they have not been already.
+        Returns the path of the written file.
         """
         if self.results_df is None:
             logger.warning(
@@ -337,15 +361,50 @@ class GeometryPostProcessor():
             )
             self.compute_metrics()
 
-        save_path = self._geometry_dir / f"geom_{self.geometry_id:03d}_flow_params.csv"
+        # Cascade: persist each case's cache, then the geometry-level aggregate.
+        for case in self.case_post_procs:
+            case.to_csv()
+
+        save_path = (
+            self._geometry_dir / f"geom_{self.geometry_id:03d}_flow_params.csv"
+        )
         self.results_df.to_csv(save_path, index=False)
         logger.debug("Saved geometry flow params to %s", save_path)
         return save_path
 
 
 class CasePostProcessor():
-    def __init__(self, case_dir_path: pathlib.Path, interest_b_box=None):
+    """Computes the flow metrics for a single simulated case.
+
+    A case directory holds one ``OF_spec.csv`` and one ``fields_*.vtk.gz`` field
+    archive; its parent geometry directory holds the ``porous_medium_spec.csv``
+    used to crop the field to the medium and to read the porosity. Computed
+    metrics are cached to ``case_flow_params.csv`` in the case directory and
+    reused on later runs unless ``overwrite`` is set or the cache is stale.
+    """
+
+    #: Name of the per-case metrics cache / output file.
+    CACHE_FILENAME = "case_flow_params.csv"
+
+    #: Keys of the :attr:`metrics` dict; also the expected cache schema.
+    METRIC_KEYS = (
+        "porosity",
+        "tortuosity",
+        "participation_number",
+        "rho_minus",
+        "inlet_flow_rate",
+        "streamwise_axis",
+    )
+
+    def __init__(
+        self,
+        case_dir_path: pathlib.Path,
+        interest_b_box=None,
+        overwrite: bool = False,
+    ) -> None:
         self._case_dir_path = case_dir_path
+        self._overwrite = overwrite
+        self._cache_path = case_dir_path / self.CACHE_FILENAME
         self._pm_spec = pd.read_csv(
             self._case_dir_path.parent / "porous_medium_spec.csv"
         )
@@ -396,29 +455,78 @@ class CasePostProcessor():
 
         return self._df
 
+    def _load_cached_metrics(self) -> dict | None:
+        """Return metrics from the cache CSV if it exists and is usable.
+
+        The cache is rejected (returning ``None``, which triggers a recompute)
+        when it is missing, older than the field archive (mtime guard), has an
+        unexpected set of columns (schema guard), is empty, or cannot be read.
+        """
+        if not self._cache_path.exists():
+            return None
+
+        fields_archive = list(self._case_dir_path.glob("fields_*.vtk.gz"))
+        if fields_archive:
+            cache_mtime = self._cache_path.stat().st_mtime
+            newest_field_mtime = max(f.stat().st_mtime for f in fields_archive)
+            if newest_field_mtime > cache_mtime:
+                logger.debug(
+                    "Cache %s is older than the field archive; recomputing.",
+                    self._cache_path,
+                )
+                return None
+
+        try:
+            cached = pd.read_csv(self._cache_path)
+        except (OSError, pd.errors.ParserError) as exc:
+            logger.warning(
+                "Could not read cache %s: %s; recomputing.",
+                self._cache_path, exc,
+            )
+            return None
+
+        if cached.empty or set(cached.columns) != set(self.METRIC_KEYS):
+            logger.debug(
+                "Cache %s is empty or has an unexpected schema; recomputing.",
+                self._cache_path,
+            )
+            return None
+
+        logger.debug("Loaded cached metrics from %s", self._cache_path)
+        return cached.iloc[0].to_dict()
+
     @property
     def metrics(self) -> dict:
-        """Parameters of interest for this case, computed once and cached."""
+        """Parameters of interest for this case, computed once and cached.
+
+        On first access the metrics are loaded from ``case_flow_params.csv`` when
+        a fresh cache is available (unless ``overwrite`` was set); otherwise they
+        are computed from the VTK field. The result is memoised on the instance.
+        """
         if self._metrics is None:
-            if self._df is None:
-                self.read_case_fields()
-            self._metrics = {
-                "porosity": self._pm_spec['porosity'].values[0],
-                "tortuosity": compute_tortuosity(self._df, self.streamwise),
-                "participation_number": compute_participation_number(self._df),
-                "rho_minus": compute_rho_minus(self._df, self.streamwise),
-                "inlet_flow_rate": calculate_inlet_flow_rate(self._of_spec),
-                "streamwise_axis": self.streamwise,
-            }
+            cached = None if self._overwrite else self._load_cached_metrics()
+            if cached is not None:
+                self._metrics = cached
+            else:
+                if self._df is None:
+                    self.read_case_fields()
+                self._metrics = {
+                    "porosity": self._pm_spec['porosity'].values[0],
+                    "tortuosity": compute_tortuosity(self._df, self.streamwise),
+                    "participation_number":
+                        compute_participation_number(self._df),
+                    "rho_minus": compute_rho_minus(self._df, self.streamwise),
+                    "inlet_flow_rate": calculate_inlet_flow_rate(self._of_spec),
+                    "streamwise_axis": self.streamwise,
+                }
         return self._metrics
 
     def to_csv(self) -> pathlib.Path:
         """Save this case's metrics to ``case_flow_params.csv`` in the case dir.
 
-        Metrics are computed on demand if they have not been already. Returns
-        the path of the written file.
+        Metrics are computed (or loaded from cache) on demand. Returns the path
+        of the written file.
         """
-        save_path = self._case_dir_path / "case_flow_params.csv"
-        pd.DataFrame([self.metrics]).to_csv(save_path, index=False)
-        logger.debug("Saved case flow params to %s", save_path)
-        return save_path
+        pd.DataFrame([self.metrics]).to_csv(self._cache_path, index=False)
+        logger.debug("Saved case flow params to %s", self._cache_path)
+        return self._cache_path
