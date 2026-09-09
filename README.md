@@ -62,20 +62,27 @@ for the current version.
 3. **Simulation.** Solve steady incompressible flow with `simpleFoam`, sweeping
    over the configured inlet velocities.
 4. **Post-processing.** Reduce each flow field to transport metrics (tortuosity,
-   participation number, rho-minus, and inlet flow rate), collected into a single
-   `results.csv` with per-case plots (`fpm/utilities`).
+   participation number, rho-minus, and inlet flow rate) and produce
+   experiment-level figures. This is a separate, re-runnable step
+   (`scripts/postprocess.py`, `fpm/postprocessing.py`) that reads the results
+   tree the run leaves on disk, so it never blocks the simulation and can be run
+   while a run is still in progress. Per-case metrics are cached
+   (`case_flow_params.csv`) and reused on later runs unless `--overwrite` is
+   given.
 
 ## Results
 
 ![Tortuosity across the flow-rate sweep](docs/tortuosity_example.png)
 
 
-Every run writes a `results.csv` to the results directory. 
-All quantities are in standard OpenFOAM units or are dimensionless:
+Post-processing writes an `experiment_flow_params.csv` to the results directory
+(alongside per-geometry `geom_<NNN>_flow_params.csv` and per-case
+`case_flow_params.csv` files). All quantities are in standard OpenFOAM units or
+are dimensionless:
 
-| porosity | velocity | tortuosity | participation_number | rho_minus | inlet_flow_rate |
-| -------- | -------- | ---------- | -------------------- | --------- | --------------- |
-| …        | …        | …          | …                    | …         | …               |
+| geometry_id | porosity | tortuosity | participation_number | rho_minus | inlet_flow_rate | streamwise_axis |
+| ----------- | -------- | ---------- | -------------------- | --------- | --------------- | --------------- |
+| …           | …        | …          | …                    | …         | …               | …               |
 
 ## Quick start
 
@@ -101,9 +108,20 @@ docker run -it \
      poetry run python scripts/automatic_runner.py --config-path /work/config.toml"
 ```
 
-The metrics CSV, plots, and archived cases land in `./results` and stay there
-after the container exits. A single-command `run.sh` wrapper is planned; for now
-this is the entry point.
+The simulation writes archived cases and specs under `./results`. Then
+post-process them into the metrics CSVs and figures (a separate step, so it can
+be re-run without recomputing any CFD):
+
+```bash
+docker run -it \
+    -v "$PWD/results":/results \
+    fpm bash -c \
+    "cd /home/repos/FPM && \
+     poetry run python scripts/postprocess.py --results-dir /results"
+```
+
+Everything lands in `./results` and stays there after the container exits. A
+single-command `run.sh` wrapper is planned; for now these are the entry points.
 
 ## Defining an experiment
 
