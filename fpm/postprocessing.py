@@ -97,7 +97,7 @@ class CasePostProcessor():
             self._get_pm_bbox() if interest_b_box is None else interest_b_box
         )
         self._of_spec = pd.read_csv(self._case_dir_path / "OF_spec.csv")
-        self.streamwise = self._of_spec['streamwise_direction'].values[0]
+        self.streamwise = self._of_spec['streamwise_axis'].values[0]
 
         # Populated lazily on first access to `metrics` to avoid reading the
         # (potentially large) VTK field for every case at construction time.
@@ -149,6 +149,6 @@ class CasePostProcessor():
                 "participation_number": compute_participation_number(self._df),
                 "rho_minus": compute_rho_minus(self._df, self.streamwise),
                 "inlet_flow_rate": calculate_inlet_flow_rate(self._of_spec),
-                "streamwise_direction": self.streamwise,
+                "streamwise_axis": self.streamwise,
             }
         return self._metrics
