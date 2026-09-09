@@ -11,6 +11,43 @@ import pandas as pd
 logger = logging.getLogger(__name__)
 
 
+def setup_logging(verbose: bool, log_file: pathlib.Path | None = None) -> None:
+    """Configure the 'fpm' logger tree. Called once, at startup.
+
+    Console shows INFO and above; if a log file is given and can be opened,
+    it captures DEBUG and above. A failure to open the log file degrades to
+    console-only rather than aborting the run.
+    """
+    fpm_logger = logging.getLogger("fpm")           # configure the FPM tree only
+    fpm_logger.setLevel(logging.DEBUG if verbose else logging.INFO)
+
+    # Idempotent: clear handlers so a second call doesn't double-log.
+    fpm_logger.handlers.clear()
+
+    fmt = logging.Formatter(
+        "%(asctime)s | %(name)-28s | %(levelname)-7s | %(message)s",
+        datefmt="%H:%M:%S",
+    )
+
+    console = logging.StreamHandler()
+    console.setLevel(logging.DEBUG if verbose else logging.INFO)
+    console.setFormatter(fmt)
+    fpm_logger.addHandler(console)
+
+    if log_file:                                    # file captures DEBUG+
+        try:
+            log_file.parent.mkdir(parents=True, exist_ok=True)
+            fh = logging.FileHandler(log_file)
+            fh.setLevel(logging.DEBUG)
+            fh.setFormatter(fmt)
+            fpm_logger.addHandler(fh)
+        except OSError as exc:
+            fpm_logger.warning(
+                "Could not open log file %s: %s; logging to console only",
+                log_file, exc,
+            )
+
+
 def run_cmd(args: list, shell: bool = True):
     status = subprocess.run(
         args,
