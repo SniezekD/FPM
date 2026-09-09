@@ -114,6 +114,25 @@ class GeometryPostProcessor():
         self.results_df = pd.DataFrame(rows)
         return self.results_df
 
+    def to_csv(self) -> pathlib.Path:
+        """Save the aggregated metrics to a CSV inside the geometry directory.
+
+        The file is named ``geom_<NNN>_flow_params.csv``, where ``<NNN>`` is the
+        zero-padded geometry id. Metrics are computed on demand if they have not
+        been already. Returns the path of the written file.
+        """
+        if self.results_df is None:
+            logger.warning(
+                "Metrics have not been computed yet; computing them now, "
+                "this might take a while."
+            )
+            self.compute_metrics()
+
+        save_path = self._geometry_dir / f"geom_{self.geometry_id:03d}_flow_params.csv"
+        self.results_df.to_csv(save_path, index=False)
+        logger.debug("Saved geometry flow params to %s", save_path)
+        return save_path
+
 
 class CasePostProcessor():
     def __init__(self, case_dir_path: pathlib.Path, interest_b_box=None):
@@ -183,3 +202,14 @@ class CasePostProcessor():
                 "streamwise_axis": self.streamwise,
             }
         return self._metrics
+
+    def to_csv(self) -> pathlib.Path:
+        """Save this case's metrics to ``case_flow_params.csv`` in the case dir.
+
+        Metrics are computed on demand if they have not been already. Returns
+        the path of the written file.
+        """
+        save_path = self._case_dir_path / "case_flow_params.csv"
+        pd.DataFrame([self.metrics]).to_csv(save_path, index=False)
+        logger.debug("Saved case flow params to %s", save_path)
+        return save_path
