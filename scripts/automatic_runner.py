@@ -7,57 +7,14 @@ import logging
 import time
 
 import pandas as pd
-import matplotlib.pyplot as plt
 
 import fpm.utilities.utils as utils
 from fpm.openfoam_case import OpenFoamCase
 from fpm.media_models.swiss_cheese import SwissCheese
 from fpm.io.config_reader import ConfigReader
-from fpm.io.vtk_reader import read_vtk
-
-from fpm.utilities.participation_number import compute_participation_number
-from fpm.utilities.tortuosity import compute_tortuosity
-from fpm.utilities.rho_minus import compute_rho_minus
 
 
 logger = logging.getLogger("fpm.runner")
-
-
-def setup_logging(verbose: bool, log_file: pathlib.Path | None = None) -> None:
-    """Configure the 'fpm' logger tree. Called once, at startup.
-
-    Console shows INFO and above; if a log file is given and can be opened,
-    it captures DEBUG and above. A failure to open the log file degrades to
-    console-only rather than aborting the run.
-    """
-    fpm_logger = logging.getLogger("fpm")           # configure the FPM tree only
-    fpm_logger.setLevel(logging.DEBUG if verbose else logging.INFO)
-
-    # Idempotent: clear handlers so a second call doesn't double-log.
-    fpm_logger.handlers.clear()
-
-    fmt = logging.Formatter(
-        "%(asctime)s | %(name)-28s | %(levelname)-7s | %(message)s",
-        datefmt="%H:%M:%S",
-    )
-
-    console = logging.StreamHandler()
-    console.setLevel(logging.DEBUG if verbose else logging.INFO)
-    console.setFormatter(fmt)
-    fpm_logger.addHandler(console)
-
-    if log_file:                                    # file captures DEBUG+
-        try:
-            log_file.parent.mkdir(parents=True, exist_ok=True)
-            fh = logging.FileHandler(log_file)
-            fh.setLevel(logging.DEBUG)
-            fh.setFormatter(fmt)
-            fpm_logger.addHandler(fh)
-        except OSError as exc:
-            fpm_logger.warning(
-                "Could not open log file %s: %s; logging to console only",
-                log_file, exc,
-            )
 
 
 def parse_cla():
@@ -87,9 +44,8 @@ def compute_case(
     working_dir: pathlib.Path,
     simple_foam_runner_path: pathlib.Path,
     prep_postproc_runner_path: pathlib.Path,
-    interest_b_box: tuple,
     dest_dir: pathlib.Path
-) -> tuple[pd.DataFrame, dict]:
+) -> dict:
     previous_u_boundary_types = foam_case.u_boundary_types
     new_u_boundary_types = previous_u_boundary_types
     new_u_boundary_types['left_field_value'] = f'uniform ({velocity} 0 0)'
@@ -125,18 +81,13 @@ def compute_case(
 
     foam_case.save_spec_to_file(dest_dir / 'OF_spec.csv')
 
-    vtk_df = read_vtk(
-        working_dir / "OF_case" / f"VTK/OF_case_{latest_time}.vtk",
-        interest_b_box=interest_b_box
-    )
-
     manifest_data_dict = {
         "latest_time": latest_time,
         "vtk_file": dest_dir / f"fields_{latest_time}.vtk.gz",
         "absolute_path": dest_dir
     }
 
-    return vtk_df, manifest_data_dict
+    return manifest_data_dict
 
 
 def prepare_runner_files(work_dir: pathlib.Path, n_proc: int):
@@ -180,95 +131,6 @@ def prepare_runner_files(work_dir: pathlib.Path, n_proc: int):
     }
 
 
-def plot_results(results_df: pd.DataFrame, plots_dir: pathlib.Path):
-    plots_dir.mkdir(parents=True, exist_ok=True)
-    for porosity in results_df['porosity'].unique():
-        plot_df = results_df.loc[results_df["porosity"] == porosity]
-
-        plot_df.plot(
-            x='inlet_flow_rate',
-            y='tortuosity',
-            kind='scatter',
-            title=f'All geometries with porosity {porosity}'
-        )
-        plt.xlabel(r"Inlet Flow Rate [m$^3$/s]")
-        plt.ylabel("Tortuosity")
-        plt.grid(linestyle="--", color="gray")
-        plt.savefig(plots_dir / f"tortuosity_all_porosity_{porosity}.png")
-        plt.close()
-
-        plot_df.plot(
-            x='inlet_flow_rate',
-            y='participation_number',
-            kind='scatter',
-            title=f'All geometries with porosity {porosity}'
-        )
-        plt.xlabel(r"Inlet Flow Rate [m$^3$/s]")
-        plt.ylabel("Participation Number")
-        plt.grid(linestyle="--", color="gray")
-        plt.savefig(plots_dir / f"participation_number_all_porosity_{porosity}.png")
-        plt.close()
-
-        plot_df.plot(
-            x='inlet_flow_rate',
-            y='rho_minus',
-            kind='scatter',
-            title=f'All geometries with porosity {porosity}'
-        )
-        plt.xlabel(r"Inlet Flow Rate [m$^3$/s]")
-        plt.ylabel(r"$\rho^-$")
-        plt.grid(linestyle="--", color="gray")
-        plt.savefig(plots_dir / f"rho_minus_all_porosity_{porosity}.png")
-        plt.close()
-
-        for geom_no in plot_df["geometry_number"].unique():
-            geom_plot_df = plot_df.loc[plot_df["geometry_number"] == geom_no]
-            geom_plot_df.plot(
-                x='inlet_flow_rate',
-                y='tortuosity',
-                kind='scatter',
-                title=f'Geometry {geom_no} with porosity {porosity}'
-            )
-            plt.xlabel(r"Inlet Flow Rate [m$^3$/s]")
-            plt.ylabel("Tortuosity")
-            plt.grid(linestyle="--", color="gray")
-            plt.savefig(
-                plots_dir / f"tortuosity_porosity_{porosity}_geom_{geom_no}.png"
-            )
-            plt.close()
-
-            geom_plot_df.plot(
-                x='inlet_flow_rate',
-                y='participation_number',
-                kind='scatter',
-                title=f'Geometry {geom_no} with porosity {porosity}'
-            )
-            plt.xlabel(r"Inlet Flow Rate [m$^3$/s]")
-            plt.ylabel("Participation Number")
-            plt.grid(linestyle="--", color="gray")
-            plt.savefig(
-                plots_dir /
-                f"participation_number_porosity_{porosity}_geom_{geom_no}.png"
-            )
-            plt.close()
-
-            geom_plot_df.plot(
-                x='inlet_flow_rate',
-                y='rho_minus',
-                kind='scatter',
-                title=f'Geometry {geom_no} with porosity {porosity}'
-            )
-            plt.xlabel(r"Inlet Flow Rate [m$^3$/s]")
-            plt.ylabel(r"$\rho^-$")
-            plt.grid(linestyle="--", color="gray")
-            plt.savefig(
-                plots_dir / f"rho_minus_porosity_{porosity}_geom_{geom_no}.png"
-            )
-            plt.close()
-
-        logger.info("Graphs saved to %s", plots_dir)
-
-
 def main():
     args = parse_cla()
     start_time = time.time()
@@ -281,7 +143,7 @@ def main():
     cases_dir = results_dir / "cases"
     cases_dir.mkdir(parents=True, exist_ok=True)
 
-    setup_logging(
+    utils.setup_logging(
         verbose=args.verbose,
         log_file=results_dir / "experiment.log"
     )
@@ -292,7 +154,6 @@ def main():
 
     logger.info("Correctly read experiment config from %s", config_path)
 
-    results_rows = []
     manifest_rows = []
 
     shutil.copy(config_path, results_dir / "experiment_config.toml")
@@ -372,15 +233,12 @@ def main():
                 100 * total_cases_processed / cases_in_experiment
             )
 
-            vtk_df, case_manifest_info = compute_case(
+            case_manifest_info = compute_case(
                 foam_case=foam_case,
                 velocity=velocity,
                 working_dir=work_dir,
                 simple_foam_runner_path=simple_foam_runner_path,
                 prep_postproc_runner_path=prep_postproc_runner_path,
-                interest_b_box=tuple(
-                    config.case_cfg.medium.bounding_box.as_dict().values()
-                ),
                 dest_dir=velocity_dir
             )
             logger.debug(
@@ -390,22 +248,6 @@ def main():
             new_start_time = time.time()
 
             total_cases_processed += 1
-
-            results_rows.append({
-                "porosity": porosity,
-                "velocity": velocity,
-                "tortuosity": compute_tortuosity(
-                    vtk_df,
-                    streamwise_axis=foam_case.streamwise_axis
-                ),
-                "participation_number": compute_participation_number(vtk_df),
-                "rho_minus": compute_rho_minus(
-                    vtk_df,
-                    streamwise_axis=foam_case.streamwise_axis
-                ),
-                "inlet_flow_rate": velocity * foam_case.inlet_area,
-                "geometry_number": geom_num,
-            })
 
             manifest_rows.append({
                 "case_id": len(manifest_rows),
@@ -424,18 +266,15 @@ def main():
 
         shutil.rmtree(work_dir / 'OF_case')
 
-    results_df = pd.DataFrame(results_rows)
-
-    results_df.to_csv(results_dir / "results.csv", index=False)
-    logger.info("Results CSV saved to %s", results_dir / "results.csv")
-
     manifest_df = pd.DataFrame(manifest_rows)
     manifest_df.to_csv(results_dir / "manifest.csv", index=False)
     logger.info("Manifest CSV saved to %s", results_dir / "manifest.csv")
 
-    logger.debug("Plotting results...")
-    plots_dir = results_dir / "figures"
-    plot_results(results_df, plots_dir)
+    logger.info(
+        "Experiment finished. Post-process the results with "
+        "`python scripts/postprocess.py --results-dir %s`.",
+        results_dir,
+    )
 
 
 if __name__ == "__main__":

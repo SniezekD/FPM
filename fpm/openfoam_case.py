@@ -488,6 +488,7 @@ class OpenFoamCase():
                 self.u_boundary_types[f'{inlet_wall}_field_value']
             ],
             'inlet_area': [self.boundary_walls[f'wall_{inlet_wall}'].area],
+            'streamwise_axis': [self.streamwise_axis],
             'x_min': [self.bounding_box_coords['x_min']],
             'x_max': [self.bounding_box_coords['x_max']],
             'y_min': [self.bounding_box_coords['y_min']],
