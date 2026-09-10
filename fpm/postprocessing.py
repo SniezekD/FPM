@@ -44,6 +44,7 @@ class ExperimentPostProcessor():
         overwrite: bool = False,
     ) -> None:
         self.results_dir: pathlib.Path = results_dir
+        self.cases_dir: pathlib.Path = results_dir / "cases"
         self._overwrite = overwrite
         self.geometry_post_procs: List[GeometryPostProcessor] = (
             self.read_geometries()
@@ -59,11 +60,11 @@ class ExperimentPostProcessor():
         """
         geometry_dirs = sorted({
             spec.parent
-            for spec in self.results_dir.rglob("porous_medium_spec.csv")
+            for spec in self.cases_dir.rglob("porous_medium_spec.csv")
         })
         if not geometry_dirs:
             logger.warning(
-                "No geometries found under %s", self.results_dir
+                "No geometries found under %s", self.cases_dir
             )
         return [
             GeometryPostProcessor(d, overwrite=self._overwrite)
